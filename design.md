@@ -5,7 +5,7 @@ People:
 
 ## Overview
 
-This is an attempt to implement the browser DOM API as a Deno module to facilitate parsing of arbitrary HTML into a DOM tree, its manipulation, and (re)serialization into HTML form. The primary API is JS, in a Deno-based environment. The internal parsing and rendering facilities will implemented will be in Rust, with the JS-Rust interface achieved via wasmbindgen, and the user-land API implemented in TypeScript hopefully mirroring the actual DOM API we're familiar with.
+This is an attempt to implement the browser's DOM API as a Deno module; in an effort to facilitate parsing of arbitrary HTML into a DOM tree, its manipulation, and (re)serialization into HTML form. The primary API is JS, in a Deno-based environment. The internal parsing and rendering facilities will be implemented in Rust, with the JS-Rust interface achieved via wasmbindgen, and the user-land API implemented in TypeScript hopefully mirroring the actual DOM API we're familiar with.
 
 ## Motivation
 
@@ -46,13 +46,35 @@ It is known that proxies can incur runtime costs, as they are a somewhat magical
 
 One consideration is to make it opt-in by making `.attributes` a getter that will generate a `Proxy` on-the-fly when needed.
 
+### Memory Leaks
+
+Deno DOM's JS API will be light wrapper objects over a wasmbindgen handle to the document and its unique element ID. When objects are GC'd in JS land then the corresponding memory in Rust land might need to be freed. However the only mechanism for tracking GC cleanups in JS is the experimental `WeakRef` feature which is only enabled by toggling flags for V8 and SpiderMonkey.
+
 ### SVG
 
 ???
 
 ## Implementation
 
-TBD
+In JS land there will be typical classes like `HTMLDocument`, `Text`, `HTMLDivElement`, etc. However, in most cases these will only amount to hollow shells with internal handles to a document in Rust land, and a unique ID to the concerned element in its document. Most properties will be getters that consult the Rust document for element-specific properties, and they will also be cached on the JS land if the element is unchanged.
+
+### Caching
+
+In JS land there will be two caches for all nodes: caching specific to a node's own properties (classnames, attributes, etc), and caching specific to its children. If a node's children are unchanged then many operations on its children won't have to leave JS land, except for things like `querySelector[All]`, etc. Queries are generally required to cross into Rust land; however, there may be incentive to cache them.
+
+### Example Usage
+
+Example parsing a basic document
+```typescript
+import { DOMParser } from "./deno-dom/mod.ts"
+
+const doc = new DOMParser().parseFromString(`
+  <p>Hello <b>World!</b></p>
+`, "text/html");
+
+const text = doc.querySelector("p").childNodes[0].textContent;
+console.log(text); // "Hello "
+```
 
 <!-- vim:set textwidth=0: -->
 
