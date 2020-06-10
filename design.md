@@ -5,7 +5,7 @@ People:
 
 ## Overview
 
-This is an attempt to implement the browser DOM API as a Deno module to facilitate parsing of arbitrary HTML into a DOM tree, its manipulation, and (re)serialization into HTML form. The primary API is JS, in a Deno-based environment. The internal parsing and rendering facilities will implemented will be in Rust, with the JS-Rust interface achieved via wasmbindgen, and the user-land API implemented in TypeScript hopefully mirroring the actual DOM API we're familiar with.
+This is an attempt to implement the browser's DOM API as a Deno module; in an effort to facilitate parsing of arbitrary HTML into a DOM tree, its manipulation, and (re)serialization into HTML form. The primary API is JS, in a Deno-based environment. The internal parsing and rendering facilities will be implemented in Rust, with the JS-Rust interface achieved via wasmbindgen, and the user-land API implemented in TypeScript hopefully mirroring the actual DOM API we're familiar with.
 
 ## Motivation
 
@@ -52,7 +52,25 @@ One consideration is to make it opt-in by making `.attributes` a getter that wil
 
 ## Implementation
 
-TBD
+In JS land there will be typical classes like `HTMLDocument`, `Text`, `HTMLDivElement`, etc. These will be built from either parsing a document or directly from `document.createElement(...)`.
+
+### Caching
+
+Elements will cache various aspects of their children like class name maps, tag name maps, etc. It will also cache its `innerHTML`, `innerText`, and `textContent`.
+
+### Example Usage
+
+Example parsing a basic document
+```typescript
+import { DOMParser } from "./deno-dom/mod.ts"
+
+const doc = new DOMParser().parseFromString(`
+  <p>Hello <b>World!</b></p>
+`, "text/html");
+
+const text = doc.querySelector("p").childNodes[0].textContent;
+console.log(text); // "Hello "
+```
 
 <!-- vim:set textwidth=0: -->
 
