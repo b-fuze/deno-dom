@@ -1,0 +1,15 @@
+{
+  "name": "deno-dom-wasm",
+  "collaborators": [
+    "b-fuze <b-fuze.root@live.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "deno-wasm_bg.wasm",
+    "deno-wasm.js",
+    "deno-wasm.d.ts"
+  ],
+  "module": "deno-wasm.js",
+  "types": "deno-wasm.d.ts",
+  "sideEffects": false
+}
