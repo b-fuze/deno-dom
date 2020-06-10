@@ -1,8 +1,5 @@
-mod rcdom;
-mod common;
-
 use std::io::{self, Read};
-use common::parse;
+use core::parse;
 
 fn main() {
     let mut buf = String::new();

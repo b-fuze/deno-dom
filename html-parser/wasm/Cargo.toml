@@ -10,13 +10,6 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-html5ever = "0.25.1"
-markup5ever = "0.10.0"
-serde_json = "1.0"
-serde = "1.0.111"
 wasm-bindgen = "0.2.63"
-
-[dependencies.web-sys]
-version = "0.3.4"
-features = ['Window', 'Performance', 'PerformanceTiming']
+core = { path = "../core" }
 
