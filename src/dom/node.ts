@@ -64,7 +64,7 @@ export class Node extends EventTarget {
     if (parent) {
       const idx = parent.childNodes.indexOf(this);
       parent.childNodes.splice(idx, 1);
-      this.parentNode = null;
+      this.parentNode = this.parentElement = null;
     }
   }
 
@@ -73,6 +73,7 @@ export class Node extends EventTarget {
       child.remove();
     }
 
+    child.parentNode = child.parentElement = <Element> <unknown> this;
     this.childNodes.push(child);
   }
 
