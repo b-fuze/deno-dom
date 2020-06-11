@@ -31,7 +31,5 @@ function parse(html: string): string {
 // Register parse function
 register(parse);
 
-export { nodesFromString } from "./src/deserialize.ts";
-export * from "./src/dom/node.ts";
-export * from "./src/dom/element.ts";
+export * from "./src/api.ts";
 
