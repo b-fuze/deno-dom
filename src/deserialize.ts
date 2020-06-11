@@ -13,9 +13,11 @@ export function nodesFromString(html: string): Node {
 }
 
 function nodeFromArray(data: any, parentNode: Node | null): Node {
-  // data: [NodeType, [nodeName, attributes, childNodes] | [characterData]]
+  // For reference only:
+  // type node = [NodeType, nodeName, attributes, node[]]
+  //             | [NodeType, characterData]
   const elm = new Element(data[1], parentNode, data[2]);
-  const childNodes = elm.childNodes;
+  const childNodes = elm._getChildNodesMutator();
   let childNode: Node;
 
   for (const child of data.slice(3)) {

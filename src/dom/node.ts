@@ -1,4 +1,5 @@
 import { getLock, setLock } from "../constructor-lock.ts";
+import { NodeList, NodeListMutator, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
 
 export class EventTarget {
@@ -30,14 +31,11 @@ export const enum NodeType {
   NOTATION_NODE = 12,
 }
 
-export class NodeList extends Array<Node> {
-  // TODO?
-}
-
 export class Node extends EventTarget {
   public nodeValue: string | null;
   public childNodes: NodeList;
   public parentElement: Element | null;
+  #childNodesMutator: NodeListMutator;
 
   constructor(
     public nodeName: string,
@@ -50,8 +48,13 @@ export class Node extends EventTarget {
     }
 
     this.nodeValue = null;
-    this.childNodes = new NodeList;
+    this.childNodes = new NodeList();
+    this.#childNodesMutator = this.childNodes[nodeListMutatorSym]();
     this.parentElement = <Element> parentNode;
+  }
+
+  _getChildNodesMutator(): NodeListMutator {
+    return this.#childNodesMutator;
   }
 
   cloneNode() {
@@ -62,8 +65,9 @@ export class Node extends EventTarget {
     const parent = this.parentNode;
 
     if (parent) {
-      const idx = parent.childNodes.indexOf(this);
-      parent.childNodes.splice(idx, 1);
+      const nodeList = parent._getChildNodesMutator();
+      const idx = nodeList.indexOf(this);
+      nodeList.splice(idx, 1);
       this.parentNode = this.parentElement = null;
     }
   }
@@ -74,7 +78,7 @@ export class Node extends EventTarget {
     }
 
     child.parentNode = child.parentElement = <Element> <unknown> this;
-    this.childNodes.push(child);
+    this.#childNodesMutator.push(child);
   }
 
   removeChild(child: Node) {
