@@ -48,14 +48,14 @@ fn node_to_string(dom: &Rc<Node>) -> String {
             ref attrs,
             ..
         } => {
-            out = "[".to_owned() + &serde_json::to_string(&name.local).unwrap();
-            out += ", ";
+            out = "[1,".to_owned() + &serde_json::to_string(&name.local).unwrap();
+            out += ",";
             out += &element_attributes(attrs);
 
             let children = dom.children.borrow();
             let children_count = children.len();
             if children_count > 0 {
-                out += &", ".to_owned();
+                out += &",".to_owned();
 
                 let mut last_child_rendered = false;
                 for (idx, child) in children.iter().enumerate() {
@@ -63,7 +63,7 @@ fn node_to_string(dom: &Rc<Node>) -> String {
                     let child_string_len = child_string.len();
 
                     if last_child_rendered && child_string_len > 0 {
-                        out += ", ";
+                        out += ",";
                     }
 
                     out += &child_string;
@@ -80,7 +80,17 @@ fn node_to_string(dom: &Rc<Node>) -> String {
         NodeData::Text {
             ref contents,
         } => {
-            out = serde_json::to_string(&contents.borrow().to_string()).unwrap();
+            out = "[3,".to_owned();
+            out += &serde_json::to_string(&contents.borrow().to_string()).unwrap();
+            out += &"]".to_owned();
+        },
+
+        NodeData::Comment {
+            ref contents,
+        } => {
+            out = "[8,".to_owned();
+            out += &serde_json::to_string(&contents.to_string()).unwrap();
+            out += &"]".to_owned();
         },
 
         _ => {},
@@ -97,11 +107,11 @@ fn element_attributes(data: &RefCell<Vec<Attribute>>) -> String {
     for (idx, attr) in vec.iter().enumerate() {
         out += &"[".to_owned();
         out += &serde_json::to_string(&String::from(attr.name.local.as_ref())).unwrap();
-        out += &", ".to_owned();
+        out += &",".to_owned();
         out += &serde_json::to_string(&String::from(attr.value.as_ref())).unwrap();
 
         if idx + 1 < vec_count {
-            out += &"], ".to_owned();
+            out += &"],".to_owned();
         } else {
             out += &"]".to_owned();
         }

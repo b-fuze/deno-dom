@@ -15,7 +15,7 @@ export class EventTarget {
   }
 }
 
-export enum NodeType {
+export const enum NodeType {
   ELEMENT_NODE = 1,
   ATTRIBUTE_NODE = 2,
   TEXT_NODE = 3,
@@ -115,8 +115,7 @@ export class CharacterData extends Node {
 
 export class Text extends CharacterData {
   constructor(
-    text: string,
-    _: never = <never> <unknown> null,
+    text: string = "",
   ) {
     let oldLock = getLock();
     setLock(false);
@@ -124,7 +123,23 @@ export class Text extends CharacterData {
       text, 
       "#text", 
       NodeType.TEXT_NODE, 
-      _,
+      null,
+    );
+    setLock(oldLock);
+  }
+}
+
+export class Comment extends CharacterData {
+  constructor(
+    text: string = "",
+  ) {
+    let oldLock = getLock();
+    setLock(false);
+    super(
+      text, 
+      "#comment", 
+      NodeType.COMMENT_NODE, 
+      null,
     );
     setLock(oldLock);
   }
