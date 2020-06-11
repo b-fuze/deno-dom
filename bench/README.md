@@ -7,3 +7,6 @@ than Node.js' Parse5 on the first cold run, but as the V8 optimizer gets to
 work it gets just as fast or surpasses it consistently... Will need data to back
 up that claim though.
 
+Here's a naive benchmark though:
+![Naive Deno DOM native vs WASM vs Node.js Parse5 benchmark](./assets/naive-bench.png)
+
