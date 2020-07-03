@@ -1,15 +1,36 @@
+import {
+  prepare,
+  PerpareOptions,
+} from "https://deno.land/x/plugin_prepare@v0.6.0/mod.ts";
 import { register } from "./src/parser.ts";
 
 const nativeEnv = "DENO_DOM_EXECUTABLE";
 const denoNativePluginPath = Deno.env.get(nativeEnv);
 
-if (!denoNativePluginPath) {
-  console.error("Missing required environment variable " + nativeEnv);
-  Deno.exit(1);
-}
+if (denoNativePluginPath) {
+  // Open native plugin and register the native `parse` function
+  Deno.openPlugin(denoNativePluginPath);
+} else {
+  const releaseUrl = "https://github.com/b-fuze/deno-dom/releases/download/v0.1.0-alpha";
+  const pluginOptions: PerpareOptions = {
+    name: "test_plugin",
 
-// Open native plugin and register the native `parse` function
-Deno.openPlugin(denoNativePluginPath);
+    // Whether to output log. Optional, default is true
+    printLog: false,
+
+    // Whether to use locally cached files. Optional, default is true
+    // checkCache: true,
+
+    // Support "http://", "https://", "file://"
+    urls: {
+      darwin: releaseUrl + "/libplugin.dylib",
+      windows: releaseUrl + "/plugin.dll",
+      linux: releaseUrl + "/libplugin.so",
+    },
+  };
+
+  await prepare(pluginOptions);
+}
 
 type pluginId = number;
 interface DenoCore {
