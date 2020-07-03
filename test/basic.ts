@@ -13,6 +13,6 @@ console.log([] instanceof Array);
 console.log(Array.isArray([]));
 
 for (const child of nodes.childNodes) {
-  console.log("child", child + 1);
+  console.log("child", child);
 }
 

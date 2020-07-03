@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {string} html 
-* @returns {string} 
+* @param {string} html
+* @returns {string}
 */
 export function parse(html: string): string;
 

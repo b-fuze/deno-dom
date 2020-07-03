@@ -2,3 +2,4 @@ html-parser/*/target
 Cargo.lock
 node_modules
 .deno_plugins
+/target
