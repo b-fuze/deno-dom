@@ -1,6 +1,7 @@
 import { getLock, setLock } from "../constructor-lock.ts";
 import { NodeList, NodeListMutator, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
+import { Document } from "./document.ts";
 
 export class EventTarget {
   addEventListener() {
@@ -36,6 +37,7 @@ export class Node extends EventTarget {
   public childNodes: NodeList;
   public parentElement: Element | null;
   #childNodesMutator: NodeListMutator;
+  #ownerDocument: Document | null = null;
 
   constructor(
     public nodeName: string,
@@ -51,10 +53,22 @@ export class Node extends EventTarget {
     this.childNodes = new NodeList();
     this.#childNodesMutator = this.childNodes[nodeListMutatorSym]();
     this.parentElement = <Element> parentNode;
+
+    if (parentNode) {
+      parentNode.appendChild(this);
+    }
   }
 
   _getChildNodesMutator(): NodeListMutator {
     return this.#childNodesMutator;
+  }
+
+  _setOwnerDocument(document: Document | null) {
+    this.#ownerDocument = document;
+  }
+
+  get ownerDocument() {
+    return this.#ownerDocument;
   }
 
   cloneNode() {
@@ -73,11 +87,19 @@ export class Node extends EventTarget {
   }
 
   appendChild(child: Node) {
-    if (child.parentNode) {
+    const oldParentNode = child.parentNode;
+
+    // Check if we already own this child
+    if (oldParentNode === this) {
+      if (this.#childNodesMutator.indexOf(child) !== -1) {
+        return;
+      }
+    } else if (oldParentNode) {
       child.remove();
     }
 
     child.parentNode = child.parentElement = <Element> <unknown> this;
+    child._setOwnerDocument(this.#ownerDocument);
     this.#childNodesMutator.push(child);
   }
 
@@ -124,9 +146,9 @@ export class Text extends CharacterData {
     let oldLock = getLock();
     setLock(false);
     super(
-      text, 
-      "#text", 
-      NodeType.TEXT_NODE, 
+      text,
+      "#text",
+      NodeType.TEXT_NODE,
       null,
     );
     setLock(oldLock);
@@ -140,9 +162,9 @@ export class Comment extends CharacterData {
     let oldLock = getLock();
     setLock(false);
     super(
-      text, 
-      "#comment", 
-      NodeType.COMMENT_NODE, 
+      text,
+      "#comment",
+      NodeType.COMMENT_NODE,
       null,
     );
     setLock(oldLock);
