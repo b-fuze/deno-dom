@@ -1,4 +1,4 @@
-import { parse } from "./parser.ts";
+import { parse, parseFrag } from "./parser.ts";
 import { setLock } from "./constructor-lock.ts";
 import { Node, NodeType, Text, Comment } from "./dom/node.ts";
 import { Element } from "./dom/element.ts";
@@ -33,18 +33,18 @@ function nodeFromArray(data: any, parentNode: Node | null): Node {
     switch (child[0]) {
       case NodeType.TEXT_NODE:
         childNode = new Text(child[1]);
-        childNode.parentNode = childNode.parentElement = <Element> parentNode;
+        childNode.parentNode = childNode.parentElement = <Element> elm;
         childNodes.push(childNode);
         break;
 
       case NodeType.COMMENT_NODE:
         childNode = new Comment(child[1]);
-        childNode.parentNode = childNode.parentElement = <Element> parentNode;
+        childNode.parentNode = childNode.parentElement = <Element> elm;
         childNodes.push(childNode);
         break;
 
       case NodeType.ELEMENT_NODE:
-        childNodes.push(nodeFromArray(child, elm));
+        nodeFromArray(child, elm);
         break;
     }
   }
