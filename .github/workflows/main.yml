@@ -63,18 +63,6 @@ jobs:
           rm target/release/gn_root -Recurse -ErrorAction Ignore
           rm target/debug/gn_root -Recurse -ErrorAction Ignore
 
-      # - name: Install python
-      #   uses: actions/setup-python@v1
-      #   with:
-      #     python-version: "2.7.x"
-      #     architecture: x64
-
-      # - name: Install ubuntu deps
-      #   if: matrix.os == 'ubuntu-latest'
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install libdbus-1-dev x11-xserver-utils wmctrl libxtst-dev cmake libc-dev libx11-dev libxcb1-dev
-
       - name: Build
         env:
           RUST_BACKTRACE: 1
