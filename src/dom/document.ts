@@ -107,6 +107,7 @@ export class Document extends Node {
       null,
     );
 
+    setLock(false);
     this.implementation = new DOMImplementation();
     setLock(true);
   }
@@ -147,6 +148,11 @@ export class Document extends Node {
 
   _setDocumentTitle(title: string) {
     this.#title = title;
+  }
+
+  appendChild(child: Node) {
+    super.appendChild(child);
+    child._setOwnerDocument(this);
   }
 
   createElement(tagName: string, options?: ElementCreationOptions): Element {
