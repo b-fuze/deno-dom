@@ -15,3 +15,7 @@ deno run --allow-read basic.ts
 Deno DOM has two backends, WASM and native (not functional yet). You can use the
 respective by importing either `deno-dom-wasm.ts` or `deno-dom-native.ts`.
 
+# Credits
+ - html5ever developers for the HTML parser
+ - nwsapi developers for the selector parser
+

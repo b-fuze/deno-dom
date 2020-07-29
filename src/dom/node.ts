@@ -64,7 +64,13 @@ export class Node extends EventTarget {
   }
 
   _setOwnerDocument(document: Document | null) {
-    this.#ownerDocument = document;
+    if (this.#ownerDocument !== document) {
+      this.#ownerDocument = document;
+
+      for (const child of this.childNodes) {
+        child._setOwnerDocument(document);
+      }
+    }
   }
 
   get ownerDocument() {

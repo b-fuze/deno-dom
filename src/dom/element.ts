@@ -1,6 +1,6 @@
 import { getLock } from "../constructor-lock.ts";
-import { Node, NodeType } from "./node.ts";
 import { fragmentNodesFromString } from "../deserialize.ts";
+import { Node, NodeType, Text } from "./node.ts";
 
 export class DOMTokenList extends Set<string> {
   contains(token: string): boolean {
@@ -56,6 +56,8 @@ export class Element extends Node {
   public classList = new DOMTokenList();
   public attributes: NamedNodeMap & {[attribute: string]: string} = <any> new NamedNodeMap();
 
+  #currentId = "";
+
   constructor(
     public tagName: string,
     parentNode: Node | null,
@@ -72,7 +74,18 @@ export class Element extends Node {
 
     for (const attr of attributes) {
       this.attributes[attr[0]] = attr[1];
+
+      switch (attr[0]) {
+        case "class":
+          this.classList = new DOMTokenList(attr[1].split(/\s+/g));
+          break;
+        case "id":
+          this.#currentId = attr[1];
+          break;
+      }
     }
+
+    this.tagName = tagName.toUpperCase();
   }
 
   get className(): string {
@@ -80,7 +93,8 @@ export class Element extends Node {
   }
 
   set className(className: string) {
-    // TODO
+    // TODO: Probably don't replace the current classList
+    this.classList = new DOMTokenList(className.split(/\s+/g));
   }
 
   get outerHTML(): string {
@@ -177,12 +191,33 @@ export class Element extends Node {
     }
   }
 
+  get id(): string {
+    return this.#currentId || "";
+  }
+
+  set id(id: string) {
+    this.setAttribute(id, this.#currentId = id);
+  }
+
   getAttribute(name: string): string | null {
     return this.attributes[name] ?? null;
   }
 
   setAttribute(name: string, value: any) {
     this.attributes[name] = "" + value;
+
+    if (name === "id") {
+      this.#currentId = value;
+    }
+  }
+
+  hasAttribute(name: string): boolean {
+    return this.attributes.hasOwnProperty(name);
+  }
+
+  hasAttributeNS(_namespace: string, name: string): boolean {
+    // TODO: Use namespace
+    return this.attributes.hasOwnProperty(name);
   }
 
   get nextElementSibling(): Element | null {
@@ -229,6 +264,65 @@ export class Element extends Node {
     }
 
     return prev;
+  }
+
+  // TODO: DRY!!!
+  getElementById(id: string): Element | null {
+    for (const child of this.childNodes) {
+      if (child.nodeType === NodeType.ELEMENT_NODE) {
+        if ((<Element> child).id === id) {
+          return <Element> child;
+        }
+
+        const search = (<Element> child).getElementById(id);
+        if (search) {
+          return search;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  getElementsByTagName(tagName: string): Element[] {
+    return <Element[]> this._getElementsByTagName(tagName.toUpperCase(), []);
+  }
+
+  private _getElementsByTagName(tagName: string, search: Node[]): Node[] {
+    for (const child of this.childNodes) {
+      if (child.nodeType === NodeType.ELEMENT_NODE) {
+        if ((<Element> child).tagName === tagName) {
+          search.push(child);
+        }
+
+        (<Element> child)._getElementsByTagName(tagName, search);
+      }
+    }
+
+    return search;
+  }
+
+  getElementsByClassName(className: string): Element[] {
+    return <Element[]> this._getElementsByClassName(className, []);
+  }
+
+  getElementsByTagNameNS(_namespace: string, localName: string): Element[] {
+    // TODO: Use namespace
+    return this.getElementsByTagName(localName);
+  }
+
+  private _getElementsByClassName(className: string, search: Node[]): Node[] {
+    for (const child of this.childNodes) {
+      if (child.nodeType === NodeType.ELEMENT_NODE) {
+        if ((<Element> child).classList.contains(className)) {
+          search.push(child);
+        }
+
+        (<Element> child)._getElementsByClassName(className, search);
+      }
+    }
+
+    return search;
   }
 }
 

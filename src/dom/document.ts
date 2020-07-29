@@ -1,6 +1,7 @@
 import { setLock, getLock } from "../constructor-lock.ts";
 import { Node, NodeType, Text, Comment } from "./node.ts";
 import { Element } from "./element.ts";
+import { DOM as NWAPI } from "./nwsapi-types.ts";
 
 export class DOMImplementation {
   constructor() {
@@ -99,6 +100,7 @@ export class Document extends Node {
   #lockState = false;
   #documentURI = "about:blank"; // TODO
   #title = "";
+  #nwapi = NWAPI(this);
 
   constructor() {
     super(
@@ -136,6 +138,10 @@ export class Document extends Node {
     return false;
   }
 
+  get compatMode(): string {
+    return "CSS1Compat";
+  }
+
   get documentElement(): Element | null {
     for (const node of this.childNodes) {
       if (node.nodeType === NodeType.ELEMENT_NODE) {
@@ -171,6 +177,76 @@ export class Document extends Node {
 
   createComment(data?: string): Comment {
     return new Comment(data);
+  }
+
+  querySelector(selectors: string): Element | null {
+    return this.#nwapi.first(selectors, this);
+  }
+
+  querySelectorAll(selectors: string): Element[] {
+    return this.#nwapi.select(selectors, this);
+  }
+
+  // TODO: DRY!!!
+  getElementById(id: string): Element | null {
+    for (const child of this.childNodes) {
+      if (child.nodeType === NodeType.ELEMENT_NODE) {
+        if ((<Element> child).id === id) {
+          return <Element> child;
+        }
+
+        const search = (<Element> child).getElementById(id);
+        if (search) {
+          return search;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  getElementsByTagName(tagName: string): Element[] {
+    return <Element[]> this._getElementsByTagName(tagName.toUpperCase(), []);
+  }
+
+  private _getElementsByTagName(tagName: string, search: Node[]): Node[] {
+    for (const child of this.childNodes) {
+      if (child.nodeType === NodeType.ELEMENT_NODE) {
+        if ((<Element> child).tagName === tagName) {
+          search.push(child);
+        }
+
+        (<any> child)._getElementsByTagName(tagName, search);
+      }
+    }
+
+    return search;
+  }
+
+  getElementsByTagNameNS(_namespace: string, localName: string): Element[] {
+    return this.getElementsByTagName(localName);
+  }
+
+  getElementsByClassName(className: string): Element[] {
+    return <Element[]> this._getElementsByClassName(className, []);
+  }
+
+  private _getElementsByClassName(className: string, search: Node[]): Node[] {
+    for (const child of this.childNodes) {
+      if (child.nodeType === NodeType.ELEMENT_NODE) {
+        if ((<Element> child).classList.contains(className)) {
+          search.push(child);
+        }
+
+        (<any> child)._getElementsByClassName(className, search);
+      }
+    }
+
+    return search;
+  }
+
+  hasFocus(): boolean {
+    return true;
   }
 }
 
