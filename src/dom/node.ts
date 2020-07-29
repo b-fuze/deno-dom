@@ -71,6 +71,32 @@ export class Node extends EventTarget {
     return this.#ownerDocument;
   }
 
+  get textContent(): string {
+    let out = "";
+
+    for (const child of this.childNodes) {
+      switch (child.nodeType) {
+        case NodeType.TEXT_NODE:
+          out += child.nodeValue;
+          break;
+        case NodeType.ELEMENT_NODE:
+          out += child.textContent;
+          break;
+      }
+    }
+
+    return out;
+  }
+
+  set textContent(content: string) {
+    for (const child of this.childNodes) {
+      child.parentNode = child.parentElement = null;
+    }
+
+    this._getChildNodesMutator().splice(0, this.childNodes.length);
+    this.appendChild(new Text(content));
+  }
+
   cloneNode() {
     // TODO
   }
@@ -177,7 +203,13 @@ export class Text extends CharacterData {
       NodeType.TEXT_NODE,
       null,
     );
+
+    this.nodeValue = text;
     setLock(oldLock);
+  }
+
+  get textContent(): string {
+    return <string> this.nodeValue;
   }
 }
 
@@ -193,7 +225,13 @@ export class Comment extends CharacterData {
       NodeType.COMMENT_NODE,
       null,
     );
+
+    this.nodeValue = text;
     setLock(oldLock);
+  }
+
+  get textContent(): string {
+    return <string> this.nodeValue;
   }
 }
 

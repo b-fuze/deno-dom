@@ -1,7 +1,7 @@
 import {
   prepare,
   PerpareOptions,
-} from "https://deno.land/x/plugin_prepare@v0.6.0/mod.ts";
+} from "https://raw.githubusercontent.com/b-fuze/deno-plugin-prepare/master/mod.ts";
 import { register } from "./src/parser.ts";
 
 const nativeEnv = "DENO_DOM_EXECUTABLE";
@@ -41,7 +41,7 @@ interface DenoCore {
 };
 
 const core = <DenoCore> (<any> <unknown> Deno).core;
-const { denoDomParseSync } = core.ops();
+const { denoDomParseSync, denoDomParseFragSync } = core.ops();
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -49,8 +49,12 @@ function parse(html: string): string {
   return decoder.decode(core.dispatch(denoDomParseSync, encoder.encode(html)));
 }
 
+function parseFrag(html: string): string {
+  return decoder.decode(core.dispatch(denoDomParseFragSync, encoder.encode(html)));
+}
+
 // Register parse function
-register(parse);
+register(parse, parseFrag);
 
 export * from "./src/api.ts";
 

@@ -1,5 +1,6 @@
 import { getLock } from "../constructor-lock.ts";
 import { Node, NodeType } from "./node.ts";
+import { fragmentNodesFromString } from "../deserialize.ts";
 
 export class DOMTokenList extends Set<string> {
   contains(token: string): boolean {
@@ -80,6 +81,100 @@ export class Element extends Node {
 
   set className(className: string) {
     // TODO
+  }
+
+  get outerHTML(): string {
+    const tagName = this.tagName.toLowerCase();
+    const attributes = this.attributes;
+    let out = "<" + tagName;
+
+    for (const attribute of Object.getOwnPropertyNames(attributes)) {
+      out += ` ${ attribute.toLowerCase() }`;
+
+      if (attributes[attribute] != null) {
+        out += `="${
+          attributes[attribute]
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;")
+        }"`;
+      }
+    }
+
+    // Special handling for void elements
+    switch (this.tagName) {
+      case "area":
+      case "base":
+      case "br":
+      case "col":
+      case "embed":
+      case "hr":
+      case "img":
+      case "input":
+      case "link":
+      case "meta":
+      case "param":
+      case "source":
+      case "track":
+      case "wbr":
+        if (this.childNodes.length > 1) {
+          // What happened to the DOM lol
+          out += ">" + this.innerHTML + `</${ tagName }>`;
+        } else {
+          out += ">";
+        }
+        break;
+
+      default:
+        out += ">" + this.innerHTML + `</${ tagName }>`;
+        break;
+    }
+
+    return out;
+  }
+
+  set outerHTML(html: string) {
+    // TODO: Someday...
+  }
+
+  get innerHTML(): string {
+    let out = "";
+
+    for (const child of this.childNodes) {
+      switch (child.nodeType) {
+        case NodeType.ELEMENT_NODE:
+          out += (<Element> child).outerHTML;
+          break;
+        case NodeType.TEXT_NODE:
+          out += (<Text> child).data
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+          break;
+      }
+    }
+
+    return out;
+  }
+
+  set innerHTML(html: string) {
+    // Remove all children
+    for (const child of this.childNodes) {
+      child.parentNode = child.parentElement = null;
+    }
+
+    const mutator = this._getChildNodesMutator();
+    mutator.splice(0, this.childNodes.length);
+
+    if (html.length) {
+      const parsed = fragmentNodesFromString(html);
+      mutator.push(...parsed.childNodes);
+
+      for (const child of this.childNodes) {
+        child.parentNode = child.parentElement = this;
+      }
+    }
   }
 
   getAttribute(name: string): string | null {

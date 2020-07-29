@@ -1,16 +1,22 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {string} html
-* @returns {string}
+* @param {string} html 
+* @returns {string} 
 */
 export function parse(html: string): string;
+/**
+* @param {string} html 
+* @returns {string} 
+*/
+export function parse_frag(html: string): string;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly parse: (a: number, b: number, c: number) => void;
+  readonly parse_frag: (a: number, b: number, c: number) => void;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_free: (a: number, b: number) => void;

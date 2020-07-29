@@ -12,6 +12,15 @@ export function nodesFromString(html: string): Node {
   return node;
 }
 
+export function fragmentNodesFromString(html: string): Node {
+  setLock(false);
+  const parsed = JSON.parse(parseFrag(html));
+  const node = nodeFromArray(parsed, null);
+  setLock(true);
+
+  return node;
+}
+
 function nodeFromArray(data: any, parentNode: Node | null): Node {
   // For reference only:
   // type node = [NodeType, nodeName, attributes, node[]]

@@ -4,8 +4,11 @@ use std::rc::{Rc, Weak};
 use std::cell::{Cell, RefCell};
 use markup5ever::interface::tree_builder::TreeSink;
 use markup5ever::Attribute;
+use markup5ever::{QualName, Namespace, LocalName, Prefix};
+use html5ever::{ns, namespace_prefix, namespace_url};
 use html5ever::tendril::stream::TendrilSink;
 use html5ever::driver::parse_document;
+use html5ever::driver::parse_fragment;
 use html5ever::driver::ParseOpts;
 use crate::rcdom::RcDom;
 use crate::rcdom::Node;
@@ -15,6 +18,23 @@ use serde_json;
 pub fn parse(html: String) -> String {
     let sink: RcDom = Default::default();
     let parser = parse_document(sink, Default::default());
+
+    let dom = parser.one(html);
+    dom_to_string(&dom)
+}
+
+pub fn parse_frag(html: String) -> String {
+    let sink: RcDom = Default::default();
+    let parser = parse_fragment(
+        sink, 
+        Default::default(),
+        QualName::new(
+            None,
+            ns!(html),
+            LocalName::from("div"),
+        ),
+        vec![],
+    );
 
     let dom = parser.one(html);
     dom_to_string(&dom)
