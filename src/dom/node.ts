@@ -110,6 +110,32 @@ export class Node extends EventTarget {
   replaceChild(child: Node) {
     // TODO
   }
+
+  get nextSibling(): Node | null {
+    const parent = this.parentNode;
+
+    if (!parent) {
+      return null;
+    }
+
+    const index = parent._getChildNodesMutator().indexOf(this);
+    let next: Node | null = this.childNodes[index + 1] || null;
+
+    return next;
+  }
+
+  get previousSibling(): Node | null {
+    const parent = this.parentNode;
+
+    if (!parent) {
+      return null;
+    }
+
+    const index = parent._getChildNodesMutator().indexOf(this);
+    let prev: Node | null = this.childNodes[index - 1] || null;
+
+    return prev;
+  }
 }
 
 export class CharacterData extends Node {

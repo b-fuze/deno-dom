@@ -89,5 +89,51 @@ export class Element extends Node {
   setAttribute(name: string, value: any) {
     this.attributes[name] = "" + value;
   }
+
+  get nextElementSibling(): Element | null {
+    const parent = this.parentNode;
+
+    if (!parent) {
+      return null;
+    }
+
+    const index = parent._getChildNodesMutator().indexOf(this);
+    const childNodes = parent.childNodes;
+    let next: Element | null = null;
+
+    for (let i = index + 1; i < childNodes.length; i++) {
+      const sibling = childNodes[i];
+
+      if (sibling.nodeType === NodeType.ELEMENT_NODE) {
+        next = <Element> sibling;
+        break;
+      }
+    }
+
+    return next;
+  }
+
+  get previousElementSibling(): Element | null {
+    const parent = this.parentNode;
+
+    if (!parent) {
+      return null;
+    }
+
+    const index = parent._getChildNodesMutator().indexOf(this);
+    const childNodes = parent.childNodes;
+    let prev: Element | null = null;
+
+    for (let i = index - 1; i >= 0; i--) {
+      const sibling = childNodes[i];
+
+      if (sibling.nodeType === NodeType.ELEMENT_NODE) {
+        prev = <Element> sibling;
+        break;
+      }
+    }
+
+    return prev;
+  }
 }
 
