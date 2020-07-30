@@ -43,21 +43,6 @@ const NodeListClass: any = (() => {
     }
   }
 
-  // Prevent childNodes from being seen as an array
-  const oldHasInstance = Array[Symbol.hasInstance];
-  Object.defineProperty(Array, Symbol.hasInstance, {
-    value: (value: any): boolean => {
-      return value.constructor === NodeList ? false : oldHasInstance.call(Array, value);
-    },
-  });
-
-  const oldIsArray = Array.isArray;
-  Object.defineProperty(Array, "isArray", {
-    value: (value: any): boolean => {
-      return value.constructor === NodeList ? false : oldIsArray.call(Array, value);
-    },
-  });
-
   return NodeList;
 })();
 
