@@ -1,5 +1,6 @@
 import { getLock, setLock } from "../constructor-lock.ts";
 import { NodeList, NodeListMutator, nodeListMutatorSym } from "./node-list.ts";
+import { HTMLCollection, HTMLCollectionMutator, HTMLCollectionMutatorSym } from "./html-collection.ts";
 import { Element } from "./element.ts";
 import { Document } from "./document.ts";
 
@@ -141,6 +142,19 @@ export class Node extends EventTarget {
 
   replaceChild(child: Node) {
     // TODO
+  }
+
+  get children(): HTMLCollection {
+    const collection = new HTMLCollection();
+    const mutator = collection[HTMLCollectionMutatorSym]();
+
+    for (const child of this.childNodes) {
+      if (child.nodeType === NodeType.ELEMENT_NODE) {
+        mutator.push(<Element> child);
+      }
+    }
+
+    return collection;
   }
 
   get nextSibling(): Node | null {
