@@ -1,5 +1,6 @@
 import { setLock, getLock } from "../constructor-lock.ts";
 import { Node, NodeType, Text, Comment } from "./node.ts";
+import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
 import { DOM as NWAPI } from "./nwsapi-types.ts";
 
@@ -183,8 +184,12 @@ export class Document extends Node {
     return this.#nwapi.first(selectors, this);
   }
 
-  querySelectorAll(selectors: string): Element[] {
-    return this.#nwapi.select(selectors, this);
+  querySelectorAll(selectors: string): NodeList {
+    const nodeList = new NodeList();
+    const mutator = nodeList[nodeListMutatorSym]();
+    mutator.push(...this.#nwapi.select(selectors, this))
+
+    return nodeList;
   }
 
   // TODO: DRY!!!
