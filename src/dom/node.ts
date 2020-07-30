@@ -33,6 +33,19 @@ export const enum NodeType {
   NOTATION_NODE = 12,
 }
 
+const nodesAndTextNodes = (nodes: (Node | any)[], parentNode: Node) => {
+  return nodes.map(n => {
+    let node = n;
+
+    if (!(n instanceof Node)) {
+      node = new Text("" + n);
+    }
+
+    node.parentNode = node.parentElement = parentNode;
+    return node;
+  });
+}
+
 export class Node extends EventTarget {
   public nodeValue: string | null;
   public childNodes: NodeList;
@@ -142,6 +155,18 @@ export class Node extends EventTarget {
 
   replaceChild(child: Node) {
     // TODO
+  }
+
+  replaceWith(...nodes: (Node | string)[]) {
+    if (this.parentNode) {
+      const parentNode = this.parentNode;
+      const mutator = parentNode._getChildNodesMutator();
+      const index = mutator.indexOf(this);
+      nodes = nodesAndTextNodes(nodes, parentNode);
+
+      mutator.splice(index, 1, ...(<Node[]> nodes));
+      this.parentNode = this.parentElement = null;
+    }
   }
 
   get children(): HTMLCollection {
