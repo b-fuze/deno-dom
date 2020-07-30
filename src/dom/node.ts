@@ -157,6 +157,27 @@ export class Node extends EventTarget {
     // TODO
   }
 
+  private insertBeforeAfter(nodes: (Node | string)[], side: number) {
+    const parentNode = this.parentNode!;
+    const mutator = parentNode._getChildNodesMutator();
+    const index = mutator.indexOf(this);
+    nodes = nodesAndTextNodes(nodes, parentNode);
+
+    mutator.splice(index + side, 0, ...(<Node[]> nodes));
+  }
+
+  before(...nodes: (Node | string)[]) {
+    if (this.parentNode) {
+      this.insertBeforeAfter(nodes, 0);
+    }
+  }
+
+  after(...nodes: (Node | string)[]) {
+    if (this.parentNode) {
+      this.insertBeforeAfter(nodes, 1);
+    }
+  }
+
   replaceWith(...nodes: (Node | string)[]) {
     if (this.parentNode) {
       const parentNode = this.parentNode;
