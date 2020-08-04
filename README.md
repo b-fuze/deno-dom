@@ -5,7 +5,7 @@ Rust, WASM, and obviously, Deno/TypeScript.
 
 ## Example
 ```typescript
-import { DOMParser, Element } from "./deno-dom-wasm.ts";
+import { DOMParser, Element } from "https://deno.land/x/deno_dom@v0.1.0-alpha2/deno-dom-wasm.ts";
 
 const doc = new DOMParser().parseFromString(`
   <h1>Hello World!</h1>
@@ -18,7 +18,7 @@ console.log(p.textContent); // "Hello from Deno!"
 console.log(p.childNodes[1].textContent); // "Deno!"
 
 p.innerHTML = "DOM in <b>Deno</b> is pretty cool";
-console.log((<Element> p.childNodes[1]).outerHTML); // "<b>Deno</b>"
+console.log(p.children[0].outerHTML); // "<b>Deno</b>"
 ```
 
 Deno DOM has **two** backends, WASM and native using Deno native plugins. Both 
