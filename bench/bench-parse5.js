@@ -5,6 +5,11 @@ const { performance } = require("perf_hooks");
 const c = fs.readFileSync(__dirname + "/c.html", "utf8");
 
 const runs = 20;
+
+for (let i=0; i<runs; i++) {
+  const document = parse5.parse(c);
+}
+
 let avgAccum = 0;
 
 for (let i=0; i<runs; i++) {

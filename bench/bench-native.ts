@@ -2,6 +2,11 @@ import { nodesFromString } from "../deno-dom-native.ts";
 
 const c = Deno.readTextFileSync("./c.html");
 const runs = 20;
+
+for (let i=0; i<runs; i++) {
+  const parsed = nodesFromString(c);
+}
+
 let avgAccum = 0;
 
 for (let i=0; i<runs; i++) {
