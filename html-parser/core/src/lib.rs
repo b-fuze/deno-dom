@@ -1,32 +1,39 @@
 mod rcdom;
 
-use std::rc::{Rc, Weak};
-use std::cell::{Cell, RefCell};
-use markup5ever::interface::tree_builder::TreeSink;
-use markup5ever::Attribute;
-use markup5ever::{QualName, Namespace, LocalName, Prefix};
-use html5ever::{ns, namespace_prefix, namespace_url};
-use html5ever::tendril::stream::TendrilSink;
-use html5ever::driver::parse_document;
-use html5ever::driver::parse_fragment;
-use html5ever::driver::ParseOpts;
-use crate::rcdom::RcDom;
 use crate::rcdom::Node;
 use crate::rcdom::NodeData;
-use serde_json;
+pub use crate::rcdom::RcDom;
+use html5ever::driver::parse_document;
+use html5ever::driver::parse_fragment;
+use html5ever::tendril::stream::TendrilSink;
+use html5ever::{namespace_url, ns};
+use markup5ever::Attribute;
+use markup5ever::{LocalName, QualName};
+use std::cell::RefCell;
+use std::io::Write;
+use std::rc::Rc;
+
+pub fn pre_parse(html: String) -> RcDom {
+    let sink: RcDom = Default::default();
+    let parser = parse_document(sink, Default::default());
+
+    parser.one(html)
+}
 
 pub fn parse(html: String) -> String {
+    let len = html.len();
     let sink: RcDom = Default::default();
     let parser = parse_document(sink, Default::default());
 
     let dom = parser.one(html);
-    dom_to_string(&dom)
+    dom_to_string(len, &dom)
 }
 
 pub fn parse_frag(html: String) -> String {
+    let len = html.len();
     let sink: RcDom = Default::default();
     let parser = parse_fragment(
-        sink, 
+        sink,
         Default::default(),
         QualName::new(
             None,
@@ -37,11 +44,13 @@ pub fn parse_frag(html: String) -> String {
     );
 
     let dom = parser.one(html);
-    dom_to_string(&dom)
+    dom_to_string(len, &dom)
 }
 
-pub fn dom_to_string(dom: &RcDom) -> String {
-    node_to_string(&dom.document)
+fn dom_to_string(input_len: usize, dom: &RcDom) -> String {
+    let mut buf = Vec::with_capacity(input_len + input_len / 3);
+    serialize_node(&mut buf, &dom.document);
+    String::from_utf8(buf).expect("serialize_node failed to produce valid UTF-8")
 }
 
 enum NodeType {
@@ -50,102 +59,89 @@ enum NodeType {
     Irrelevant,
 }
 
-fn node_to_string(dom: &Rc<Node>) -> String {
-    let mut out = String::new();
-
+fn serialize_node(buf: &mut Vec<u8>, dom: &Rc<Node>) {
     match dom.data {
         NodeData::Document => {
             let children = dom.children.borrow();
             if children.len() > 0 {
                 for child in children.iter() {
-                    out += &node_to_string(child);
+                    serialize_node(&mut *buf, child);
                 }
             }
-        },
+        }
 
         NodeData::Element {
             ref name,
             ref attrs,
             ..
         } => {
-            out = "[1,".to_owned() + &serde_json::to_string(&name.local).unwrap();
-            out += ",";
-            out += &element_attributes(attrs);
+            write!(&mut *buf, "[1,").unwrap();
+            serde_json::to_writer(&mut *buf, &name.local).unwrap();
+            write!(&mut *buf, ",").unwrap();
+            serialize_element_attributes(buf, attrs);
 
             let children = dom.children.borrow();
-            let children_count = children.len();
-            if children_count > 0 {
-                out += &",".to_owned();
 
-                let mut last_child_rendered = false;
-                for (idx, child) in children.iter().enumerate() {
-                    let child_string = node_to_string(child);
-                    let child_string_len = child_string.len();
-
-                    if last_child_rendered && child_string_len > 0 {
-                        out += ",";
-                    }
-
-                    out += &child_string;
-
-                    if child_string_len > 0 {
-                        last_child_rendered = true;
-                    }
+            let mut last_child_rendered = true;
+            for child in children.iter() {
+                if last_child_rendered {
+                    // assume something will be written
+                    buf.push(b',');
                 }
+                let child_rendered = {
+                    let len_before = buf.len();
+                    serialize_node(&mut *buf, child);
+                    let len_after = buf.len();
+
+                    len_after - len_before > 0
+                };
+
+                last_child_rendered = child_rendered;
             }
 
-            out += "]";
-        },
+            if !last_child_rendered {
+                // remove comma that was written if it turns out that
+                // nothing was written by the last child
+                // (or at least, nothing was written since the last comma)
+                buf.pop().unwrap();
+            }
 
-        NodeData::Text {
-            ref contents,
-        } => {
-            out = "[3,".to_owned();
-            out += &serde_json::to_string(&contents.borrow().to_string()).unwrap();
-            out += &"]".to_owned();
-        },
+            write!(&mut *buf, "]").unwrap();
+        }
 
-        NodeData::Comment {
-            ref contents,
-        } => {
-            out = "[8,".to_owned();
-            out += &serde_json::to_string(&contents.to_string()).unwrap();
-            out += &"]".to_owned();
-        },
+        NodeData::Text { ref contents } => {
+            write!(&mut *buf, "[3,").unwrap();
+            serde_json::to_writer(&mut *buf, contents.borrow().as_ref()).unwrap();
+            write!(&mut *buf, "]").unwrap();
+        }
 
-        _ => {},
+        NodeData::Comment { ref contents } => {
+            write!(&mut *buf, "[8,").unwrap();
+            serde_json::to_writer(&mut *buf, contents.as_ref()).unwrap();
+            write!(&mut *buf, "]").unwrap();
+        }
+
+        _ => {}
     }
-
-    out
 }
 
-fn element_attributes(data: &RefCell<Vec<Attribute>>) -> String {
-    let mut out = "[".to_owned();
+fn serialize_element_attributes(buf: &mut Vec<u8>, data: &RefCell<Vec<Attribute>>) {
+    write!(&mut *buf, "[").unwrap();
     let vec = data.borrow();
     let vec_count = vec.len();
 
     for (idx, attr) in vec.iter().enumerate() {
-        out += &"[".to_owned();
-        out += &serde_json::to_string(&String::from(attr.name.local.as_ref())).unwrap();
-        out += &",".to_owned();
-        out += &serde_json::to_string(&String::from(attr.value.as_ref())).unwrap();
+        write!(&mut *buf, "[").unwrap();
+        serde_json::to_writer(&mut *buf, attr.name.local.as_ref()).unwrap();
+        write!(&mut *buf, ",").unwrap();
+        serde_json::to_writer(&mut *buf, attr.value.as_ref()).unwrap();
 
         if idx + 1 < vec_count {
-            out += &"],".to_owned();
+            write!(&mut *buf, "],").unwrap();
         } else {
-            out += &"]".to_owned();
+            write!(&mut *buf, "]").unwrap();
         }
     }
 
-    out += &"]".to_owned();
-    out
+    write!(&mut *buf, "]").unwrap();
 }
-
-// #[cfg(test)]
-// mod tests {
-//     #[test]
-//     fn it_works() {
-//         assert_eq!(2 + 2, 4);
-//     }
-// }
-

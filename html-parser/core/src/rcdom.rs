@@ -36,7 +36,6 @@
 //! [tree structure]: https://en.wikipedia.org/wiki/Tree_(data_structure)
 //! [dom wiki]: https://en.wikipedia.org/wiki/Document_Object_Model
 
-extern crate markup5ever;
 use html5ever::tendril;
 
 use std::borrow::Cow;
@@ -118,20 +117,10 @@ impl Node {
     /// Create a new node from its contents
     pub fn new(data: NodeData) -> Rc<Self> {
         Rc::new(Node {
-            data: data,
+            data,
             parent: Cell::new(None),
-            children: RefCell::new(Vec::new()),
+            children: RefCell::new(vec![]),
         })
-    }
-}
-
-impl Drop for Node {
-    fn drop(&mut self) {
-        let mut nodes = mem::replace(&mut *self.children.borrow_mut(), vec![]);
-        while let Some(node) = nodes.pop() {
-            let children = mem::replace(&mut *node.children.borrow_mut(), vec![]);
-            nodes.extend(children.into_iter());
-        }
     }
 }
 
@@ -153,30 +142,31 @@ pub type WeakHandle = Weak<Node>;
 /// Append a parentless node to another nodes' children
 fn append(new_parent: &Handle, child: Handle) {
     let previous_parent = child.parent.replace(Some(Rc::downgrade(new_parent)));
-    // Invariant: child cannot have existing parent
-    assert!(previous_parent.is_none());
+
+    assert!(
+        previous_parent.is_none(),
+        "child passed to append cannot have existing parent"
+    );
+
     new_parent.children.borrow_mut().push(child);
 }
 
 /// If the node has a parent, get it and this node's position in its children
 fn get_parent_and_index(target: &Handle) -> Option<(Handle, usize)> {
-    if let Some(weak) = target.parent.take() {
-        let parent = weak.upgrade().expect("dangling weak pointer");
-        target.parent.set(Some(weak));
-        let i = match parent
-            .children
-            .borrow()
-            .iter()
-            .enumerate()
-            .find(|&(_, child)| Rc::ptr_eq(&child, &target))
-        {
-            Some((i, _)) => i,
-            None => panic!("have parent but couldn't find in parent's children!"),
-        };
-        Some((parent, i))
-    } else {
-        None
-    }
+    let weak = target.parent.take()?;
+    let parent = weak.upgrade().expect("dangling weak pointer to parent");
+    target.parent.set(Some(weak));
+    let i = match parent
+        .children
+        .borrow()
+        .iter()
+        .enumerate()
+        .find(|&(_, child)| Rc::ptr_eq(&child, &target))
+    {
+        Some((i, _)) => i,
+        None => panic!("have parent but couldn't find in parent's children!"),
+    };
+    Some((parent, i))
 }
 
 fn append_to_existing_text(prev: &Handle, text: &str) -> bool {
@@ -184,7 +174,7 @@ fn append_to_existing_text(prev: &Handle, text: &str) -> bool {
         NodeData::Text { ref contents } => {
             contents.borrow_mut().push_slice(text);
             true
-        },
+        }
         _ => false,
     }
 }
@@ -245,10 +235,10 @@ impl TreeSink for RcDom {
     }
 
     fn elem_name<'a>(&self, target: &'a Handle) -> ExpandedName<'a> {
-        return match target.data {
+        match target.data {
             NodeData::Element { ref name, .. } => name.expanded(),
             _ => panic!("not an element!"),
-        };
+        }
     }
 
     fn create_element(
@@ -258,7 +248,7 @@ impl TreeSink for RcDom {
         flags: ElementFlags,
     ) -> Handle {
         Node::new(NodeData::Element {
-            name: name,
+            name,
             attrs: RefCell::new(attrs),
             template_contents: if flags.template {
                 Some(Node::new(NodeData::Document))
@@ -275,23 +265,19 @@ impl TreeSink for RcDom {
 
     fn create_pi(&mut self, target: StrTendril, data: StrTendril) -> Handle {
         Node::new(NodeData::ProcessingInstruction {
-            target: target,
+            target,
             contents: data,
         })
     }
 
     fn append(&mut self, parent: &Handle, child: NodeOrText<Handle>) {
         // Append to an existing Text node if we have one.
-        match child {
-            NodeOrText::AppendText(ref text) => match parent.children.borrow().last() {
-                Some(h) => {
-                    if append_to_existing_text(h, &text) {
-                        return;
-                    }
-                },
-                _ => (),
-            },
-            _ => (),
+        if let NodeOrText::AppendText(ref text) = child {
+            if let Some(h) = parent.children.borrow().last() {
+                if append_to_existing_text(h, &text) {
+                    return;
+                }
+            }
         }
 
         append(
@@ -325,7 +311,7 @@ impl TreeSink for RcDom {
                 Node::new(NodeData::Text {
                     contents: RefCell::new(text),
                 })
-            },
+            }
 
             // The tree builder promises we won't have a text node after
             // the insertion point.
@@ -366,9 +352,9 @@ impl TreeSink for RcDom {
         append(
             &self.document,
             Node::new(NodeData::Doctype {
-                name: name,
-                public_id: public_id,
-                system_id: system_id,
+                name,
+                public_id,
+                system_id,
             }),
         );
     }
@@ -456,49 +442,43 @@ impl Serialize for SerializableHandle {
                 .children
                 .borrow()
                 .iter()
+                .rev()
                 .map(|h| SerializeOp::Open(h.clone()))
                 .collect(),
         };
 
-        while !ops.is_empty() {
-            match ops.remove(0) {
+        while let Some(op) = ops.pop() {
+            match op {
                 SerializeOp::Open(handle) => match &handle.data {
-                    &NodeData::Element {
-                        ref name,
-                        ref attrs,
-                        ..
-                    } => {
+                    NodeData::Element { name, attrs, .. } => {
                         serializer.start_elem(
                             name.clone(),
                             attrs.borrow().iter().map(|at| (&at.name, &at.value[..])),
                         )?;
 
-                        ops.insert(0, SerializeOp::Close(name.clone()));
+                        ops.push(SerializeOp::Close(name.clone()));
 
                         for child in handle.children.borrow().iter().rev() {
-                            ops.insert(0, SerializeOp::Open(child.clone()));
+                            ops.push(SerializeOp::Open(child.clone()));
                         }
-                    },
+                    }
 
-                    &NodeData::Doctype { ref name, .. } => serializer.write_doctype(&name)?,
+                    NodeData::Doctype { name, .. } => serializer.write_doctype(&name)?,
 
-                    &NodeData::Text { ref contents } => {
-                        serializer.write_text(&contents.borrow())?
-                    },
+                    NodeData::Text { contents } => serializer.write_text(&contents.borrow())?,
 
-                    &NodeData::Comment { ref contents } => serializer.write_comment(&contents)?,
+                    NodeData::Comment { contents } => serializer.write_comment(&contents)?,
 
-                    &NodeData::ProcessingInstruction {
-                        ref target,
-                        ref contents,
-                    } => serializer.write_processing_instruction(target, contents)?,
+                    NodeData::ProcessingInstruction { target, contents } => {
+                        serializer.write_processing_instruction(target, contents)?
+                    }
 
-                    &NodeData::Document => panic!("Can't serialize Document node itself"),
+                    NodeData::Document => panic!("Can't serialize Document node itself"),
                 },
 
                 SerializeOp::Close(name) => {
                     serializer.end_elem(name)?;
-                },
+                }
             }
         }
 
