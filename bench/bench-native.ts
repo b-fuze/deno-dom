@@ -1,7 +1,6 @@
 import { nodesFromString } from "../deno-dom-native.ts";
-import { readFileStrSync } from "https://deno.land/std/fs/read_file_str.ts";
 
-const c = readFileStrSync("./c.html");
+const c = Deno.readTextFileSync("./c.html");
 const runs = 20;
 let avgAccum = 0;
 
