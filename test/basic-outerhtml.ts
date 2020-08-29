@@ -1,7 +1,6 @@
 import { DOMParser } from "../deno-dom-wasm.ts";
-import { readFileStrSync } from "https://deno.land/std/fs/read_file_str.ts";
 
-const doc = new DOMParser().parseFromString(readFileStrSync("./basic.html"), "text/html");
+const doc = new DOMParser().parseFromString(Deno.readTextFileSync("./basic.html"), "text/html");
 // console.dir(html, { depth: Infinity });
 
 const body = doc!.body;
