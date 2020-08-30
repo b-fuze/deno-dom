@@ -5,7 +5,7 @@ Rust, WASM, and obviously, Deno/TypeScript.
 
 ## Example
 ```typescript
-import { DOMParser, Element } from "https://deno.land/x/deno_dom@v0.1.0-alpha2/deno-dom-wasm.ts";
+import { DOMParser, Element } from "https://deno.land/x/deno_dom@v0.1.2-alpha2/deno-dom-wasm.ts";
 
 const doc = new DOMParser().parseFromString(`
   <h1>Hello World!</h1>
