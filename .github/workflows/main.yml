@@ -62,12 +62,11 @@ jobs:
         run: |
           rm target/release/gn_root -Recurse -ErrorAction Ignore
           rm target/debug/gn_root -Recurse -ErrorAction Ignore
-          cargo clean
 
       - name: Build
         env:
           RUST_BACKTRACE: 1
-        run: cargo build --release
+        run: cargo clean && cargo build --release
 
       - name: Release Plugin
         uses: softprops/action-gh-release@master
