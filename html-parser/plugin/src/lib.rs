@@ -16,28 +16,19 @@ pub fn deno_plugin_init(interface: &mut dyn Interface) {
 
 fn op_parse_sync(
   _interface: &mut dyn Interface,
-  data: &[u8],
-  _zero_copy: &mut [ZeroCopyBuf],
+  zero_copy: &mut [ZeroCopyBuf],
 ) -> Op {
-  let data_str = std::str::from_utf8(&data[..]).unwrap();
+  let data_str = std::str::from_utf8(&zero_copy[0][..]).unwrap();
   let result = Vec::from(parse_rs(data_str.into())).into_boxed_slice();
   Op::Sync(result)
 }
 
 fn op_parse_frag_sync(
   _interface: &mut dyn Interface,
-  data: &[u8],
-  _zero_copy: &mut [ZeroCopyBuf],
+  zero_copy: &mut [ZeroCopyBuf],
 ) -> Op {
-  let data_str = std::str::from_utf8(&data[..]).unwrap();
+  let data_str = std::str::from_utf8(&zero_copy[0][..]).unwrap();
   let result = Vec::from(parse_frag_rs(data_str.into())).into_boxed_slice();
   Op::Sync(result)
 }
 
-// #[cfg(test)]
-// mod tests {
-//     #[test]
-//     fn it_works() {
-//         assert_eq!(2 + 2, 4);
-//     }
-// }
