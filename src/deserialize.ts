@@ -43,6 +43,7 @@ function nodeFromArray(data: any, parentNode: Node | null): Node {
         childNodes.push(childNode);
         break;
 
+      case NodeType.DOCUMENT_NODE:
       case NodeType.ELEMENT_NODE:
         nodeFromArray(child, elm);
         break;

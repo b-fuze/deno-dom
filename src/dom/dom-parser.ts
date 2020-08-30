@@ -23,18 +23,29 @@ export class DOMParser {
     const docType = new DocumentType("html", "", "");
     doc.appendChild(docType);
 
-    const htmlNode = nodesFromString(source);
-    doc.appendChild(htmlNode);
+    const fakeDoc = nodesFromString(source);
+    let htmlNode: Element | null = null;
+
+    for (const child of fakeDoc.childNodes) {
+      doc.appendChild(child);
+
+      if (child.nodeName === "HTML") {
+        htmlNode = <Element> child;
+      }
+    }
+
     setLock(true);
 
-    for (const child of htmlNode.childNodes) {
-      switch ((<Element> child).tagName) {
-        case "HEAD":
-          doc.head = <Element> child;
-          break;
-        case "BODY":
-          doc.body = <Element> child;
-          break;
+    if (htmlNode) {
+      for (const child of htmlNode.childNodes) {
+        switch ((<Element> child).tagName) {
+          case "HEAD":
+            doc.head = <Element> child;
+            break;
+          case "BODY":
+            doc.body = <Element> child;
+            break;
+        }
       }
     }
 

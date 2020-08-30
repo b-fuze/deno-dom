@@ -63,11 +63,36 @@ fn serialize_node(buf: &mut Vec<u8>, dom: &Rc<Node>) {
     match dom.data {
         NodeData::Document => {
             let children = dom.children.borrow();
+
+            write!(&mut *buf, "[9,\"#document\",[],").unwrap();
             if children.len() > 0 {
+                let mut last_child_rendered = false;
+
                 for child in children.iter() {
-                    serialize_node(&mut *buf, child);
+                    if last_child_rendered {
+                        // assume something will be written
+                        buf.push(b',');
+                    }
+
+                    let child_rendered = {
+                        let len_before = buf.len();
+                        serialize_node(&mut *buf, child);
+                        let len_after = buf.len();
+
+                        len_after - len_before > 0
+                    };
+
+                    last_child_rendered = child_rendered;
+                }
+
+                if !last_child_rendered {
+                    // remove comma that was written if it turns out that
+                    // nothing was written by the last child
+                    // (or at least, nothing was written since the last comma)
+                    buf.pop().unwrap();
                 }
             }
+            buf.push(b']');
         }
 
         NodeData::Element {
@@ -88,6 +113,7 @@ fn serialize_node(buf: &mut Vec<u8>, dom: &Rc<Node>) {
                     // assume something will be written
                     buf.push(b',');
                 }
+
                 let child_rendered = {
                     let len_before = buf.len();
                     serialize_node(&mut *buf, child);
