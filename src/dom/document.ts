@@ -211,7 +211,24 @@ export class Document extends Node {
   }
 
   getElementsByTagName(tagName: string): Element[] {
-    return <Element[]> this._getElementsByTagName(tagName.toUpperCase(), []);
+    if (tagName === "*") {
+      return this.documentElement
+        ? <Element[]> this._getElementsByTagNameWildcard(this.documentElement, [])
+        : [];
+    } else {
+      return <Element[]> this._getElementsByTagName(tagName.toUpperCase(), []);
+    }
+  }
+
+  private _getElementsByTagNameWildcard(node: Node, search: Node[]): Node[] {
+    for (const child of this.childNodes) {
+      if (child.nodeType === NodeType.ELEMENT_NODE) {
+        search.push(child);
+        (<any> child)._getElementsByTagNameWildcard(search);
+      }
+    }
+
+    return search;
   }
 
   private _getElementsByTagName(tagName: string, search: Node[]): Node[] {
