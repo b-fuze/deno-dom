@@ -85,7 +85,7 @@ export class Element extends Node {
       }
     }
 
-    this.tagName = tagName.toUpperCase();
+    this.tagName = this.nodeName = tagName.toUpperCase();
   }
 
   get className(): string {
