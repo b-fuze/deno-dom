@@ -4,6 +4,8 @@ An implementation of the browser DOM—primarily for SSR—in Deno. Implemented 
 Rust, WASM, and obviously, Deno/TypeScript.
 
 ## Example
+
+*mod.ts*
 ```typescript
 import { DOMParser, Element } from "https://deno.land/x/deno_dom@v0.1.2-alpha4/deno-dom-native.ts";
 
@@ -19,6 +21,28 @@ console.log(p.childNodes[1].textContent); // "Deno!"
 
 p.innerHTML = "DOM in <b>Deno</b> is pretty cool";
 console.log(p.children[0].outerHTML); // "<b>Deno</b>"
+```
+
+*minimum tsconfig.json*
+```json
+{
+  "compilerOptions": {
+    "importsNotUsedAsValues": "remove",
+    "isolatedModules": false
+  }
+}
+```
+
+To see your example in action, run:
+```sh
+deno run -c ./tsconfig.json -A --unstable ./mod.ts
+```
+
+You should see output like:
+```
+Hello from Deno!
+Deno!
+<html>DOM in <b>Deno</b> is pretty cool</html>
 ```
 
 Deno DOM has **two** backends, WASM and native using Deno native plugins. Both 
