@@ -14,7 +14,7 @@ import { HTMLCollection } from "./dom/html-collection.ts";
 const oldHasInstance = Array[Symbol.hasInstance];
 Object.defineProperty(Array, Symbol.hasInstance, {
   value: (value: any): boolean => {
-    switch (value.constructor) {
+    switch (value?.constructor) {
       case HTMLCollection:
       case NodeList:
         return false;
@@ -27,7 +27,7 @@ Object.defineProperty(Array, Symbol.hasInstance, {
 const oldIsArray = Array.isArray;
 Object.defineProperty(Array, "isArray", {
   value: (value: any): boolean => {
-    switch (value.constructor) {
+    switch (value?.constructor) {
       case HTMLCollection:
       case NodeList:
         return false;
