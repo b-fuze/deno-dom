@@ -35,7 +35,6 @@ export class DOMImplementation {
     const title = new Element("title", head, []);
     const titleText = new Text(titleStr);
     title.appendChild(titleText);
-    doc._setDocumentTitle(titleStr!);
 
     doc.head = head;
     doc.body = body;
@@ -120,7 +119,7 @@ export class Document extends Node {
   }
 
   get title() {
-    return this.#title; // TODO
+    return this.querySelector("title")?.textContent || "";
   }
 
   get cookie() {
@@ -151,10 +150,6 @@ export class Document extends Node {
     }
 
     return null;
-  }
-
-  _setDocumentTitle(title: string) {
-    this.#title = title;
   }
 
   appendChild(child: Node) {
