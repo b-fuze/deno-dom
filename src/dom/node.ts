@@ -132,6 +132,10 @@ export class Node extends EventTarget {
     }
   }
 
+  get firstChild(): Node | null {
+    return this.childNodes[0] || null;
+  }
+
   appendChild(child: Node) {
     const oldParentNode = child.parentNode;
 
