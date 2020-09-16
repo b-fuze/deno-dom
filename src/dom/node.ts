@@ -166,13 +166,13 @@ export class Node extends EventTarget {
     mutator.splice(index + side, 0, ...(<Node[]> nodes));
   }
 
-  before(...nodes: (Node | string)[]) {
+  insertBefore(...nodes: (Node | string)[]) {
     if (this.parentNode) {
       this.insertBeforeAfter(nodes, 0);
     }
   }
 
-  after(...nodes: (Node | string)[]) {
+  insertAfter(...nodes: (Node | string)[]) {
     if (this.parentNode) {
       this.insertBeforeAfter(nodes, 1);
     }
