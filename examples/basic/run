@@ -1,2 +1,0 @@
-#!/bin/sh
-deno run -c ./tsconfig.json -A --unstable ./mod.ts

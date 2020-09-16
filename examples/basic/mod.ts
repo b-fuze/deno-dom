@@ -1,9 +1,10 @@
-import { DOMParser, Element } from "https://deno.land/x/deno_dom@v0.1.2-alpha4/deno-dom-native.ts";
+import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.2-alpha4/deno-dom-wasm.ts";
+import type { Element } from "https://deno.land/x/deno_dom@v0.1.2-alpha4/deno-dom-wasm.ts";
 
 const doc = new DOMParser().parseFromString(`
   <h1>Hello World!</h1>
   <p>Hello from <a href="https://deno.land/">Deno!</a></p>
-`, "text/html")!;
+`, "text/html")!; 
 
 const p = doc.querySelector("p")!;
 
