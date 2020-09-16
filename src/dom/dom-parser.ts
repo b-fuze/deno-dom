@@ -1,7 +1,7 @@
 import { getLock, setLock } from "../constructor-lock.ts";
 import { nodesFromString } from "../deserialize.ts";
 import { HTMLDocument, DocumentType } from "./document.ts";
-import { Element } from "./element.ts";
+import type { Element } from "./element.ts";
 
 export type DOMParserMimeType =
   "text/html"

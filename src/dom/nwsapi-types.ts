@@ -1,6 +1,6 @@
 import NWDom from "./nwsapi.js";
-import { Element } from "./element.ts";
-import { Document } from "./document.ts";
+import type { Element } from "./element.ts";
+import type { Document } from "./document.ts";
 
 export const DOM: (doc: Document) => {
   ancestor(selector: string, context: Element | Document, callback?: (element: Element) => void): Element | null,
