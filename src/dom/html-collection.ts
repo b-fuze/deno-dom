@@ -1,4 +1,4 @@
-import { Element } from "./element.ts";
+import type { Element } from "./element.ts";
 
 const HTMLCollectionFakeClass: any = (() => {
   return class HTMLCollection {

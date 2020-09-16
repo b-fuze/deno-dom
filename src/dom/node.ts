@@ -1,8 +1,8 @@
 import { getLock, setLock } from "../constructor-lock.ts";
 import { NodeList, NodeListMutator, nodeListMutatorSym } from "./node-list.ts";
 import { HTMLCollection, HTMLCollectionMutator, HTMLCollectionMutatorSym } from "./html-collection.ts";
-import { Element } from "./element.ts";
-import { Document } from "./document.ts";
+import type { Element } from "./element.ts";
+import type { Document } from "./document.ts";
 
 export class EventTarget {
   addEventListener() {
