@@ -132,12 +132,7 @@ export class Element extends Node {
       case "source":
       case "track":
       case "wbr":
-        if (this.childNodes.length > 1) {
-          // What happened to the DOM lol
-          out += ">" + this.innerHTML + `</${ tagName }>`;
-        } else {
-          out += ">";
-        }
+        out += ">";
         break;
 
       default:
