@@ -117,7 +117,7 @@ export class Element extends Node {
     }
 
     // Special handling for void elements
-    switch (this.tagName) {
+    switch (tagName) {
       case "area":
       case "base":
       case "br":
