@@ -144,7 +144,16 @@ export class Node extends EventTarget {
       child.remove();
     }
 
-    child.parentNode = child.parentElement = <Element> <unknown> this;
+    child.parentNode = this;
+
+    // If this a document node or another non-element node
+    // then parentElement should be set to null
+    if (this.nodeType === NodeType.ELEMENT_NODE) {
+      child.parentElement = <Element> <unknown> this;
+    } else {
+      child.parentElement = null;
+    }
+
     child._setOwnerDocument(this.#ownerDocument);
     this.#childNodesMutator.push(child);
   }
