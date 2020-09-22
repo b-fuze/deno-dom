@@ -44,7 +44,7 @@ manipulation needs.
  - Ability to run JS embedded in documents (`<script>` tags, `onload`, etc)
  - Parse CSS or JS (they're just text, but this may be supported in the future for CSSOM)
  - Support older (or even not so old) JS engines. In other words, there will be no support of transpilation to ES5, no support of polyfills, etc
- - Support special functionality of obsolet HTML elements (`<marquee>`, etc)
+ - Support special functionality of obsolete HTML elements (`<marquee>`, etc)
 
 # Credits
  - html5ever developers for the HTML parser
