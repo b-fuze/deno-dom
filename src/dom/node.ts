@@ -162,8 +162,9 @@ export class Node extends EventTarget {
     // TODO
   }
 
-  replaceChild(child: Node) {
-    // TODO
+  replaceChild(newChild: Node, oldChild: Node): Node {
+    oldChild.replaceWith(newChild);
+    return oldChild;
   }
 
   private insertBeforeAfter(nodes: (Node | string)[], side: number) {
