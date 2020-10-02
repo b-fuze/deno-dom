@@ -163,6 +163,9 @@ export class Node extends EventTarget {
   }
 
   replaceChild(newChild: Node, oldChild: Node): Node {
+    if (oldChild.parentNode !== this) {
+      throw new Error("Old child's parent is not the current node.");
+    }
     oldChild.replaceWith(newChild);
     return oldChild;
   }
