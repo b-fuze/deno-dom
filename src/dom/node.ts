@@ -162,8 +162,12 @@ export class Node extends EventTarget {
     // TODO
   }
 
-  replaceChild(child: Node) {
-    // TODO
+  replaceChild(newChild: Node, oldChild: Node): Node {
+    if (oldChild.parentNode !== this) {
+      throw new Error("Old child's parent is not the current node.");
+    }
+    oldChild.replaceWith(newChild);
+    return oldChild;
   }
 
   private insertBeforeAfter(nodes: (Node | string)[], side: number) {
