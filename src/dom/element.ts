@@ -183,6 +183,7 @@ export class Element extends Node {
 
       for (const child of this.childNodes) {
         child.parentNode = child.parentElement = this;
+        child._setOwnerDocument(this.ownerDocument);
       }
     }
   }
