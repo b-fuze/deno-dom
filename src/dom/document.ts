@@ -114,6 +114,12 @@ export class Document extends Node {
     setLock(true);
   }
 
+  // Expose the document's NWAPI for Element's access to
+  // querySelector/querySelectorAll
+  get _nwapi() {
+    return this.#nwapi;
+  }
+
   get documentURI() {
     return this.#documentURI;
   }

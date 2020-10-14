@@ -1,6 +1,7 @@
 import { getLock } from "../constructor-lock.ts";
 import { fragmentNodesFromString } from "../deserialize.ts";
 import { Node, NodeType, Text } from "./node.ts";
+import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 
 export class DOMTokenList extends Set<string> {
   contains(token: string): boolean {
@@ -259,6 +260,26 @@ export class Element extends Node {
     }
 
     return prev;
+  }
+
+  querySelector(selectors: string): Element | null {
+    if (!this.ownerDocument) {
+      throw new Error("Element must have an owner document");
+    }
+
+    return this.ownerDocument!._nwapi.first(selectors, this);
+  }
+
+  querySelectorAll(selectors: string): NodeList {
+    if (!this.ownerDocument) {
+      throw new Error("Element must have an owner document");
+    }
+
+    const nodeList = new NodeList();
+    const mutator = nodeList[nodeListMutatorSym]();
+    mutator.push(...this.ownerDocument!._nwapi.select(selectors, this))
+
+    return nodeList;
   }
 
   // TODO: DRY!!!
