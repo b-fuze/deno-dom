@@ -178,7 +178,7 @@ export class Element extends Node {
 
     if (html.length) {
       const parsed = fragmentNodesFromString(html);
-      mutator.push(...parsed.childNodes);
+      mutator.push(...parsed.childNodes[0].childNodes);
 
       for (const child of this.childNodes) {
         child.parentNode = child.parentElement = this;
