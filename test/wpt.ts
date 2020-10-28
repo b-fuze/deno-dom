@@ -24,6 +24,7 @@ const exclude = new RegExp([
   "TreeWalker",
   "ProcessingInstruction",
   "CDATA", // TODO: maybe implement CDATA support
+  "createEvent",
 ].join("|"));
 
 export function test(backend: Backend) {
