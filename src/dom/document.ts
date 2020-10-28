@@ -158,9 +158,10 @@ export class Document extends Node {
     return null;
   }
 
-  appendChild(child: Node) {
+  appendChild(child: Node): Node {
     super.appendChild(child);
     child._setOwnerDocument(this);
+    return child;
   }
 
   createElement(tagName: string, options?: ElementCreationOptions): Element {

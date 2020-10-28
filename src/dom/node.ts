@@ -132,13 +132,13 @@ export class Node extends EventTarget {
     }
   }
 
-  appendChild(child: Node) {
+  appendChild(child: Node): Node {
     const oldParentNode = child.parentNode;
 
     // Check if we already own this child
     if (oldParentNode === this) {
       if (this.#childNodesMutator.indexOf(child) !== -1) {
-        return;
+        return child;
       }
     } else if (oldParentNode) {
       child.remove();
@@ -156,6 +156,8 @@ export class Node extends EventTarget {
 
     child._setOwnerDocument(this.#ownerDocument);
     this.#childNodesMutator.push(child);
+
+    return child;
   }
 
   removeChild(child: Node) {
