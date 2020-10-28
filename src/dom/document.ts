@@ -91,6 +91,7 @@ export interface ElementCreationOptions {
 }
 
 export type VisibilityState = "visible" | "hidden" | "prerender";
+export type NamespaceURI = "http://www.w3.org/1999/xhtml" | "http://www.w3.org/2000/svg" | "http://www.w3.org/1998/Math/MathML";
 
 export class Document extends Node {
   public head: Element = <Element> <unknown> null;
@@ -172,6 +173,18 @@ export class Document extends Node {
     elm._setOwnerDocument(this);
     setLock(true);
     return elm;
+  }
+
+  createElementNS(
+    namespace: NamespaceURI,
+    qualifiedName: string,
+    options?: ElementCreationOptions,
+  ): Element {
+    if (namespace === "http://www.w3.org/1999/xhtml") {
+      return this.createElement(qualifiedName, options);
+    } else {
+      throw new Error(`createElementNS: "${ namespace }" namespace unimplemented`); // TODO
+    }
   }
 
   createTextNode(data?: string): Text {
