@@ -210,6 +210,10 @@ export class Element extends Node {
     }
   }
 
+  removeAttribute(name: string) {
+    this.attributes[name] = null as any as string;
+  }
+
   hasAttribute(name: string): boolean {
     return this.attributes.hasOwnProperty(name);
   }
