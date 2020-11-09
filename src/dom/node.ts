@@ -143,21 +143,31 @@ export class Node extends EventTarget {
     } else if (oldParentNode) {
       child.remove();
     }
+    
+    let appendHelper = (child: Node) => {
+      child.parentNode = this;
 
-    child.parentNode = this;
+      // If this a document node or another non-element node
+      // then parentElement should be set to null
+      if (this.nodeType === NodeType.ELEMENT_NODE) {
+        child.parentElement = <Element> <unknown> this;
+      } else {
+        child.parentElement = null;
+      }
 
-    // If this a document node or another non-element node
-    // then parentElement should be set to null
-    if (this.nodeType === NodeType.ELEMENT_NODE) {
-      child.parentElement = <Element> <unknown> this;
-    } else {
-      child.parentElement = null;
+      child._setOwnerDocument(this.#ownerDocument);
+      this.#childNodesMutator.push(child);
     }
-
-    child._setOwnerDocument(this.#ownerDocument);
-    this.#childNodesMutator.push(child);
-
-    return child;
+    
+    if (child.nodeType === NodeType.DOCUMENT_FRAGMENT_NODE) {
+      for (let fragmentChild of child.childNodes) {
+        appendHelper(fragmentChild);
+      }
+      return new DocumentFragment();
+    } else {
+      appendHelper(child);
+      return child;
+    }
   }
 
   removeChild(child: Node) {
@@ -316,3 +326,15 @@ export class Comment extends CharacterData {
   }
 }
 
+export class DocumentFragment extends Node {
+  constructor() {
+    let oldLock = getLock();
+    setLock(false);
+    super(
+      "",
+      NodeType.DOCUMENT_FRAGMENT_NODE,
+      null,
+    );
+    setLock(oldLock);
+  }
+}
