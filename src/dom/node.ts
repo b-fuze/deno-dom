@@ -331,7 +331,7 @@ export class DocumentFragment extends Node {
     let oldLock = getLock();
     setLock(false);
     super(
-      "",
+      "#document-fragment",
       NodeType.DOCUMENT_FRAGMENT_NODE,
       null,
     );
