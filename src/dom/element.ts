@@ -106,7 +106,7 @@ export class Element extends Node {
     for (const attribute of Object.getOwnPropertyNames(attributes)) {
       out += ` ${ attribute.toLowerCase() }`;
 
-      // escaping: https://www.w3.org/TR/2009/WD-html5-20090212/serializing-html-fragments.html#escapingString
+      // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
       if (attributes[attribute] != null) {
         out += `="${
           attributes[attribute]
@@ -157,12 +157,29 @@ export class Element extends Node {
           out += (<Element> child).outerHTML;
           break;
         case NodeType.TEXT_NODE:
-          // escaping: https://www.w3.org/TR/2009/WD-html5-20090212/serializing-html-fragments.html#escapingString
-          out += (<Text> child).data
-            .replace(/&/g, "&amp;")
-            .replace(/\xA0/g, "&nbsp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
+
+          // Special handling for rawtext-like elements.
+          switch (this.tagName.toLowerCase()) {
+            case "style":
+            case "script":
+            case "xmp":
+            case "iframe":
+            case "noembed":
+            case "noframes":
+            case "plaintext":
+              out += (<Text> child).data;
+              break;
+
+            default:
+              // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
+              out += (<Text> child).data
+                .replace(/&/g, "&amp;")
+                .replace(/\xA0/g, "&nbsp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+              break;
+          }
+
           break;
       }
     }
