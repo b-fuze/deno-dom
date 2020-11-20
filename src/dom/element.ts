@@ -4,9 +4,9 @@ import { Node, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 
 export class DOMTokenList extends Set<string> {
-  #onChange: (cls: string) => void;
+  #onChange: (className: string) => void;
 
-  constructor(onChange: (cls: string) => void) {
+  constructor(onChange: (className: string) => void) {
     super();
     this.#onChange = onChange;
   }
@@ -97,9 +97,9 @@ export class NamedNodeMap {
 }
 
 export class Element extends Node {
-  public readonly classList = new DOMTokenList((cls) => {
-    if (this.hasAttribute("class") || cls !== "") {
-      this.attributes["class"] = cls;
+  public readonly classList = new DOMTokenList((className) => {
+    if (this.hasAttribute("class") || className !== "") {
+      this.attributes["class"] = className;
     }
   });
   public attributes: NamedNodeMap & {[attribute: string]: string} = <any> new NamedNodeMap();
@@ -267,7 +267,7 @@ export class Element extends Node {
   }
 
   setAttribute(name: string, value: any) {
-    const strValue = String(value);
+    const strValue = "" + value;
     this.attributes[name] = strValue;
 
     if (name === "id") {
@@ -278,7 +278,7 @@ export class Element extends Node {
   }
 
   removeAttribute(name: string) {
-    this.attributes[name] = (null as any) as string;
+    this.attributes[name] = null as any as string;
     if (name === "class") {
       this.classList._update(null);
     }
