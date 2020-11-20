@@ -147,6 +147,20 @@ fn serialize_node(buf: &mut Vec<u8>, dom: &Rc<Node>) {
             write!(&mut *buf, "]").unwrap();
         }
 
+        NodeData::Doctype {
+            ref name,
+            ref public_id,
+            ref system_id,
+        } => {
+            write!(&mut *buf, "[10,").unwrap();
+            serde_json::to_writer(&mut *buf, name.as_ref()).unwrap();
+            write!(&mut *buf, ",").unwrap();
+            serde_json::to_writer(&mut *buf, public_id.as_ref()).unwrap();
+            write!(&mut *buf, ",").unwrap();
+            serde_json::to_writer(&mut *buf, system_id.as_ref()).unwrap();
+            write!(&mut *buf, "]").unwrap();
+        }
+
         _ => {}
     }
 }

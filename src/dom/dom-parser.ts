@@ -20,17 +20,28 @@ export class DOMParser {
     const doc = new HTMLDocument();
 
     setLock(false);
-    const docType = new DocumentType("html", "", "");
-    doc.appendChild(docType);
 
     const fakeDoc = nodesFromString(source);
     let htmlNode: Element | null = null;
+    let hasDoctype = false;
 
-    for (const child of fakeDoc.childNodes) {
+    for (const child of [...fakeDoc.childNodes]) {
       doc.appendChild(child);
 
-      if (child.nodeName === "HTML") {
+      if (child instanceof DocumentType) {
+        hasDoctype = true;
+      } else if (child.nodeName === "HTML") {
         htmlNode = <Element> child;
+      }
+    }
+
+    if (!hasDoctype) {
+      const docType = new DocumentType("html", "", "");
+      // doc.insertBefore(docType, doc.firstChild);
+      if (doc.childNodes.length === 0) {
+        doc.appendChild(docType);
+      } else {
+        doc.childNodes[0].before(docType);
       }
     }
 
