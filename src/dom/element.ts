@@ -4,8 +4,51 @@ import { Node, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 
 export class DOMTokenList extends Set<string> {
+  #onChange: (cls: string) => void;
+
+  constructor(onChange: (cls: string) => void) {
+    super();
+    this.#onChange = onChange;
+  }
+
+  add(token: string): this {
+    if (token === "" || /[\t\n\f\r ]/.test(token)) {
+      throw new Error(`DOMTokenList.add: Invalid class token "${token}"`);
+    }
+    super.add(token);
+    this.#onChange([...this].join(" "));
+    return this;
+  }
+
+  clear() {
+    super.clear();
+    this.#onChange("");
+  }
+
+  delete(token: string): boolean {
+    const deleted = super.delete(token);
+    if (deleted) {
+      this.#onChange([...this].join(" "));
+    }
+    return deleted;
+  }
+
   contains(token: string): boolean {
     return this.has(token);
+  }
+
+  _update(value: string | null) {
+    // Using super.clear() and super.add() rather than the overriden methods so
+    // onChange doesn't fire while updating.
+    super.clear();
+    if (value !== null) {
+      for (const token of value.split(/[\t\n\f\r ]+/g)) {
+        // The only empty strings resulting from splitting should correspond to
+        // whitespace at either end of `value`.
+        if (token === "") continue;
+        super.add(token);
+      }
+    }
   }
 }
 
@@ -54,7 +97,11 @@ export class NamedNodeMap {
 }
 
 export class Element extends Node {
-  public classList = new DOMTokenList();
+  public readonly classList = new DOMTokenList((cls) => {
+    if (this.hasAttribute("class") || cls !== "") {
+      this.attributes["class"] = cls;
+    }
+  });
   public attributes: NamedNodeMap & {[attribute: string]: string} = <any> new NamedNodeMap();
 
   #currentId = "";
@@ -78,7 +125,7 @@ export class Element extends Node {
 
       switch (attr[0]) {
         case "class":
-          this.classList = new DOMTokenList(attr[1].split(/\s+/g));
+          this.classList._update(attr[1]);
           break;
         case "id":
           this.#currentId = attr[1];
@@ -90,12 +137,12 @@ export class Element extends Node {
   }
 
   get className(): string {
-    return Array.from(this.classList).join(" ");
+    return this.getAttribute("class") ?? "";
   }
 
   set className(className: string) {
-    // TODO: Probably don't replace the current classList
-    this.classList = new DOMTokenList(className.split(/\s+/g));
+    this.setAttribute("class", className);
+    this.classList._update(className);
   }
 
   get outerHTML(): string {
@@ -220,15 +267,21 @@ export class Element extends Node {
   }
 
   setAttribute(name: string, value: any) {
-    this.attributes[name] = "" + value;
+    const strValue = String(value);
+    this.attributes[name] = strValue;
 
     if (name === "id") {
-      this.#currentId = value;
+      this.#currentId = strValue;
+    } else if (name === "class") {
+      this.classList._update(strValue);
     }
   }
 
   removeAttribute(name: string) {
-    this.attributes[name] = null as any as string;
+    this.attributes[name] = (null as any) as string;
+    if (name === "class") {
+      this.classList._update(null);
+    }
   }
 
   hasAttribute(name: string): boolean {
