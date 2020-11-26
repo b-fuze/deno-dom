@@ -1,5 +1,5 @@
 import { setLock, getLock } from "../constructor-lock.ts";
-import { Node, NodeType, Text, Comment } from "./node.ts";
+import { Node, NodeType, Text, Comment, DocumentFragment } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
 import { DOM as NWAPI } from "./nwsapi-types.ts";
@@ -193,6 +193,10 @@ export class Document extends Node {
 
   createComment(data?: string): Comment {
     return new Comment(data);
+  }
+
+  createDocumentFragment(): DocumentFragment {
+    return new DocumentFragment();
   }
 
   querySelector(selectors: string): Element | null {
