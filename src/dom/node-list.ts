@@ -22,7 +22,7 @@ const NodeListClass: any = (() => {
   class NodeList extends Array<Node> {
     // @ts-ignore
     forEach(
-      cb: (node: Node, index: number, nodeList: Node[]) => void, 
+      cb: (node: Node, index: number, nodeList: Node[]) => void,
       thisArg: NodeList | undefined = undefined
     ) {
       super.forEach(cb, thisArg);
@@ -92,6 +92,10 @@ export interface NodeList {
   [Symbol.iterator](): Generator<Node>;
 
   item(index: number): Node;
+  forEach(
+    cb: (node: Node, index: number, nodeList: Node[]) => void,
+    thisArg?: NodeList | undefined,
+  ): void;
   [nodeListMutatorSym](): NodeListMutator;
 }
 
