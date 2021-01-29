@@ -36,6 +36,7 @@ export class DOMParser {
     }
 
     if (!hasDoctype) {
+      setLock(false);
       const docType = new DocumentType("html", "", "");
       // doc.insertBefore(docType, doc.firstChild);
       if (doc.childNodes.length === 0) {
