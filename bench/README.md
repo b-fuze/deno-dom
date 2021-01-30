@@ -34,6 +34,7 @@ Node.js JSDOM   - time:492.51481600007975ms runs:20
 ```
 
 ### Machine specs
+OS: Ubuntu 20.10 (5.8.0-38-generic x84\_64 kernel)
 CPU: 
 ```
 Model:      AMD Ryzen 5 4500U with Radeon Graphics
