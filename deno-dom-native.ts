@@ -4,8 +4,13 @@ import {
 } from "https://raw.githubusercontent.com/b-fuze/deno-plugin-prepare/master/mod.ts";
 import { register } from "./src/parser.ts";
 
-const nativeEnv = "DENO_DOM_EXECUTABLE";
-const denoNativePluginPath = Deno.env.get(nativeEnv);
+const nativeEnv = "DENO_DOM_PLUGIN";
+let denoNativePluginPath: string | undefined;
+
+// Try to read the environment
+try {
+  denoNativePluginPath = Deno.env.get(nativeEnv);
+} catch {}
 
 if (denoNativePluginPath) {
   // Open native plugin and register the native `parse` function
