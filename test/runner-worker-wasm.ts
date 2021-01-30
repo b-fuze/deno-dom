@@ -9,21 +9,23 @@ type TestSetupEvent = {
 addEventListener("message", async event => {
   const { data: { backend, html, scripts } } = event as any as TestSetupEvent;
   const denoDom = await import("../deno-dom-" + backend + ".ts");
-  const { DOMParser } = denoDom;
+  const { DOMParser, Comment } = denoDom;
 
   (self as any).window = self;
   (self as any).parent = self;
-  (self as any).location = {
-    href: import.meta.url,
-    pathname: import.meta.url,
-    protocol: "file:",
-    host: "testmachine",
-    hostname: "testmachine",
-    port: "",
-    search: "",
-    hash: "",
-    origin: "",
-  };
+  Object.defineProperty(self, "location", {
+    value: {
+      href: import.meta.url,
+      pathname: import.meta.url,
+      protocol: "file:",
+      host: "testmachine",
+      hostname: "testmachine",
+      port: "",
+      search: "",
+      hash: "",
+      origin: "",
+    },
+  });
   const doc = new DOMParser().parseFromString(html, "text/html")!;
   (self as any).window.document = doc;
 
@@ -34,6 +36,16 @@ addEventListener("message", async event => {
   for (const script of scripts) {
     new Function(script)()
   }
+
+  // Add fake XML document implementation to skip XML doc tests
+  doc.implementation.createDocument = function(ns: any, qualifiedName: any, documentType: any) {
+    const newDoc = doc.implementation.createHTMLDocument();
+
+    // Return comments instead of PI's
+    newDoc.createProcessingInstruction = function(...args: any[]) {
+      return new Comment(args[0]);
+    };
+  };
 
   postMessage({
     success: true,
