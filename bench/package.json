@@ -1,0 +1,15 @@
+{
+  "name": "bench",
+  "version": "1.0.0",
+  "description": "There should be benchmarks against Parse5 (from Node.js/JSDOM) and native deno-dom vs deno-wasm in here... But it's a wreck atm, just ignore for now.",
+  "main": "bench-parse5.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsdom": "^16.4.0",
+    "parse5": "^6.0.1"
+  }
+}
