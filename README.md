@@ -30,11 +30,15 @@ importing either `deno-dom-wasm.ts` or `deno-dom-native.ts`.
 Deno DOM is still under development, but is fairly usable for basic HTML
 manipulation needs.
 
+## Documentation
+Refer to MDN (Mozilla Developer Network) for documentation. If there are
+inconsistencies (that aren't a result of legacy APIs) file an issue.
+
 ## Goals
 
  - HTML parser in Deno
  - Fast
- - Mirror most\* supported DOM APIs as closely as possible
+ - Mirror _most_ supported DOM APIs as closely as possible
  - Provide specific APIs in addition to DOM APIs to make certain operations more efficient, like controlling Shadow DOM (see Open Questions)
  - Use cutting-edge JS features like private class members, optional chaining, etc
 
@@ -45,6 +49,24 @@ manipulation needs.
  - Parse CSS or JS (they're just text, but this may be supported in the future for CSSOM)
  - Support older (or even not so old) JS engines. In other words, there will be no support of transpilation to ES5, no support of polyfills, etc
  - Support special functionality of obsolete HTML elements (`<marquee>`, etc)
+
+## Building Deno DOM Native
+Deno DOM native is a faster backend for Deno DOM (check [benchmarks](./bench/)), however, 
+the WASM backend is sufficient for almost all use-cases.
+
+**Note:** If you're running an x86\_64 system with either Windows, Linux, or macOS, then
+you probably don't need to build the plugin. Deno DOM native downloads a prebuilt
+binary in those cases.
+
+To build Deno DOM's native backend, [install Rust](https://www.rust-lang.org/learn/get-started) if you haven't already,
+then run
+```
+cargo build --release
+```
+which produces a binary located at `target/release/libplugin.{so,dll,dylib}` (extension depends on your system).
+
+To use the new binary you need to set the **`DENO_DOM_PLUGIN`** env var to the path of the binary produced
+in the previous step. **Don't forget** to run Deno with `--allow-env`.
 
 # Credits
  - html5ever developers for the HTML parser
