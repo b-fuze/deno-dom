@@ -117,6 +117,14 @@ export class Node extends EventTarget {
     this.appendChild(new Text(content));
   }
 
+  get firstChild() {
+    return this.childNodes[0] || null;
+  }
+
+  get lastChild() {
+    return this.childNodes[this.childNodes.length - 1] || null;
+  }
+
   cloneNode() {
     // TODO
   }
@@ -191,6 +199,35 @@ export class Node extends EventTarget {
     if (this.parentNode) {
       this.insertBeforeAfter(nodes, 1);
     }
+  }
+
+  insertBefore(newNode: Node, refNode: Node | null): Node {
+    const mutator = this._getChildNodesMutator();
+
+    if (refNode === null) {
+      this.appendChild(newNode);
+      return newNode;
+    }
+
+    const index = mutator.indexOf(refNode);
+    if (index === -1) {
+      throw new Error("DOMException: Child to insert before is not a child of this node");
+    }
+
+    // TODO: abstract this
+    newNode.parentNode = this;
+    // If this a document node or another non-element node
+    // then parentElement should be set to null
+    if (this.nodeType === NodeType.ELEMENT_NODE) {
+      newNode.parentElement = <Element> <unknown> this;
+    } else {
+      newNode.parentElement = null;
+    }
+
+    newNode._setOwnerDocument(this.#ownerDocument);
+    mutator.splice(index, 0, newNode);
+
+    return newNode;
   }
 
   replaceWith(...nodes: (Node | string)[]) {
