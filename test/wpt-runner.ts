@@ -33,14 +33,14 @@ export async function run(path: string, root: string, backend: Backend) {
     return scriptContents;
   });
 
-  const worker = new Worker(new URL("./runner-worker-wasm.ts", import.meta.url).href, { type: "module" });
+  const worker = new Worker(new URL("./wpt-runner-worker.ts", import.meta.url).href, { type: "module" });
   worker.postMessage({
     backend,
     html,
     scripts,
   });
 
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     worker.addEventListener("error", (event) => {
       event.preventDefault();
       worker.terminate();
