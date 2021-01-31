@@ -41,7 +41,7 @@ const nodesAndTextNodes = (nodes: (Node | any)[], parentNode: Node) => {
       node = new Text("" + n);
     }
 
-    node.parentNode = node.parentElement = parentNode;
+    node._setParent(parentNode);
     return node;
   });
 }
@@ -52,6 +52,7 @@ export class Node extends EventTarget {
   public parentElement: Element | null;
   #childNodesMutator: NodeListMutator;
   #ownerDocument: Document | null = null;
+  private _ancestors = new Set<Node>();
 
   constructor(
     public nodeName: string,
@@ -75,6 +76,46 @@ export class Node extends EventTarget {
 
   _getChildNodesMutator(): NodeListMutator {
     return this.#childNodesMutator;
+  }
+
+  _setParent(newParent: Node | null) {
+    // Update ancestors for child nodes
+    for (const child of this.childNodes) {
+      child._setParent(this);
+    }
+
+    if (this.parentNode === newParent) {
+      return;
+    }
+
+    this.parentNode = newParent;
+
+    if (newParent) {
+      // If this a document node or another non-element node
+      // then parentElement should be set to null
+      if (newParent.nodeType === NodeType.ELEMENT_NODE) {
+        this.parentElement = newParent as unknown as Element;
+      } else {
+        this.parentElement = null;
+      }
+
+      this._setOwnerDocument(newParent.#ownerDocument);
+
+      // Add parent chain to ancestors
+      let parent: Node | null = newParent;
+      this._ancestors = new Set(newParent._ancestors);
+      this._ancestors.add(newParent);
+    } else {
+      this.parentElement = null;
+      this._ancestors.clear();
+    }
+  }
+
+  _assertNotAncestor(child: Node) {
+    // Check this child isn't an ancestor
+    if (this._ancestors.has(child) || child === this) {
+      throw new Error("DOMException: The new child is an ancestor of the parent");
+    }
   }
 
   _setOwnerDocument(document: Document | null) {
@@ -110,7 +151,7 @@ export class Node extends EventTarget {
 
   set textContent(content: string) {
     for (const child of this.childNodes) {
-      child.parentNode = child.parentElement = null;
+      child._setParent(null);
     }
 
     this._getChildNodesMutator().splice(0, this.childNodes.length);
@@ -136,11 +177,12 @@ export class Node extends EventTarget {
       const nodeList = parent._getChildNodesMutator();
       const idx = nodeList.indexOf(this);
       nodeList.splice(idx, 1);
-      this.parentNode = this.parentElement = null;
+      this._setParent(null);
     }
   }
 
   appendChild(child: Node): Node {
+    this._assertNotAncestor(child); // FIXME: Should this really be a method?
     const oldParentNode = child.parentNode;
 
     // Check if we already own this child
@@ -152,17 +194,7 @@ export class Node extends EventTarget {
       child.remove();
     }
 
-    child.parentNode = this;
-
-    // If this a document node or another non-element node
-    // then parentElement should be set to null
-    if (this.nodeType === NodeType.ELEMENT_NODE) {
-      child.parentElement = <Element> <unknown> this;
-    } else {
-      child.parentElement = null;
-    }
-
-    child._setOwnerDocument(this.#ownerDocument);
+    child._setParent(this);
     this.#childNodesMutator.push(child);
 
     return child;
@@ -176,6 +208,7 @@ export class Node extends EventTarget {
     if (oldChild.parentNode !== this) {
       throw new Error("Old child's parent is not the current node.");
     }
+
     oldChild.replaceWith(newChild);
     return oldChild;
   }
@@ -202,6 +235,7 @@ export class Node extends EventTarget {
   }
 
   insertBefore(newNode: Node, refNode: Node | null): Node {
+    this._assertNotAncestor(newNode);
     const mutator = this._getChildNodesMutator();
 
     if (refNode === null) {
@@ -214,17 +248,7 @@ export class Node extends EventTarget {
       throw new Error("DOMException: Child to insert before is not a child of this node");
     }
 
-    // TODO: abstract this
-    newNode.parentNode = this;
-    // If this a document node or another non-element node
-    // then parentElement should be set to null
-    if (this.nodeType === NodeType.ELEMENT_NODE) {
-      newNode.parentElement = <Element> <unknown> this;
-    } else {
-      newNode.parentElement = null;
-    }
-
-    newNode._setOwnerDocument(this.#ownerDocument);
+    newNode._setParent(this);
     mutator.splice(index, 0, newNode);
 
     return newNode;
@@ -238,7 +262,7 @@ export class Node extends EventTarget {
       nodes = nodesAndTextNodes(nodes, parentNode);
 
       mutator.splice(index, 1, ...(<Node[]> nodes));
-      this.parentNode = this.parentElement = null;
+      this._setParent(null);
     }
   }
 
