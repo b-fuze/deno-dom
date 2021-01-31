@@ -97,7 +97,7 @@ export class NamedNodeMap {
 }
 
 export class Element extends Node {
-  public readonly classList = new DOMTokenList((className) => {
+  #classList = new DOMTokenList((className) => {
     if (this.hasAttribute("class") || className !== "") {
       this.attributes["class"] = className;
     }
@@ -125,7 +125,7 @@ export class Element extends Node {
 
       switch (attr[0]) {
         case "class":
-          this.classList._update(attr[1]);
+          this.#classList._update(attr[1]);
           break;
         case "id":
           this.#currentId = attr[1];
@@ -140,9 +140,13 @@ export class Element extends Node {
     return this.getAttribute("class") ?? "";
   }
 
+  get classList(): DOMTokenList {
+    return this.#classList;
+  }
+
   set className(className: string) {
     this.setAttribute("class", className);
-    this.classList._update(className);
+    this.#classList._update(className);
   }
 
   get outerHTML(): string {
@@ -248,7 +252,7 @@ export class Element extends Node {
       mutator.push(...parsed.childNodes[0].childNodes);
 
       for (const child of this.childNodes) {
-        child.parentNode = child.parentElement = this;
+        child._setParent(null);
         child._setOwnerDocument(this.ownerDocument);
       }
     }
@@ -273,14 +277,14 @@ export class Element extends Node {
     if (name === "id") {
       this.#currentId = strValue;
     } else if (name === "class") {
-      this.classList._update(strValue);
+      this.#classList._update(strValue);
     }
   }
 
   removeAttribute(name: string) {
     this.attributes[name] = null as any as string;
     if (name === "class") {
-      this.classList._update(null);
+      this.#classList._update(null);
     }
   }
 
