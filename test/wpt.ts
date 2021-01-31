@@ -25,6 +25,8 @@ const exclude = new RegExp([
   "ProcessingInstruction",
   "CDATA", // TODO: maybe implement CDATA support
   "createEvent",
+  "nodes/Node-cloneNode-on-inactive-document-crash", // Tests iframe which won't be implemented
+  "nodes/DOMImplementation-createHTMLDocument-with-null-browsing-context-crash", // Uses iframe
 ].join("|"));
 
 export function test(backend: Backend) {
@@ -53,7 +55,7 @@ export function test(backend: Backend) {
       .replace(".html", "")
       .replace(/\s+/g, " ");
     Deno.test(name, async () => {
-      await run(test, wptDirRoot, "wasm");
+      await run(test, wptDirRoot, backend);
     });
   }
 }

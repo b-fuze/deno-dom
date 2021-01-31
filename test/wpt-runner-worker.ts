@@ -33,9 +33,17 @@ addEventListener("message", async event => {
     (self as any)[item] = denoDom[item];
   }
 
-  for (const script of scripts) {
-    new Function(script)()
+  // Assign anything with an ID to `window`
+  for (const element of doc.querySelectorAll("[id]")) {
+    const id = element.getAttribute("id");
+
+    if (!(id in self)) {
+      (self as any)[id] = element;
+    }
   }
+
+  // Run scripts
+  new Function(scripts.join("\n\n"))();
 
   // Add fake XML document implementation to skip XML doc tests
   doc.implementation.createDocument = function(ns: any, qualifiedName: any, documentType: any) {

@@ -33,7 +33,14 @@ export async function run(path: string, root: string, backend: Backend) {
     return scriptContents;
   });
 
-  const worker = new Worker(new URL("./wpt-runner-worker.ts", import.meta.url).href, { type: "module" });
+  const workerOptions = { type: "module" } as const;
+  if (backend === "native") {
+    (workerOptions as any).deno = {
+      namespace: true,
+    };
+  }
+
+  const worker = new Worker(new URL("./wpt-runner-worker.ts", import.meta.url).href, workerOptions);
   worker.postMessage({
     backend,
     html,

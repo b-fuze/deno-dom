@@ -50,6 +50,18 @@ inconsistencies (that aren't a result of legacy APIs) file an issue.
  - Support older (or even not so old) JS engines. In other words, there will be no support of transpilation to ES5, no support of polyfills, etc
  - Support special functionality of obsolete HTML elements (`<marquee>`, etc)
 
+## Running tests
+To run tests (`test/units` and WPT tests) use the following for WASM
+```
+deno test --allow-read wasm.test.ts
+```
+Or the following for native (native requires more permissions)
+```
+deno test --unstable --A native.test.ts
+```
+
+WPT tests are still a WIP, passed tests likely haven't actually passed.
+
 ## Building Deno DOM Native
 Deno DOM native is a faster backend for Deno DOM (check [benchmarks](./bench/)), however, 
 the WASM backend is sufficient for almost all use-cases.

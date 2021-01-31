@@ -12,7 +12,12 @@ export let parseFrag: Parser = (_html) => {
   Deno.exit(1);
 };
 
+const originalParse = parse;
 export function register(func: Parser, fragFunc: Parser) {
+  if (parse !== originalParse) {
+    return;
+  }
+
   parse = func;
   parseFrag = fragFunc;
 }

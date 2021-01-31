@@ -5,7 +5,7 @@ import {
   Comment,
   DocumentType,
   Element,
-} from "../deno-dom-wasm.ts";
+} from "../../deno-dom-wasm.ts";
 
 Deno.test("Comment before <html>", async () => {
   const src = await Deno.readTextFile("./comments-outside-html.html");
