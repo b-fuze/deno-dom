@@ -282,7 +282,7 @@ export class Element extends Node {
   }
 
   removeAttribute(name: string) {
-    this.attributes[name] = null as any as string;
+    delete this.attributes[name];
     if (name === "class") {
       this.#classList._update(null);
     }
