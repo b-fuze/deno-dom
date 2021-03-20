@@ -30,6 +30,11 @@ const exclude = new RegExp([
 ].join("|"));
 
 export function test(backend: Backend) {
+  // WPT tests are only explicitly run
+  if (!Deno.args.find(arg => ["-w", "--wpt"].includes(arg))) {
+    return;
+  }
+
   const testFiles: string[] = [];
   const limit = Infinity;
   let count = 0;
