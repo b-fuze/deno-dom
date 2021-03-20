@@ -4,3 +4,4 @@ node_modules
 .deno_plugins
 /target
 *~
+/.vim
