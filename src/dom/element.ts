@@ -1,6 +1,6 @@
 import { getLock } from "../constructor-lock.ts";
 import { fragmentNodesFromString } from "../deserialize.ts";
-import { Node, NodeType, Text } from "./node.ts";
+import { Node, NodeType, Text, Comment } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 
 export class DOMTokenList extends Set<string> {
@@ -205,10 +205,14 @@ export class Element extends Node {
     for (const child of this.childNodes) {
       switch (child.nodeType) {
         case NodeType.ELEMENT_NODE:
-          out += (<Element> child).outerHTML;
+          out += (child as Element).outerHTML;
           break;
-        case NodeType.TEXT_NODE:
 
+        case NodeType.COMMENT_NODE:
+          out += `<!--${ (child as Comment).data }-->`;
+          break;
+
+        case NodeType.TEXT_NODE:
           // Special handling for rawtext-like elements.
           switch (this.tagName.toLowerCase()) {
             case "style":
@@ -218,12 +222,12 @@ export class Element extends Node {
             case "noembed":
             case "noframes":
             case "plaintext":
-              out += (<Text> child).data;
+              out += (child as Text).data;
               break;
 
             default:
               // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
-              out += (<Text> child).data
+              out += (child as Text).data
                 .replace(/&/g, "&amp;")
                 .replace(/\xA0/g, "&nbsp;")
                 .replace(/</g, "&lt;")
