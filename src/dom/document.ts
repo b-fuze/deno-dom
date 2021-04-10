@@ -1,7 +1,9 @@
 import { setLock, getLock } from "../constructor-lock.ts";
 import { Node, NodeType, Text, Comment } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
+import { Filter } from "./node-filter.ts";
 import { Element } from "./element.ts";
+import { TreeWalker } from "./treewalker.ts"
 import { DOM as NWAPI } from "./nwsapi-types.ts";
 
 export class DOMImplementation {
@@ -165,6 +167,10 @@ export class Document extends Node {
     return child;
   }
 
+  createComment(data?: string): Comment {
+    return new Comment(data);
+  }
+
   createElement(tagName: string, options?: ElementCreationOptions): Element {
     tagName = tagName.toUpperCase();
 
@@ -191,8 +197,8 @@ export class Document extends Node {
     return new Text(data);
   }
 
-  createComment(data?: string): Comment {
-    return new Comment(data);
+  createTreeWalker(root: Node, whatToShow?: number, filter?: Filter): TreeWalker {
+    return new TreeWalker(root, whatToShow, filter);
   }
 
   querySelector(selectors: string): Element | null {
@@ -289,7 +295,7 @@ export class Document extends Node {
 
 export class HTMLDocument extends Document {
   constructor() {
-    let lock = getLock();
+    const lock = getLock();
     super();
 
     if (lock) {
