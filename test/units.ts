@@ -1,7 +1,7 @@
 import { dirname, join } from "https://deno.land/std@0.85.0/path/mod.ts";
 
 let unitDir = join(dirname(new URL(import.meta.url).pathname), "units");
-if(Deno.build.os == 'windows') {
+if (Deno.build.os === "windows") {
   unitDir = unitDir.slice(1);
 }
 const units = Array.from(Deno.readDirSync(unitDir))

@@ -17,7 +17,7 @@ const include = new RegExp([
   "Node-",
   "ParentNode-",
   "Text-",
-  "TreeWalker"
+  "TreeWalker",
 ].join("|"));
 
 const exclude = new RegExp([
