@@ -17,11 +17,11 @@ const include = new RegExp([
   "Node-",
   "ParentNode-",
   "Text-",
+  "TreeWalker"
 ].join("|"));
 
 const exclude = new RegExp([
   "-namespace",
-  "TreeWalker",
   "ProcessingInstruction",
   "CDATA", // TODO: maybe implement CDATA support
   "createEvent",
@@ -39,7 +39,7 @@ export function test(backend: Backend) {
   const limit = Infinity;
   let count = 0;
 
-  for (const testDir of [wptNodeTests]) {
+  for (const testDir of [wptTraversalTests, wptNodeTests]) {
     for (const entry of walkSync(testDir)) {
       const { path } = entry;
 

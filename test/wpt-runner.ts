@@ -9,7 +9,7 @@ export type Backend = "wasm" | "native";
 export async function run(path: string, root: string, backend: Backend) {
   const html = await Deno.readTextFile(path);
   const doc = parser.parseFromString(html, "text/html")!;
-  let scripts = Array.from(doc.querySelectorAll("script")).map(scriptNode => {
+  const scripts = Array.from(doc.querySelectorAll("script")).map(scriptNode => {
     const scriptElement = scriptNode as Element;
     let script = scriptElement.getAttribute("src")!;
     let scriptContents: string;
