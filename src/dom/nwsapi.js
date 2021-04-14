@@ -17,7 +17,7 @@
  */
 
 export default document => {
-  const NW = Factory({ document }, "null");
+  const NW = Factory({ document, DOMException }, "null");
   NW.configure({
     IDS_DUPES: false,
     LOGERRORS: false,
