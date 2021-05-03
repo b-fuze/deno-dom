@@ -41,6 +41,10 @@ const HTMLCollectionClass: any = (() => {
         indexOf: Array.prototype.indexOf.bind(this),
       }
     }
+
+    toString() {
+      return "[object HTMLCollection]";
+    }
   }
 
   return HTMLCollection;

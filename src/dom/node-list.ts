@@ -41,6 +41,10 @@ const NodeListClass: any = (() => {
         indexOf: Array.prototype.indexOf.bind(this),
       }
     }
+
+    toString() {
+      return "[object NodeList]";
+    }
   }
 
   return NodeList;
