@@ -13,12 +13,12 @@ Deno.test("querySelectorAll-selector-list", () => {
   `, "text/html")!;
 
   assertEquals(
-    Array.from(doc.querySelectorAll("a, link")).map(n => n.nodeName),
+    Array.from(doc.querySelectorAll("a, link"), n => n.nodeName),
     ["A", "LINK"],
   );
 
   assertEquals(
-    Array.from(docReverse.querySelectorAll("a, link")).map(n => n.nodeName),
+    Array.from(docReverse.querySelectorAll("a, link"), n => n.nodeName),
     ["LINK", "A"],
   );
 });
