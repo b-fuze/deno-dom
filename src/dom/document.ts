@@ -159,6 +159,16 @@ export class Document extends Node {
     return null;
   }
 
+  get doctype(): DocumentType | null {
+    for (const node of this.childNodes) {
+      if (node.nodeType === NodeType.DOCUMENT_TYPE_NODE) {
+        return <DocumentType> node;
+      }
+    }
+
+    return null;
+  }
+
   appendChild(child: Node): Node {
     super.appendChild(child);
     child._setOwnerDocument(this);
