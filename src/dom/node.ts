@@ -304,6 +304,103 @@ export class Node extends EventTarget {
 
     return prev;
   }
+
+
+  // Node.compareDocumentPosition()'s bitmask values
+  public static DOCUMENT_POSITION_DISCONNECTED = 1 as const;
+  public static DOCUMENT_POSITION_PRECEDING = 2 as const;
+  public static DOCUMENT_POSITION_FOLLOWING = 4 as const;
+  public static DOCUMENT_POSITION_CONTAINS = 8 as const;
+  public static DOCUMENT_POSITION_CONTAINED_BY = 16 as const;
+  public static DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC = 32 as const;
+
+  /**
+   * FIXME: Does not implement attribute node checks
+   * ref: https://dom.spec.whatwg.org/#dom-node-comparedocumentposition
+   * MDN: https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition
+   */
+  compareDocumentPosition(other: Node) {
+    if (other === this) {
+      return 0;
+    }
+
+    // Note: major browser implementations differ in their rejection error of
+    // non-Node or nullish values so we just copy the most relevant error message
+    // from Firefox
+    if (!(other instanceof Node)) {
+      throw new TypeError("Node.compareDocumentPosition: Argument 1 does not implement interface Node.");
+    }
+
+    let node1Root = other;
+    let node2Root = this as Node;
+    const node1Hierarchy = [node1Root];
+    const node2Hierarchy = [node2Root];
+    while (node1Root.parentNode ?? node2Root.parentNode) {
+      node1Root = node1Root.parentNode ? (node1Hierarchy.push(node1Root.parentNode), node1Root.parentNode) : node1Root;
+      node2Root = node2Root.parentNode ? (node2Hierarchy.push(node2Root.parentNode), node2Root.parentNode) : node2Root;
+    }
+
+    // Check if they don't share the same root node
+    if (node1Root !== node2Root) {
+      return Node.DOCUMENT_POSITION_DISCONNECTED
+        | Node.DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC
+        | Node.DOCUMENT_POSITION_PRECEDING;
+    }
+
+    const longerHierarchy = node1Hierarchy.length > node2Hierarchy.length
+      ? node1Hierarchy
+      : node2Hierarchy;
+    const shorterHierarchy = longerHierarchy === node1Hierarchy
+      ? node2Hierarchy
+      : node1Hierarchy;
+
+    // Check if either is a container of the other
+    if (longerHierarchy[longerHierarchy.length - shorterHierarchy.length] === shorterHierarchy[0]) {
+      return longerHierarchy === node1Hierarchy
+        // other is a child of this
+        ? Node.DOCUMENT_POSITION_CONTAINED_BY | Node.DOCUMENT_POSITION_FOLLOWING
+        // this is a child of other
+        : Node.DOCUMENT_POSITION_CONTAINS | Node.DOCUMENT_POSITION_PRECEDING;
+    }
+
+    // Find their first common ancestor and see whether they
+    // are preceding or following
+    const longerStart = longerHierarchy.length - shorterHierarchy.length;
+    for (let i = shorterHierarchy.length - 1; i >= 0; i--) {
+      const shorterHierarchyNode = shorterHierarchy[i];
+      const longerHierarchyNode = longerHierarchy[longerStart + i];
+
+      // We found the first common ancestor
+      if (longerHierarchyNode !== shorterHierarchyNode) {
+        const siblings = shorterHierarchyNode.parentNode!._getChildNodesMutator();
+
+        if (siblings.indexOf(shorterHierarchyNode) < siblings.indexOf(longerHierarchyNode)) {
+          // Shorter is before longer
+          if (shorterHierarchy === node1Hierarchy) {
+            // Other is before this
+            return Node.DOCUMENT_POSITION_PRECEDING;
+          } else {
+            // This is before other
+            return Node.DOCUMENT_POSITION_FOLLOWING;
+          }
+        } else {
+          // Longer is before shorter
+          if (longerHierarchy === node1Hierarchy) {
+            // Other is before this
+            return Node.DOCUMENT_POSITION_PRECEDING;
+          } else {
+            // Other is after this
+            return Node.DOCUMENT_POSITION_FOLLOWING;
+          }
+        }
+      }
+    }
+
+    // FIXME: Should probably throw here because this
+    // point should be unreachable code as per the
+    // intended logic
+    return Node.DOCUMENT_POSITION_FOLLOWING;
+  }
 }
 
 export class CharacterData extends Node {
