@@ -51,11 +51,11 @@ const { denoDomParseSync, denoDomParseFragSync } = core.ops();
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 function parse(html: string): string {
-  return decoder.decode(core.dispatch(denoDomParseSync, encoder.encode(html)));
+  return core.opSync("deno_dom_parse_sync", html);
 }
 
 function parseFrag(html: string): string {
-  return decoder.decode(core.dispatch(denoDomParseFragSync, encoder.encode(html)));
+  return core.opSync("deno_dom_parse_frag_sync", html);
 }
 
 // Register parse function
