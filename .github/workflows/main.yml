@@ -2,13 +2,17 @@ name: ci
 
 on:
   push:
-    branches:
-      - master
     paths:
-        - "Cargo.toml"
-        - "html-parser/core/**"
-        - "html-parser/plugin/**"
-        - ".github/workflows/**"
+      - "Cargo.toml"
+      - "html-parser/core/**"
+      - "html-parser/plugin/**"
+      - ".github/workflows/**"
+  pull_request:
+    paths:
+      - "Cargo.toml"
+      - "html-parser/core/**"
+      - "html-parser/plugin/**"
+      - ".github/workflows/**"
 
 jobs:
   build:
