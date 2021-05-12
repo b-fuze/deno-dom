@@ -11,7 +11,7 @@ use core::parse_frag as parse_frag_rs;
 pub fn init() -> Extension {
   Extension::builder()
     .ops(vec![
-      ("deno_dom_parse_sync", op_sync(deno_dom_parse_sync))
+      ("deno_dom_parse_sync", op_sync(deno_dom_parse_sync)),
       ("deno_dom_parse_frag_sync", op_sync(deno_dom_parse_frag_sync))
     ])
     .build()

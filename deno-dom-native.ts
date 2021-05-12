@@ -37,25 +37,18 @@ if (denoNativePluginPath) {
   await prepare(pluginOptions);
 }
 
-type pluginId = number;
 interface DenoCore {
-  ops(): {
-    [opName: string]: number;
-  };
-  dispatch(plugin: pluginId, ...data: Uint8Array[]): Uint8Array;
+  opSync(op: string, data1?: unknown, data2?: unknown): unknown;
 };
 
 const core = <DenoCore> (<any> <unknown> Deno).core;
-const { denoDomParseSync, denoDomParseFragSync } = core.ops();
 
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
 function parse(html: string): string {
-  return core.opSync("deno_dom_parse_sync", html);
+  return core.opSync("deno_dom_parse_sync", html) as string;
 }
 
 function parseFrag(html: string): string {
-  return core.opSync("deno_dom_parse_frag_sync", html);
+  return core.opSync("deno_dom_parse_frag_sync", html) as string;
 }
 
 // Register parse function
