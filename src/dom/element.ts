@@ -262,6 +262,14 @@ export class Element extends Node {
     }
   }
 
+  get innerText(): string {
+    return this.textContent;
+  }
+
+  set innerText(text: string) {
+    this.textContent = text;
+  }
+
   get id(): string {
     return this.#currentId || "";
   }
