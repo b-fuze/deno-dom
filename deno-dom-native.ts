@@ -16,7 +16,7 @@ if (denoNativePluginPath) {
   // Open native plugin and register the native `parse` function
   Deno.openPlugin(denoNativePluginPath);
 } else {
-  const releaseUrl = "https://github.com/b-fuze/deno-dom/releases/download/v0.1.2-alpha2";
+  const releaseUrl = "https://github.com/b-fuze/deno-dom/releases/download/v0.1.12-alpha";
   const pluginOptions: PerpareOptions = {
     name: "test_plugin",
 
