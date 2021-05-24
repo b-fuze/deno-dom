@@ -216,7 +216,16 @@ export class Node extends EventTarget {
   }
 
   removeChild(child: Node) {
-    // TODO
+    // Just copy Firefox's error messages
+    if (child && typeof child === "object") {
+      if (child.parentNode === this) {
+        return child.remove();
+      } else {
+        throw new DOMException("Node.removeChild: The node to be removed is not a child of this node");
+      }
+    } else {
+      throw new TypeError("Node.removeChild: Argument 1 is not an object.");
+    }
   }
 
   replaceChild(newChild: Node, oldChild: Node): Node {
@@ -319,7 +328,6 @@ export class Node extends EventTarget {
 
     return prev;
   }
-
 
   // Node.compareDocumentPosition()'s bitmask values
   public static DOCUMENT_POSITION_DISCONNECTED = 1 as const;
