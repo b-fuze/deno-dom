@@ -54,6 +54,21 @@ export class Node extends EventTarget {
   #ownerDocument: Document | null = null;
   private _ancestors = new Set<Node>();
 
+  // Instance constants defined after Node
+  // class body below to avoid clutter
+  static ELEMENT_NODE = NodeType.ELEMENT_NODE;
+  static ATTRIBUTE_NODE = NodeType.ATTRIBUTE_NODE;
+  static TEXT_NODE = NodeType.TEXT_NODE;
+  static CDATA_SECTION_NODE = NodeType.CDATA_SECTION_NODE;
+  static ENTITY_REFERENCE_NODE = NodeType.ENTITY_REFERENCE_NODE;
+  static ENTITY_NODE = NodeType.ENTITY_NODE;
+  static PROCESSING_INSTRUCTION_NODE = NodeType.PROCESSING_INSTRUCTION_NODE;
+  static COMMENT_NODE = NodeType.COMMENT_NODE;
+  static DOCUMENT_NODE = NodeType.DOCUMENT_NODE;
+  static DOCUMENT_TYPE_NODE = NodeType.DOCUMENT_TYPE_NODE;
+  static DOCUMENT_FRAGMENT_NODE = NodeType.DOCUMENT_FRAGMENT_NODE;
+  static NOTATION_NODE = NodeType.NOTATION_NODE;
+
   constructor(
     public nodeName: string,
     public nodeType: NodeType,
@@ -402,6 +417,35 @@ export class Node extends EventTarget {
     return Node.DOCUMENT_POSITION_FOLLOWING;
   }
 }
+
+// Node instance `nodeType` enum constants
+export interface Node {
+  ELEMENT_NODE: NodeType;
+  ATTRIBUTE_NODE: NodeType;
+  TEXT_NODE: NodeType;
+  CDATA_SECTION_NODE: NodeType;
+  ENTITY_REFERENCE_NODE: NodeType;
+  ENTITY_NODE: NodeType;
+  PROCESSING_INSTRUCTION_NODE: NodeType;
+  COMMENT_NODE: NodeType;
+  DOCUMENT_NODE: NodeType;
+  DOCUMENT_TYPE_NODE: NodeType;
+  DOCUMENT_FRAGMENT_NODE: NodeType;
+  NOTATION_NODE: NodeType;
+}
+
+Node.prototype.ELEMENT_NODE = NodeType.ELEMENT_NODE;
+Node.prototype.ATTRIBUTE_NODE = NodeType.ATTRIBUTE_NODE;
+Node.prototype.TEXT_NODE = NodeType.TEXT_NODE;
+Node.prototype.CDATA_SECTION_NODE = NodeType.CDATA_SECTION_NODE;
+Node.prototype.ENTITY_REFERENCE_NODE = NodeType.ENTITY_REFERENCE_NODE;
+Node.prototype.ENTITY_NODE = NodeType.ENTITY_NODE;
+Node.prototype.PROCESSING_INSTRUCTION_NODE = NodeType.PROCESSING_INSTRUCTION_NODE;
+Node.prototype.COMMENT_NODE = NodeType.COMMENT_NODE;
+Node.prototype.DOCUMENT_NODE = NodeType.DOCUMENT_NODE;
+Node.prototype.DOCUMENT_TYPE_NODE = NodeType.DOCUMENT_TYPE_NODE;
+Node.prototype.DOCUMENT_FRAGMENT_NODE = NodeType.DOCUMENT_FRAGMENT_NODE;
+Node.prototype.NOTATION_NODE = NodeType.NOTATION_NODE;
 
 export class CharacterData extends Node {
   constructor(
