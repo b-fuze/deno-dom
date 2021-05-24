@@ -35,11 +35,10 @@ jobs:
       - name: Install rust
         uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: "1.43.1"
+          rust-version: "1.50.0"
 
       - name: Log versions
         run: |
-          # node -v
           rustc --version
           cargo --version
 
