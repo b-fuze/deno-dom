@@ -9,6 +9,7 @@ use core::parse_frag as parse_frag_rs;
 
 #[no_mangle]
 pub fn init() -> Extension {
+  // force ci
   Extension::builder()
     .ops(vec![
       ("deno_dom_parse_sync", op_sync(deno_dom_parse_sync)),
