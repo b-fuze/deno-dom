@@ -181,6 +181,10 @@ export class Node extends EventTarget {
     return this.childNodes[this.childNodes.length - 1] || null;
   }
 
+  hasChildNodes() {
+    return this.firstChild !== null;
+  }
+
   cloneNode() {
     // TODO
   }
