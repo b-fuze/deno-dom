@@ -25,6 +25,14 @@ export class DOMTokenList extends Set<string> {
     this.#onChange("");
   }
 
+  remove(...tokens: string[]): this {
+    for (const token of tokens) {
+      super.delete(token)
+    }
+    this.#onChange([...this].join(" "));
+    return this;
+  }
+
   delete(token: string): boolean {
     const deleted = super.delete(token);
     if (deleted) {
