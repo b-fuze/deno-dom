@@ -383,6 +383,10 @@ export class Element extends Node {
     return nodeList;
   }
 
+  matches(selectorString: string): boolean {
+    return this.ownerDocument!._nwapi.match(selectorString, this)
+  }
+
   // TODO: DRY!!!
   getElementById(id: string): Element | null {
     for (const child of this.childNodes) {
