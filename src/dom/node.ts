@@ -49,6 +49,7 @@ const nodesAndTextNodes = (nodes: (Node | any)[], parentNode: Node) => {
 export class Node extends EventTarget {
   public nodeValue: string | null;
   public childNodes: NodeList;
+  public parentNode: Node | null = null;
   public parentElement: Element | null;
   #childNodesMutator: NodeListMutator;
   #ownerDocument: Document | null = null;
@@ -72,7 +73,7 @@ export class Node extends EventTarget {
   constructor(
     public nodeName: string,
     public nodeType: NodeType,
-    public parentNode: Node | null,
+    parentNode: Node | null,
   ) {
     super();
     if (getLock()) {
@@ -129,7 +130,7 @@ export class Node extends EventTarget {
   _assertNotAncestor(child: Node) {
     // Check this child isn't an ancestor
     if (this._ancestors.has(child) || child === this) {
-      throw new Error("DOMException: The new child is an ancestor of the parent");
+      throw new DOMException("The new child is an ancestor of the parent");
     }
   }
 
