@@ -129,7 +129,7 @@ export class Node extends EventTarget {
 
   _assertNotAncestor(child: Node) {
     // Check this child isn't an ancestor
-    if (this._ancestors.has(child) || child === this) {
+    if (child.contains(this)) {
       throw new DOMException("The new child is an ancestor of the parent");
     }
   }
@@ -142,6 +142,10 @@ export class Node extends EventTarget {
         child._setOwnerDocument(document);
       }
     }
+  }
+
+  contains(child: Node) {
+    return child._ancestors.has(this) || child === this;
   }
 
   get ownerDocument() {
