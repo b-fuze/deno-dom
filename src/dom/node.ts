@@ -118,7 +118,7 @@ export class Node extends EventTarget {
       this._setOwnerDocument(newParent.#ownerDocument);
 
       // Add parent chain to ancestors
-      let parent: Node | null = newParent;
+      const parent: Node | null = newParent;
       this._ancestors = new Set(newParent._ancestors);
       this._ancestors.add(newParent);
     } else {
@@ -320,7 +320,7 @@ export class Node extends EventTarget {
     }
 
     const index = parent._getChildNodesMutator().indexOf(this);
-    let next: Node | null = this.childNodes[index + 1] || null;
+    const next: Node | null = this.childNodes[index + 1] || null;
 
     return next;
   }
@@ -333,7 +333,7 @@ export class Node extends EventTarget {
     }
 
     const index = parent._getChildNodesMutator().indexOf(this);
-    let prev: Node | null = this.childNodes[index - 1] || null;
+    const prev: Node | null = this.childNodes[index - 1] || null;
 
     return prev;
   }
@@ -495,7 +495,7 @@ export class Text extends CharacterData {
   constructor(
     text: string = "",
   ) {
-    let oldLock = getLock();
+    const oldLock = getLock();
     setLock(false);
     super(
       text,
@@ -517,7 +517,7 @@ export class Comment extends CharacterData {
   constructor(
     text: string = "",
   ) {
-    let oldLock = getLock();
+    const oldLock = getLock();
     setLock(false);
     super(
       text,
