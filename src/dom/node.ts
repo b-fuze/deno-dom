@@ -208,22 +208,26 @@ export class Node extends EventTarget {
   }
 
   appendChild(child: Node): Node {
-    this._assertNotAncestor(child); // FIXME: Should this really be a method?
-    const oldParentNode = child.parentNode;
+    return child._appendTo(this);
+  }
+
+  _appendTo(parentNode: Node) {
+    parentNode._assertNotAncestor(this); // FIXME: Should this really be a method?
+    const oldParentNode = this.parentNode;
 
     // Check if we already own this child
-    if (oldParentNode === this) {
-      if (this.#childNodesMutator.indexOf(child) !== -1) {
-        return child;
+    if (oldParentNode === parentNode) {
+      if (parentNode._getChildNodesMutator().indexOf(this) !== -1) {
+        return this;
       }
     } else if (oldParentNode) {
-      child.remove();
+      this.remove();
     }
 
-    child._setParent(this, true);
-    this.#childNodesMutator.push(child);
+    this._setParent(parentNode, true);
+    parentNode._getChildNodesMutator().push(this);
 
-    return child;
+    return this;
   }
 
   removeChild(child: Node) {
