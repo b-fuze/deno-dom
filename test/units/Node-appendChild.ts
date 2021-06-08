@@ -38,3 +38,41 @@ Deno.test("Node.appendChild throws", () => {
     "The new child is an ancestor of the parent",
   );
 });
+
+Deno.test("Node.appendChild throws with new parent & grandchild", () => {
+  const doc = new DOMParser().parseFromString(
+    `
+      <div class=parent>
+        <div class=child>
+          <div class=grandchild></div>
+        </div>
+      </div>
+      <div class=newparent></div>
+    `,
+    "text/html",
+  )!;
+  const newParent = doc.querySelector(".newparent")!;
+  const child = doc.querySelector(".child")!;
+  const grandChild = doc.querySelector(".grandchild")!;
+
+  // Change parents
+  newParent.appendChild(child);
+
+  assertThrows(
+    () => {
+      child.appendChild(newParent);
+    },
+    DOMException,
+    "The new child is an ancestor of the parent",
+    "throw on new direct child",
+  );
+
+  assertThrows(
+    () => {
+      grandChild.appendChild(newParent);
+    },
+    DOMException,
+    "The new child is an ancestor of the parent",
+    "throw on new grandchild",
+  );
+});

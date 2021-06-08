@@ -41,7 +41,7 @@ const nodesAndTextNodes = (nodes: (Node | any)[], parentNode: Node) => {
       node = new Text("" + n);
     }
 
-    node._setParent(parentNode);
+    node._setParent(parentNode, true);
     return node;
   });
 }
@@ -94,36 +94,38 @@ export class Node extends EventTarget {
     return this.#childNodesMutator;
   }
 
-  _setParent(newParent: Node | null) {
-    // Update ancestors for child nodes
-    for (const child of this.childNodes) {
-      child._setParent(this);
-    }
+  _setParent(newParent: Node | null, force = false) {
+    const sameParent = this.parentNode === newParent;
+    const shouldUpdateParentAndAncestors = !sameParent || force;
 
-    if (this.parentNode === newParent) {
-      return;
-    }
+    if (shouldUpdateParentAndAncestors) {
+      this.parentNode = newParent;
 
-    this.parentNode = newParent;
+      if (newParent) {
+        if (!sameParent) {
+          // If this a document node or another non-element node
+          // then parentElement should be set to null
+          if (newParent.nodeType === NodeType.ELEMENT_NODE) {
+            this.parentElement = newParent as unknown as Element;
+          } else {
+            this.parentElement = null;
+          }
 
-    if (newParent) {
-      // If this a document node or another non-element node
-      // then parentElement should be set to null
-      if (newParent.nodeType === NodeType.ELEMENT_NODE) {
-        this.parentElement = newParent as unknown as Element;
+          this._setOwnerDocument(newParent.#ownerDocument);
+        }
+
+        // Add parent chain to ancestors
+        this._ancestors = new Set(newParent._ancestors);
+        this._ancestors.add(newParent);
       } else {
         this.parentElement = null;
+        this._ancestors.clear();
       }
 
-      this._setOwnerDocument(newParent.#ownerDocument);
-
-      // Add parent chain to ancestors
-      let parent: Node | null = newParent;
-      this._ancestors = new Set(newParent._ancestors);
-      this._ancestors.add(newParent);
-    } else {
-      this.parentElement = null;
-      this._ancestors.clear();
+      // Update ancestors for child nodes
+      for (const child of this.childNodes) {
+        child._setParent(this, shouldUpdateParentAndAncestors);
+      }
     }
   }
 
@@ -218,7 +220,7 @@ export class Node extends EventTarget {
       child.remove();
     }
 
-    child._setParent(this);
+    child._setParent(this, true);
     this.#childNodesMutator.push(child);
 
     return child;
@@ -281,7 +283,8 @@ export class Node extends EventTarget {
       throw new Error("DOMException: Child to insert before is not a child of this node");
     }
 
-    newNode._setParent(this);
+    const oldParentNode = newNode.parentNode;
+    newNode._setParent(this, oldParentNode !== this);
     mutator.splice(index, 0, newNode);
 
     return newNode;
