@@ -1,4 +1,4 @@
-import { getLock, setLock } from "../constructor-lock.ts";
+import { CTOR_KEY } from "../constructor-lock.ts";
 import { nodesFromString } from "../deserialize.ts";
 import { HTMLDocument, DocumentType } from "./document.ts";
 import type { Element } from "./element.ts";
@@ -16,10 +16,7 @@ export class DOMParser {
       throw new Error(`DOMParser: "${ mimeType }" unimplemented`); // TODO
     }
 
-    setLock(false);
-    const doc = new HTMLDocument();
-
-    setLock(false);
+    const doc = new HTMLDocument(CTOR_KEY);
 
     const fakeDoc = nodesFromString(source);
     let htmlNode: Element | null = null;
@@ -36,8 +33,7 @@ export class DOMParser {
     }
 
     if (!hasDoctype) {
-      setLock(false);
-      const docType = new DocumentType("html", "", "");
+      const docType = new DocumentType("html", "", "", CTOR_KEY);
       // doc.insertBefore(docType, doc.firstChild);
       if (doc.childNodes.length === 0) {
         doc.appendChild(docType);
@@ -45,8 +41,6 @@ export class DOMParser {
         doc.childNodes[0].before(docType);
       }
     }
-
-    setLock(true);
 
     if (htmlNode) {
       for (const child of htmlNode.childNodes) {

@@ -1,4 +1,4 @@
-import { getLock, setLock } from "../constructor-lock.ts";
+import { CTOR_KEY } from "../constructor-lock.ts";
 import { NodeList, NodeListMutator, nodeListMutatorSym } from "./node-list.ts";
 import { HTMLCollection, HTMLCollectionMutator, HTMLCollectionMutatorSym } from "./html-collection.ts";
 import type { Element } from "./element.ts";
@@ -74,11 +74,12 @@ export class Node extends EventTarget {
     public nodeName: string,
     public nodeType: NodeType,
     parentNode: Node | null,
+    key: any,
   ) {
-    super();
-    if (getLock()) {
-      throw new TypeError("Illegal constructor");
+    if (key !== CTOR_KEY) {
+      throw new TypeError("Illegal constructor.");
     }
+    super();
 
     this.nodeValue = null;
     this.childNodes = new NodeList();
@@ -477,15 +478,14 @@ export class CharacterData extends Node {
     nodeName: string,
     nodeType: NodeType,
     parentNode: Node | null,
+    key: any,
   ) {
     super(
       nodeName,
       nodeType,
       parentNode,
+      key,
     );
-    if (getLock()) {
-      throw new TypeError("Illegal constructor");
-    }
 
     this.nodeValue = data;
   }
@@ -502,17 +502,15 @@ export class Text extends CharacterData {
   constructor(
     text: string = "",
   ) {
-    let oldLock = getLock();
-    setLock(false);
     super(
       text,
       "#text",
       NodeType.TEXT_NODE,
       null,
+      CTOR_KEY,
     );
 
     this.nodeValue = text;
-    setLock(oldLock);
   }
 
   get textContent(): string {
@@ -524,17 +522,15 @@ export class Comment extends CharacterData {
   constructor(
     text: string = "",
   ) {
-    let oldLock = getLock();
-    setLock(false);
     super(
       text,
       "#comment",
       NodeType.COMMENT_NODE,
       null,
+      CTOR_KEY,
     );
 
     this.nodeValue = text;
-    setLock(oldLock);
   }
 
   get textContent(): string {

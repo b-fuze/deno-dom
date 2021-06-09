@@ -1,12 +1,12 @@
-import { setLock, getLock } from "../constructor-lock.ts";
+import { CTOR_KEY } from "../constructor-lock.ts";
 import { Node, NodeType, Text, Comment } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
 import { DOM as NWAPI } from "./nwsapi-types.ts";
 
 export class DOMImplementation {
-  constructor() {
-    if (getLock()) {
+  constructor(key: any) {
+    if (key !== CTOR_KEY) {
       throw new TypeError("Illegal constructor.");
     }
   }
@@ -18,35 +18,29 @@ export class DOMImplementation {
   createHTMLDocument(titleStr?: string): HTMLDocument {
     titleStr += "";
 
-    // TODO: Figure out a way to make `setLock` invocations less redundant
-    setLock(false);
-    const doc = new HTMLDocument();
+    const doc = new HTMLDocument(CTOR_KEY);
 
-    setLock(false);
-    const docType = new DocumentType("html", "", "");
+    const docType = new DocumentType("html", "", "", CTOR_KEY);
     doc.appendChild(docType);
 
-    const html = new Element("html", doc, []);
+    const html = new Element("html", doc, [], CTOR_KEY);
     html._setOwnerDocument(doc);
 
-    const head = new Element("head", html, []);
-    const body = new Element("body", html, []);
+    const head = new Element("head", html, [], CTOR_KEY);
+    const body = new Element("body", html, [], CTOR_KEY);
 
-    const title = new Element("title", head, []);
+    const title = new Element("title", head, [], CTOR_KEY);
     const titleText = new Text(titleStr);
     title.appendChild(titleText);
 
     doc.head = head;
     doc.body = body;
 
-    setLock(true);
     return doc;
   }
 
   createDocumentType(qualifiedName: string, publicId: string, systemId: string): DocumentType {
-    setLock(false);
-    const doctype = new DocumentType(qualifiedName, publicId, systemId);
-    setLock(true);
+    const doctype = new DocumentType(qualifiedName, publicId, systemId, CTOR_KEY);
 
     return doctype;
   }
@@ -61,11 +55,13 @@ export class DocumentType extends Node {
     name: string,
     publicId: string,
     systemId: string,
+    key: any,
   ) {
     super(
       "html", 
       NodeType.DOCUMENT_TYPE_NODE, 
-      null
+      null,
+      key
     );
 
     this.#qualifiedName = name;
@@ -105,14 +101,13 @@ export class Document extends Node {
 
   constructor() {
     super(
-      (setLock(false), "#document"),
+      "#document",
       NodeType.DOCUMENT_NODE,
       null,
+      CTOR_KEY,
     );
 
-    setLock(false);
-    this.implementation = new DOMImplementation();
-    setLock(true);
+    this.implementation = new DOMImplementation(CTOR_KEY);
   }
 
   // Expose the document's NWAPI for Element's access to
@@ -178,10 +173,8 @@ export class Document extends Node {
   createElement(tagName: string, options?: ElementCreationOptions): Element {
     tagName = tagName.toUpperCase();
 
-    setLock(false);
-    const elm = new Element(tagName, null, []);
+    const elm = new Element(tagName, null, [], CTOR_KEY);
     elm._setOwnerDocument(this);
-    setLock(true);
     return elm;
   }
 
@@ -298,15 +291,11 @@ export class Document extends Node {
 }
 
 export class HTMLDocument extends Document {
-  constructor() {
-    let lock = getLock();
-    super();
-
-    if (lock) {
+  constructor(key: any) {
+    if (key !== CTOR_KEY) {
       throw new TypeError("Illegal constructor.");
     }
-
-    setLock(false);
+    super();
   }
 }
 
