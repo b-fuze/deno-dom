@@ -64,7 +64,7 @@ export class Attr {
   #namedNodeMap: NamedNodeMap | null = null;
   #name: string = "";
 
-  constructor(map: NamedNodeMap, name: string, key: any) {
+  constructor(map: NamedNodeMap, name: string, key: symbol) {
     if (key !== CTOR_KEY) {
       throw new TypeError("Illegal constructor");
     }
@@ -114,7 +114,7 @@ export class Element extends Node {
     public tagName: string,
     parentNode: Node | null,
     attributes: [string, string][],
-    key: any,
+    key: symbol,
   ) {
     super(
       tagName,

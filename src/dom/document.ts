@@ -5,7 +5,7 @@ import { Element } from "./element.ts";
 import { DOM as NWAPI } from "./nwsapi-types.ts";
 
 export class DOMImplementation {
-  constructor(key: any) {
+  constructor(key: symbol) {
     if (key !== CTOR_KEY) {
       throw new TypeError("Illegal constructor.");
     }
@@ -55,7 +55,7 @@ export class DocumentType extends Node {
     name: string,
     publicId: string,
     systemId: string,
-    key: any,
+    key: symbol,
   ) {
     super(
       "html", 
@@ -291,7 +291,7 @@ export class Document extends Node {
 }
 
 export class HTMLDocument extends Document {
-  constructor(key: any) {
+  constructor(key: symbol) {
     if (key !== CTOR_KEY) {
       throw new TypeError("Illegal constructor.");
     }
