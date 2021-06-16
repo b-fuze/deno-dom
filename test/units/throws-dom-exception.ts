@@ -13,14 +13,14 @@ Deno.test("Invalid querySelector query throws DOMException", () => {
 Deno.test("Throws on invalid constructor key", () => {
   assertThrows(
     () => {
-      new HTMLDocument(undefined as any);
+      new (HTMLDocument as any)(undefined);
     },
     TypeError,
     "Illegal constructor.",
   );
   assertThrows(
     () => {
-      new HTMLDocument({});
+      new (HTMLDocument as any)({});
     },
     TypeError,
     "Illegal constructor.",
