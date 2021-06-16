@@ -1,23 +1,19 @@
 import { parse, parseFrag } from "./parser.ts";
-import { setLock } from "./constructor-lock.ts";
+import { CTOR_KEY } from "./constructor-lock.ts";
 import { Node, NodeType, Text, Comment } from "./dom/node.ts";
 import { DocumentType } from "./dom/document.ts";
 import { Element } from "./dom/element.ts";
 
 export function nodesFromString(html: string): Node {
-  setLock(false);
   const parsed = JSON.parse(parse(html));
   const node = nodeFromArray(parsed, null);
-  setLock(true);
 
   return node;
 }
 
 export function fragmentNodesFromString(html: string): Node {
-  setLock(false);
   const parsed = JSON.parse(parseFrag(html));
   const node = nodeFromArray(parsed, null);
-  setLock(true);
 
   return node;
 }
@@ -26,7 +22,7 @@ function nodeFromArray(data: any, parentNode: Node | null): Node {
   // For reference only:
   // type node = [NodeType, nodeName, attributes, node[]]
   //             | [NodeType, characterData]
-  const elm = new Element(data[1], parentNode, data[2]);
+  const elm = new Element(data[1], parentNode, data[2], CTOR_KEY);
   const childNodes = elm._getChildNodesMutator();
   let childNode: Node;
 
@@ -50,7 +46,7 @@ function nodeFromArray(data: any, parentNode: Node | null): Node {
         break;
 
       case NodeType.DOCUMENT_TYPE_NODE:
-        childNode = new DocumentType(child[1], child[2], child[3]);
+        childNode = new DocumentType(child[1], child[2], child[3], CTOR_KEY);
         childNode.parentNode = childNode.parentElement = <Element>elm;
         childNodes.push(childNode);
         break;
