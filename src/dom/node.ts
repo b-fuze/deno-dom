@@ -137,12 +137,14 @@ export class Node extends EventTarget {
     }
   }
 
-  _setOwnerDocument(document: Document | null) {
+  _setOwnerDocument(document: Document | null, deep: boolean = true) {
     if (this.#ownerDocument !== document) {
       this.#ownerDocument = document;
 
-      for (const child of this.childNodes) {
-        child._setOwnerDocument(document);
+      if (deep) {
+        for (const child of this.childNodes) {
+          child._setOwnerDocument(document);
+        }
       }
     }
   }
@@ -193,8 +195,22 @@ export class Node extends EventTarget {
     return this.firstChild !== null;
   }
 
-  cloneNode() {
-    // TODO
+  cloneNode(deep: boolean = false): this {
+    const copy = this._shallowClone();
+
+    copy._setOwnerDocument(this.ownerDocument, false);
+
+    if (deep) {
+      for (const child of this.childNodes) {
+        copy.appendChild(child.cloneNode(true));
+      }
+    }
+
+    return copy as this;
+  }
+
+  _shallowClone(): Node {
+    throw new Error("Illegal invocation");
   }
 
   remove() {
@@ -513,6 +529,10 @@ export class Text extends CharacterData {
     this.nodeValue = text;
   }
 
+  _shallowClone(): Node {
+    return new Text(this.textContent);
+  }
+
   get textContent(): string {
     return <string> this.nodeValue;
   }
@@ -531,6 +551,10 @@ export class Comment extends CharacterData {
     );
 
     this.nodeValue = text;
+  }
+
+  _shallowClone(): Node {
+    return new Comment(this.textContent);
   }
 
   get textContent(): string {
