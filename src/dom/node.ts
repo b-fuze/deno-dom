@@ -141,10 +141,8 @@ export class Node extends EventTarget {
     if (this.#ownerDocument !== document) {
       this.#ownerDocument = document;
 
-      if (deep) {
-        for (const child of this.childNodes) {
-          child._setOwnerDocument(document);
-        }
+      for (const child of this.childNodes) {
+        child._setOwnerDocument(document);
       }
     }
   }
@@ -200,10 +198,8 @@ export class Node extends EventTarget {
 
     copy._setOwnerDocument(this.ownerDocument);
 
-    if (deep) {
-      for (const child of this.childNodes) {
-        copy.appendChild(child.cloneNode(true));
-      }
+    for (const child of this.childNodes) {
+      copy.appendChild(child.cloneNode(true));
     }
 
     return copy as this;
