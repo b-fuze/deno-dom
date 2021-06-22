@@ -139,6 +139,14 @@ export class Element extends Node {
     this.tagName = this.nodeName = tagName.toUpperCase();
   }
 
+  _shallowClone(): Node {
+    const attributes: [string, string][] = [];
+    for (const attribute of Object.getOwnPropertyNames(this.attributes)) {
+      attributes.push([attribute, this.attributes[attribute]])
+    }
+    return new Element(this.nodeName, null, attributes, CTOR_KEY);
+  }
+
   get className(): string {
     return this.getAttribute("class") ?? "";
   }

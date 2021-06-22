@@ -80,6 +80,10 @@ export class DocumentType extends Node {
   get systemId() {
     return this.#systemId;
   }
+
+  _shallowClone(): Node {
+    return new DocumentType(this.#qualifiedName, this.#publicId, this.#systemId, CTOR_KEY);
+  }
 }
 
 export interface ElementCreationOptions {
@@ -108,6 +112,10 @@ export class Document extends Node {
     );
 
     this.implementation = new DOMImplementation(CTOR_KEY);
+  }
+
+  _shallowClone(): Node {
+    return new Document();
   }
 
   // Expose the document's NWAPI for Element's access to
@@ -196,6 +204,21 @@ export class Document extends Node {
 
   createComment(data?: string): Comment {
     return new Comment(data);
+  }
+
+  importNode(node: Node, deep: boolean = false) {
+    const copy = node.cloneNode(deep);
+
+    copy._setOwnerDocument(this);
+
+    return copy;
+  }
+
+  adoptNode(node: Node) {
+    node._setParent(null);
+    node._setOwnerDocument(this);
+
+    return node;
   }
 
   querySelector(selectors: string): Element | null {
@@ -296,6 +319,10 @@ export class HTMLDocument extends Document {
       throw new TypeError("Illegal constructor.");
     }
     super();
+  }
+
+  _shallowClone(): Node {
+    return new HTMLDocument(CTOR_KEY);
   }
 }
 
