@@ -209,7 +209,7 @@ export class Document extends Node {
   importNode(node: Node, deep: boolean = false) {
     const copy = node.cloneNode(deep);
 
-    copy._setOwnerDocument(this, deep);
+    copy._setOwnerDocument(this);
 
     return copy;
   }

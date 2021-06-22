@@ -137,7 +137,7 @@ export class Node extends EventTarget {
     }
   }
 
-  _setOwnerDocument(document: Document | null, deep: boolean = true) {
+  _setOwnerDocument(document: Document | null) {
     if (this.#ownerDocument !== document) {
       this.#ownerDocument = document;
 
@@ -198,7 +198,7 @@ export class Node extends EventTarget {
   cloneNode(deep: boolean = false): this {
     const copy = this._shallowClone();
 
-    copy._setOwnerDocument(this.ownerDocument, false);
+    copy._setOwnerDocument(this.ownerDocument);
 
     if (deep) {
       for (const child of this.childNodes) {
