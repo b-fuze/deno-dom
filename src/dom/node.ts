@@ -198,8 +198,10 @@ export class Node extends EventTarget {
 
     copy._setOwnerDocument(this.ownerDocument);
 
-    for (const child of this.childNodes) {
-      copy.appendChild(child.cloneNode(true));
+    if (deep) {
+      for (const child of this.childNodes) {
+        copy.appendChild(child.cloneNode(true));
+      }
     }
 
     return copy as this;
