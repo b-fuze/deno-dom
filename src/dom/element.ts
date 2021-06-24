@@ -141,7 +141,7 @@ export class Element extends Node {
 
   _shallowClone(): Node {
     const attributes: [string, string][] = [];
-    for (const attribute of Object.getOwnPropertyNames(this.attributes)) {
+    for (const attribute of this.getAttributeNames()) {
       attributes.push([attribute, this.attributes[attribute]])
     }
     return new Element(this.nodeName, null, attributes, CTOR_KEY);
@@ -165,7 +165,7 @@ export class Element extends Node {
     const attributes = this.attributes;
     let out = "<" + tagName;
 
-    for (const attribute of Object.getOwnPropertyNames(attributes)) {
+    for (const attribute of this.getAttributeNames()) {
       out += ` ${ attribute.toLowerCase() }`;
 
       // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
@@ -287,6 +287,10 @@ export class Element extends Node {
 
   set id(id: string) {
     this.setAttribute(id, this.#currentId = id);
+  }
+
+  getAttributeNames(): string[] {
+    return Object.getOwnPropertyNames(this.attributes);
   }
 
   getAttribute(name: string): string | null {
