@@ -294,11 +294,12 @@ export class Element extends Node {
   }
 
   getAttribute(name: string): string | null {
-    return this.attributes[name] ?? null;
+    return this.attributes[name?.toLowerCase()] ?? null;
   }
 
-  setAttribute(name: string, value: any) {
-    const strValue = "" + value;
+  setAttribute(rawName: string, value: any) {
+    const name = rawName?.toLowerCase();
+    const strValue = String(value);
     this.attributes[name] = strValue;
 
     if (name === "id") {
@@ -308,7 +309,8 @@ export class Element extends Node {
     }
   }
 
-  removeAttribute(name: string) {
+  removeAttribute(rawName: string) {
+    const name = rawName?.toLowerCase();
     delete this.attributes[name];
     if (name === "class") {
       this.#classList._update(null);
@@ -316,12 +318,12 @@ export class Element extends Node {
   }
 
   hasAttribute(name: string): boolean {
-    return this.attributes.hasOwnProperty(name);
+    return this.attributes.hasOwnProperty(name?.toLowerCase());
   }
 
   hasAttributeNS(_namespace: string, name: string): boolean {
     // TODO: Use namespace
-    return this.attributes.hasOwnProperty(name);
+    return this.attributes.hasOwnProperty(name?.toLowerCase());
   }
 
   get nextElementSibling(): Element | null {
