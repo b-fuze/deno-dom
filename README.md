@@ -52,19 +52,19 @@ inconsistencies (that aren't a result of legacy APIs) file an issue.
 
 ## Running tests
 To run tests (excluding WPT tests) use the following for WASM
-```
+```sh
 deno test --allow-read wasm.test.ts
 ```
 Or the following for native (native requires more permissions)
-```
+```sh
 deno test --unstable --A native.test.ts
 ```
 To run WPT tests update the WPT submodule
-```
+```sh
 git submodule update --progress --depth 1
 ```
 Then append `-- --wpt` to the test command before running it, e.g. for WASM
-```
+```sh
 deno test --allow-read wasm.test.ts -- --wpt
 ```
 
@@ -80,7 +80,7 @@ binary in those cases.
 
 To build Deno DOM's native backend, [install Rust](https://www.rust-lang.org/learn/get-started) if you haven't already,
 then run
-```
+```sh
 cargo build --release
 ```
 which produces a binary located at `target/release/libplugin.{so,dll,dylib}` (extension depends on your system).
