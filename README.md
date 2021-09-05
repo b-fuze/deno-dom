@@ -30,6 +30,25 @@ importing either `deno-dom-wasm.ts` or `deno-dom-native.ts`.
 Deno DOM is still under development, but is fairly usable for basic HTML
 manipulation needs.
 
+### WebAssembly Startup Penalty
+Deno suffers an initial startup penalty in Deno DOM WASM due to Top Level
+Await (TLA) preparing the WASM parser. As an alternative to running the
+initiation on startup, you can initialize Deno DOM's parser on-demand
+yourself when you need it by importing from `deno-dom-wasm-noinit.ts`.
+Example:
+```typescript
+// Note: -wasm-noinit.ts and not -wasm.ts
+import { initParser, DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm-noinit.ts";
+
+// ...and when you need Deno DOM make sure you initialize the parser...
+await initParser();
+
+// Then you can use Deno DOM as you would normally
+const doc = new DOMParser().parseFromString(`
+  <h1>Lorem ipsum dolor...</h1>
+`);
+```
+
 ## Documentation
 Refer to MDN (Mozilla Developer Network) for documentation. If there are
 inconsistencies (that aren't a result of legacy APIs) file an issue.
