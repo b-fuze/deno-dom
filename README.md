@@ -46,7 +46,7 @@ await initParser();
 // Then you can use Deno DOM as you would normally
 const doc = new DOMParser().parseFromString(`
   <h1>Lorem ipsum dolor...</h1>
-`);
+`, "text/html");
 ```
 
 ## Documentation
