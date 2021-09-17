@@ -342,7 +342,7 @@ export class Node extends EventTarget {
     }
 
     const index = parent._getChildNodesMutator().indexOf(this);
-    let next: Node | null = this.childNodes[index + 1] || null;
+    const next: Node | null = parent.childNodes[index + 1] || null;
 
     return next;
   }
@@ -355,7 +355,7 @@ export class Node extends EventTarget {
     }
 
     const index = parent._getChildNodesMutator().indexOf(this);
-    let prev: Node | null = this.childNodes[index - 1] || null;
+    const prev: Node | null = parent.childNodes[index - 1] || null;
 
     return prev;
   }
