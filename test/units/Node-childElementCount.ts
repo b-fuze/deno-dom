@@ -15,7 +15,7 @@ Deno.test("Element.childElementCount", () => {
   assertEquals(list.childElementCount, 3);
 });
 
-Deno.test("Element.childElementCount with non-node", () => {
+Deno.test("Element.childElementCount with non-Element", () => {
   const document = new Document();
   const divider = document.createElement("div");
   divider.appendChild(document.createElement("p"));
