@@ -321,6 +321,14 @@ export class Node extends EventTarget {
     }
   }
 
+  get childElementCount(): number {
+    let count = 0;
+    for (const { nodeType } of this.childNodes) {
+      count += +(nodeType === NodeType.ELEMENT_NODE);
+    }
+    return count;
+  }
+
   get children(): HTMLCollection {
     const collection = new HTMLCollection();
     const mutator = collection[HTMLCollectionMutatorSym]();
