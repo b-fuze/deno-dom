@@ -324,7 +324,9 @@ export class Node extends EventTarget {
   get childElementCount(): number {
     let count = 0;
     for (const { nodeType } of this.childNodes) {
-      count += +(nodeType === NodeType.ELEMENT_NODE);
+      if (nodeType === NodeType.ELEMENT_NODE) {
+        count++;
+      }
     }
     return count;
   }
