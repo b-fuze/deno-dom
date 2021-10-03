@@ -1,12 +1,12 @@
-import { Document } from "../../deno-dom-wasm.ts";
+import { Comment, Document } from "../../deno-dom-wasm.ts";
 import { assertEquals } from "https://deno.land/std@0.85.0/testing/asserts.ts";
 
-Deno.test("Document.childElementCount", () => {
+Deno.test("Document.childElementCount with no children", () => {
   const document = new Document();
   assertEquals(document.childElementCount, 0);
 });
 
-Deno.test("Element.childElementCount", () => {
+Deno.test("Element.childElementCount with three children", () => {
   const document = new Document();
   const list = document.createElement("ul");
   for (let i = 0; i < 3; i++) {
@@ -15,10 +15,10 @@ Deno.test("Element.childElementCount", () => {
   assertEquals(list.childElementCount, 3);
 });
 
-Deno.test("Element.childElementCount with non-Element", () => {
+Deno.test("Element.childElementCount with non-node", () => {
   const document = new Document();
   const divider = document.createElement("div");
   divider.appendChild(document.createElement("p"));
-  divider.appendChild(document);
+  divider.appendChild(new Comment);
   assertEquals(divider.childElementCount, 1);
 });
