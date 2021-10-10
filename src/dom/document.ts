@@ -172,6 +172,16 @@ export class Document extends Node {
     return null;
   }
 
+  get childElementCount(): number {
+    let count = 0;
+    for (const { nodeType } of this.childNodes) {
+      if (nodeType === NodeType.ELEMENT_NODE) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   appendChild(child: Node): Node {
     super.appendChild(child);
     child._setOwnerDocument(this);

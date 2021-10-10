@@ -147,6 +147,16 @@ export class Element extends Node {
     return new Element(this.nodeName, null, attributes, CTOR_KEY);
   }
 
+  get childElementCount(): number {
+    let count = 0;
+    for (const { nodeType } of this.childNodes) {
+      if (nodeType === NodeType.ELEMENT_NODE) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   get className(): string {
     return this.getAttribute("class") ?? "";
   }
