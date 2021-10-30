@@ -1,13 +1,13 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {string} html 
-* @returns {string} 
+* @param {string} html
+* @returns {string}
 */
 export function parse(html: string): string;
 /**
-* @param {string} html 
-* @returns {string} 
+* @param {string} html
+* @returns {string}
 */
 export function parse_frag(html: string): string;
 
@@ -17,6 +17,7 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parse_frag: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_free: (a: number, b: number) => void;
@@ -31,4 +32,3 @@ export interface InitOutput {
 * @returns {Promise<InitOutput>}
 */
 export default function init (module_or_path?: InitInput | Promise<InitInput>): Promise<InitOutput>;
-        

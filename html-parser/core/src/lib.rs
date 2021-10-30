@@ -5,6 +5,8 @@ use crate::rcdom::NodeData;
 pub use crate::rcdom::RcDom;
 use html5ever::driver::parse_document;
 use html5ever::driver::parse_fragment;
+use html5ever::driver::ParseOpts;
+use html5ever::tree_builder::TreeBuilderOpts;
 use html5ever::tendril::stream::TendrilSink;
 use html5ever::{namespace_url, ns};
 use markup5ever::Attribute;
@@ -23,7 +25,13 @@ pub fn pre_parse(html: String) -> RcDom {
 pub fn parse(html: String) -> String {
     let len = html.len();
     let sink: RcDom = Default::default();
-    let parser = parse_document(sink, Default::default());
+    let parser = parse_document(sink, ParseOpts {
+        tokenizer: Default::default(),
+        tree_builder: TreeBuilderOpts {
+            scripting_enabled: false,
+            ..Default::default()
+        },
+    });
 
     let dom = parser.one(html);
     dom_to_string(len, &dom)
