@@ -34,8 +34,8 @@ $(WASM_OUT): $(WASM_SRC) $(CORE_SRC)
 	wasm-pack build --release --target web --out-dir "$(WASM_OUT_DIR)" --out-name "$(WASM_MOD_NAME)"; \
 	WASM_BASE64=$$( base64 -w 0 < "$(WASM_OUT_DIR)/$(WASM_MOD_NAME)_bg.wasm" ); \
 	read -r -d "" ENTRY_SRC_FIXED < <( \
-		sed -E \
-			-e $$'/typeof input === .string./{N;N;i'$$'input = Uint8Array.from(atob("WASM_BASE64"), c => c.charCodeAt(0));\n''d}' < "$(WASM_OUT)" \
+		sed -E < "$(WASM_OUT)" \
+			-e $$'/typeof input === .string./{N;N;i'$$'input = Uint8Array.from(atob("WASM_BASE64"), c => c.charCodeAt(0));\n''d}' \
 			-e "/imports\['env'\]/d" \
 			-e '/imports = \{\};/a \    imports.env = { now() {} };' \
 			-e "/^\s*import /d" \
