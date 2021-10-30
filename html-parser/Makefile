@@ -33,7 +33,14 @@ $(WASM_OUT): $(WASM_SRC) $(CORE_SRC)
 	cd $(WASM_SRC_DIR); \
 	wasm-pack build --release --target web --out-dir "$(WASM_OUT_DIR)" --out-name "$(WASM_MOD_NAME)"; \
 	WASM_BASE64=$$( base64 -w 0 < "$(WASM_OUT_DIR)/$(WASM_MOD_NAME)_bg.wasm" ); \
-	read -r -d "" ENTRY_SRC_FIXED < <(sed -Ee $$'/typeof input === .string./{N;N;i'$$'input = Uint8Array.from(atob("WASM_BASE64"), c => c.charCodeAt(0));\n''d}' < "$(WASM_OUT)"); \
+	read -r -d "" ENTRY_SRC_FIXED < <( \
+		sed -E \
+			-e $$'/typeof input === .string./{N;N;i'$$'input = Uint8Array.from(atob("WASM_BASE64"), c => c.charCodeAt(0));\n''d}' < "$(WASM_OUT)" \
+			-e "/imports\['env'\]/d" \
+			-e '/imports = \{\};/a \    imports.env = { now() {} };' \
+			-e "/^\s*import /d" \
+			-e 's/load\(await input, imports\)/load(input, imports)/' \
+	); \
 	echo -n "$${ENTRY_SRC_FIXED/WASM_BASE64/$$WASM_BASE64}" > "$(WASM_OUT)";
 
 $(PLUGIN_OUT_FINAL): $(PLUGIN_SRC) $(CORE_SRC)
