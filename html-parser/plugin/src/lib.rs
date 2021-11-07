@@ -1,36 +1,70 @@
-use deno_core::ZeroCopyBuf;
-use deno_core::op_sync;
-use deno_core::OpState;
-use deno_core::Extension;
-use deno_core::error::AnyError;
-use futures::future::FutureExt;
-use core::parse as parse_rs;
-use core::parse_frag as parse_frag_rs;
+use core::parse;
+use core::parse_frag;
 
 #[no_mangle]
-pub fn init() -> Extension {
-  // force ci
-  Extension::builder()
-    .ops(vec![
-      ("deno_dom_parse_sync", op_sync(deno_dom_parse_sync)),
-      ("deno_dom_parse_frag_sync", op_sync(deno_dom_parse_frag_sync))
-    ])
-    .build()
+pub extern "C" fn deno_dom_usize_len() -> usize {
+    std::mem::size_of::<usize>()
 }
 
-fn deno_dom_parse_sync(
-  _state: &mut OpState,
-  data_str: String,
-  _zero_copy: Option<ZeroCopyBuf>,
-) -> Result<String, AnyError> {
-  Ok(parse_rs(data_str))
+#[no_mangle]
+pub extern "C" fn deno_dom_is_big_endian() -> u32 {
+    if cfg!(target_endian = "big") {
+        1
+    } else {
+        0
+    }
 }
 
-fn deno_dom_parse_frag_sync(
-  _state: &mut OpState,
-  data_str: String,
-  _zero_copy: Option<ZeroCopyBuf>,
-) -> Result<String, AnyError> {
-  Ok(parse_frag_rs(data_str))
+#[no_mangle]
+pub extern "C" fn deno_dom_parse_sync(src_buf: *mut u8, src_len: usize, dest_buf_size_ptr: *mut usize) {
+    let src_html = unsafe {
+        String::from_raw_parts(src_buf, src_len, src_len)
+    };
+    let dest_buf_meta = unsafe {
+        std::slice::from_raw_parts_mut(
+            dest_buf_size_ptr,
+            std::mem::size_of::<usize>() * 2,
+        )
+    };
+
+    let parsed = Box::new(parse(src_html.clone()));
+    dest_buf_meta[0] = parsed.len();
+    dest_buf_meta[1] = Box::into_raw(parsed) as usize;
+
+    std::mem::forget(src_html);
+    std::mem::forget(dest_buf_meta);
 }
 
+#[no_mangle]
+pub extern "C" fn deno_dom_parse_frag_sync(src_buf: *mut u8, src_len: usize, dest_buf_size_ptr: *mut usize) {
+    let src_html = unsafe {
+        String::from_raw_parts(src_buf, src_len, src_len)
+    };
+    let dest_buf_meta = unsafe {
+        std::slice::from_raw_parts_mut(
+            dest_buf_size_ptr,
+            std::mem::size_of::<usize>() * 2,
+        )
+    };
+
+    let parsed = Box::new(parse_frag(src_html.clone()));
+    dest_buf_meta[0] = parsed.len();
+    dest_buf_meta[1] = Box::into_raw(parsed) as usize;
+
+    std::mem::forget(src_html);
+    std::mem::forget(dest_buf_meta);
+}
+
+#[no_mangle]
+pub extern "C" fn deno_dom_copy_buf(src_buf_ptr_bytes: *const u8, _dest_buf_ptr: *mut u8) {
+    let src_buf_ptr_bytes_owned = unsafe { (*(src_buf_ptr_bytes as *const [u8; 8])).clone() };
+    let src_buf_ptr = if cfg!(target_endian = "big") {
+        usize::from_be_bytes(src_buf_ptr_bytes_owned)
+    } else {
+        usize::from_le_bytes(src_buf_ptr_bytes_owned)
+    };
+
+    let src_string = unsafe { Box::from_raw(src_buf_ptr as *mut String) };
+    let dest_slice = unsafe { std::slice::from_raw_parts_mut(_dest_buf_ptr, src_string.len()) };
+    dest_slice.copy_from_slice(src_string.as_bytes());
+}
