@@ -337,25 +337,27 @@ export class Element extends Node {
   }
 
   get firstElementChild(): Element | null {
-		for (const node of this.childNodes) {
-			if (node.nodeType === Node.ELEMENT_NODE) {
-				return <Element> node; 
-			}
-		}
-		return null;
+    for (const node of this.childNodes) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        return <Element> node; 
+      }
+    }
+
+    return null;
   }
 
-	get lastElementChild(): Element | null {
-		const { childNodes } = this;
-		for (let i = childNodes.length - 1; i >= 0; i--) {
-			const node = childNodes[i];
-			if (node.nodeType === Node.ELEMENT_NODE) {
-				return <Element> node;
-			}
-		}
-		return null;
+  get lastElementChild(): Element | null {
+    const { childNodes } = this;
+    for (let i = childNodes.length - 1; i >= 0; i--) {
+      const node = childNodes[i];
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        return <Element> node;
+      }
+    }
+
+    return null;
   }
-  
+
   get nextElementSibling(): Element | null {
     const parent = this.parentNode;
 
