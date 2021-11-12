@@ -266,18 +266,19 @@ export class Element extends Node {
   set innerHTML(html: string) {
     // Remove all children
     for (const child of this.childNodes) {
-      child.parentNode = child.parentElement = null;
+      child._setParent(null);
     }
 
     const mutator = this._getChildNodesMutator();
     mutator.splice(0, this.childNodes.length);
 
+    // Parse HTML into new children
     if (html.length) {
       const parsed = fragmentNodesFromString(html);
       mutator.push(...parsed.childNodes[0].childNodes);
 
       for (const child of this.childNodes) {
-        child._setParent(null);
+        child._setParent(this);
         child._setOwnerDocument(this.ownerDocument);
       }
     }
