@@ -1,6 +1,5 @@
 import { CTOR_KEY } from "../constructor-lock.ts";
 import { NodeList, NodeListMutator, nodeListMutatorSym } from "./node-list.ts";
-import { HTMLCollection, HTMLCollectionMutator, HTMLCollectionMutatorSym } from "./html-collection.ts";
 import type { Element } from "./element.ts";
 import type { Document } from "./document.ts";
 
@@ -319,19 +318,6 @@ export class Node extends EventTarget {
       mutator.splice(index, 1, ...(<Node[]> nodes));
       this._setParent(null);
     }
-  }
-
-  get children(): HTMLCollection {
-    const collection = new HTMLCollection();
-    const mutator = collection[HTMLCollectionMutatorSym]();
-
-    for (const child of this.childNodes) {
-      if (child.nodeType === NodeType.ELEMENT_NODE) {
-        mutator.push(<Element> child);
-      }
-    }
-
-    return collection;
   }
 
   get nextSibling(): Node | null {

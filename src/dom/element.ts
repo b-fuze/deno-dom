@@ -2,6 +2,7 @@ import { CTOR_KEY } from "../constructor-lock.ts";
 import { fragmentNodesFromString } from "../deserialize.ts";
 import { Node, NodeType, Text, Comment } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
+import { HTMLCollection, HTMLCollectionMutator, HTMLCollectionMutatorSym } from "./html-collection.ts";
 
 export class DOMTokenList extends Set<string> {
   #onChange: (className: string) => void;
@@ -290,6 +291,10 @@ export class Element extends Node {
 
   set innerText(text: string) {
     this.textContent = text;
+  }
+
+  get children(): HTMLCollection {
+    return this._getChildNodesMutator().elementsView();
   }
 
   get id(): string {

@@ -1,4 +1,5 @@
-import type { Node } from "./node.ts";
+import { Node } from "./node.ts";
+import { HTMLCollection } from "./html-collection.ts";
 
 const NodeListFakeClass: any = (() => {
   return class NodeList {
@@ -13,6 +14,91 @@ const NodeListFakeClass: any = (() => {
 })();
 
 export const nodeListMutatorSym = Symbol();
+const nodeListCachedMutator = Symbol();
+
+// Array methods that we need for NodeList mutator implementation
+const { push, splice, slice, indexOf, filter } = Array.prototype;
+
+// Implementation of a NodeList mutator
+class NodeListMutatorImpl {
+  // There should only ever be one elementView per element. Element views
+  // are basically just the source of HTMLCollections/.children properties
+  // on elements that are always in sync with their .childNodes counterpart.
+  elementViews: any[][] = [];
+
+  constructor(
+    public arrayInstance: any[],
+  ) {}
+
+  push(...items: any[]) {
+    // Copy the new items to the element view (if any)
+    for (const view of this.elementViews) {
+      for (const item of items) {
+        if (item.nodeType === Node.ELEMENT_NODE) {
+          push.call(view, item);
+        }
+      }
+    }
+
+    return push.call(this.arrayInstance, ...items);
+  }
+
+  splice(index: number, deleteCount = 0, ...items: any[]) {
+    // Delete and insert new elements in an element view (if any)
+    for (const view of this.elementViews) {
+      const toDelete = filter.call(
+        slice.call(this.arrayInstance, index, index + deleteCount),
+        (item) => item.nodeType === Node.ELEMENT_NODE,
+      );
+
+      const toInsert = items.filter((item) => item.nodeType === Node.ELEMENT_NODE);
+
+      // Find where to start splicing in the element view
+      let elementViewSpliceIndex = -1;
+      for (let idx = index; idx < this.arrayInstance.length; idx++) {
+        const item = this.arrayInstance[idx];
+
+        if (item.nodeType === Node.ELEMENT_NODE) {
+          elementViewSpliceIndex = indexOf.call(view, item);
+          break;
+        }
+      }
+
+      // If no element is found just do everything at the end
+      // of the view
+      if (elementViewSpliceIndex === -1) {
+        elementViewSpliceIndex = view.length;
+      }
+
+      if (toDelete.length) {
+        splice.call(view, elementViewSpliceIndex, toDelete.length);
+      }
+
+      // Finally, insert all the found elements
+      splice.call(view, elementViewSpliceIndex, 0, ...toInsert);
+    }
+
+    return splice.call(this.arrayInstance, index, deleteCount, ...items);
+  }
+
+  indexOf(item: any) {
+    return indexOf.call(this.arrayInstance, item);
+  }
+
+  // Return the elements-only view for this NodeList. Creates one if
+  // it doesn't already exist.
+  elementsView() {
+    let view = this.elementViews[0];
+
+    if (!view) {
+      view = new HTMLCollection() as any as any[];
+      this.elementViews.push(view);
+      push.call(view, ...filter.call(this.arrayInstance, (item) => item.nodeType === Node.ELEMENT_NODE));
+    }
+
+    return view;
+  }
+}
 
 // We define the `NodeList` inside a closure to ensure that its
 // `.name === "NodeList"` property stays intact, as we need to manipulate
@@ -33,12 +119,14 @@ const NodeListClass: any = (() => {
     }
 
     [nodeListMutatorSym]() {
-      return {
-        push: Array.prototype.push.bind(this),
+      const cachedMutator = (this as any)[nodeListCachedMutator];
 
-        splice: Array.prototype.splice.bind(this),
-
-        indexOf: Array.prototype.indexOf.bind(this),
+      if (cachedMutator) {
+        return cachedMutator;
+      } else {
+        const cachedMutator = new NodeListMutatorImpl(this);
+        (this as any)[nodeListCachedMutator] = cachedMutator;
+        return cachedMutator;
       }
     }
 
@@ -111,6 +199,7 @@ export interface NodeListMutator {
   push(...nodes: Node[]): number;
   splice(start: number, deleteCount?: number, ...items: Node[]): Node[];
   indexOf(node: Node, fromIndex?: number | undefined): number;
+  elementsView(): HTMLCollection;
 }
 
 export const NodeList = <NodeList> NodeListClass;
