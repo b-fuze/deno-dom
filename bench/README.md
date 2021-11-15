@@ -13,9 +13,9 @@ bash ./bench-parse.sh
 
 Results:
 ```
-Deno DOM WASM   - time:53.35ms runs:40
-Deno DOM Native - time:25.17237584999997ms runs:40
-Node.js Parse5  - time:175.06719277501105ms runs:40
+Deno DOM WASM   - time:44.45ms runs:40
+Deno DOM Native - time:25.747656975ms runs:40
+Node.js Parse5  - time:167.74452359999958ms runs:40
 ```
 
 ## Queryable DOM Tree
@@ -28,9 +28,9 @@ Results:
 Benchmark: Parse c.html, produce a DOM, then run
 querySelectorAll('div[aria-controls^="ot-desc"]')
 
-Deno DOM WASM   - time:73.15ms runs:40
-Deno DOM Native - time:38.45050882500001ms runs:40
-Node.js JSDOM   - time:500.23103379961105ms runs:40
+Deno DOM WASM   - time:65.75ms runs:40
+Deno DOM Native - time:37.808892225ms runs:40
+Node.js JSDOM   - time:488.211494675ms runs:40
 ```
 
 ### Machine specs
