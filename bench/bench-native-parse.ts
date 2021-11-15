@@ -1,7 +1,7 @@
 import { nodesFromString } from "../deno-dom-native.ts";
 
 const c = Deno.readTextFileSync("./c.html");
-const runs = 20;
+const runs = parseInt(Deno.args[0], 10);
 
 for (let i=0; i<runs; i++) {
   const parsed = nodesFromString(c);

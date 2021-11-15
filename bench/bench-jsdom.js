@@ -4,7 +4,7 @@ const { performance } = require("perf_hooks");
 
 const c = fs.readFileSync(__dirname + "/c.html", "utf8");
 
-const runs = 20;
+const runs = parseInt(process.argv[2], 10);
 
 for (let i=0; i<runs; i++) {
   const document = new JSDOM(c).window.document;

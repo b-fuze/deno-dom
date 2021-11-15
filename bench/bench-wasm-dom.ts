@@ -3,7 +3,7 @@ import { DOMParser } from "../deno-dom-wasm.ts";
 const parser = new DOMParser();
 
 const c = Deno.readTextFileSync("./c.html");
-const runs = 20;
+const runs = parseInt(Deno.args[0], 10);
 
 for (let i=0; i<runs; i++) {
   const document = parser.parseFromString(c, "text/html");
