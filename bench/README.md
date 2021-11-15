@@ -13,9 +13,9 @@ bash ./bench-parse.sh
 
 Results:
 ```
-Deno DOM WASM   - time:168.5ms runs:20
-Deno DOM Native - time:27.449885150000007ms runs:20
-Node.js Parse5  - time:178.78199419998563ms runs:20
+Deno DOM WASM   - time:53.35ms runs:40
+Deno DOM Native - time:25.17237584999997ms runs:40
+Node.js Parse5  - time:175.06719277501105ms runs:40
 ```
 
 ## Queryable DOM Tree
@@ -28,13 +28,13 @@ Results:
 Benchmark: Parse c.html, produce a DOM, then run
 querySelectorAll('div[aria-controls^="ot-desc"]')
 
-Deno DOM WASM   - time:174.5ms runs:20
-Deno DOM Native - time:29.02453414999993ms runs:20
-Node.js JSDOM   - time:492.51481600007975ms runs:20
+Deno DOM WASM   - time:73.15ms runs:40
+Deno DOM Native - time:38.45050882500001ms runs:40
+Node.js JSDOM   - time:500.23103379961105ms runs:40
 ```
 
 ### Machine specs
-OS: Ubuntu 20.10 (5.8.0-38-generic x84\_64 kernel)
+OS: Ubuntu 21.04 (5.12.19-051219-generic x84\_64 kernel)
 CPU: 
 ```
 Model:      AMD Ryzen 5 4500U with Radeon Graphics
@@ -43,4 +43,4 @@ L1i cache:  192 KiB
 L2 cache:   3 MiB
 L3 cache:   8 MiB
 ```
-
+Deno: 1.16.1
