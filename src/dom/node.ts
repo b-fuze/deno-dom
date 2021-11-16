@@ -32,14 +32,16 @@ export enum NodeType {
   NOTATION_NODE = 12,
 }
 
-const nodesAndTextNodes = (nodes: (Node | any)[], parentNode: Node) => {
+const nodesAndTextNodes = (nodes: (Node | unknown)[], parentNode: Node) => {
   return nodes.map(n => {
-    let node = n;
+    const node: Node = n instanceof Node
+      ? n
+      : new Text("" + n);
 
-    if (!(n instanceof Node)) {
-      node = new Text("" + n);
-    }
+    // Remove from parentNode (if any)
+    node.remove();
 
+    // Set new parent
     node._setParent(parentNode, true);
     return node;
   });
@@ -315,7 +317,7 @@ export class Node extends EventTarget {
       const index = mutator.indexOf(this);
       nodes = nodesAndTextNodes(nodes, parentNode);
 
-      mutator.splice(index, 1, ...(<Node[]> nodes));
+      mutator.splice(index, 1, ...(nodes as Node[]));
       this._setParent(null);
     }
   }
