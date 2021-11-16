@@ -1,4 +1,4 @@
-import { DOMParser, NodeList, nodesFromString } from "../../deno-dom-wasm.ts";
+import { DOMParser, NodeList, Element, nodesFromString } from "../../deno-dom-wasm.ts";
 import { assert } from "https://deno.land/std@0.85.0/testing/asserts.ts";
 
 Deno.test("Array instanceof Array", () => {
@@ -18,8 +18,8 @@ Deno.test("HTMLCollection not instanceof Array", () => {
   const nodes = nodesFromString(
     Deno.readTextFileSync(new URL("./basic.html", import.meta.url)),
   );
-  assert(!(nodes.children instanceof Array));
-  assert(!Array.isArray(nodes.children));
+  assert(!((nodes as Element).children instanceof Array));
+  assert(!Array.isArray((nodes as Element).children));
 });
 
 Deno.test("Subclass instanceof Array", () => {
