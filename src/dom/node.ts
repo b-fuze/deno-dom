@@ -435,7 +435,7 @@ export class Node extends EventTarget {
       return this.parentNode.getRootNode(opts);
     }
     if (opts.composed && (this as any).host) {
-      (this as any).host.getRootNode(opts);
+      return (this as any).host.getRootNode(opts);
     }
     return this;
   }
