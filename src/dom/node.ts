@@ -3,20 +3,6 @@ import { NodeList, NodeListMutator, nodeListMutatorSym } from "./node-list.ts";
 import type { Element } from "./element.ts";
 import type { Document } from "./document.ts";
 
-export class EventTarget {
-  addEventListener() {
-    // TODO
-  }
-
-  removeEventListener() {
-    // TODO
-  }
-
-  dispatchEvent() {
-    // TODO
-  }
-}
-
 export enum NodeType {
   ELEMENT_NODE = 1,
   ATTRIBUTE_NODE = 2,
@@ -442,6 +428,16 @@ export class Node extends EventTarget {
     // point should be unreachable code as per the
     // intended logic
     return Node.DOCUMENT_POSITION_FOLLOWING;
+  }
+
+  getRootNode(opts: { composed?: boolean } = {}): Node {
+    if (this.parentNode) {
+      return this.parentNode.getRootNode(opts);
+    }
+    if (opts.composed && (this as any).host) {
+      (this as any).host.getRootNode(opts);
+    }
+    return this;
   }
 }
 
