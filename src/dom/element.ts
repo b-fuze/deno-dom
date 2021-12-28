@@ -12,7 +12,14 @@ export class DOMTokenList extends Set<string> {
     this.#onChange = onChange;
   }
 
-  add(token: string): this {
+  add(...tokens: string[]): this {
+    for (const token of tokens) {
+      this.#addOne(token);
+    }
+    return this;
+  }
+
+  #addOne(token: string): this {
     if (token === "" || /[\t\n\f\r ]/.test(token)) {
       throw new Error(`DOMTokenList.add: Invalid class token "${token}"`);
     }
