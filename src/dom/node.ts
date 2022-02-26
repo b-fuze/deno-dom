@@ -180,7 +180,7 @@ export class Node extends EventTarget {
     return this.firstChild !== null;
   }
 
-  cloneNode(deep: boolean = false): this {
+  cloneNode(deep = false): this {
     const copy = this._shallowClone();
 
     copy._setOwnerDocument(this.ownerDocument);

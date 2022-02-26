@@ -169,13 +169,13 @@ export class Element extends Node {
     return this.getAttribute("class") ?? "";
   }
 
-  get classList(): DOMTokenList {
-    return this.#classList;
-  }
-
   set className(className: string) {
     this.setAttribute("class", className);
     this.#classList._update(className);
+  }
+
+  get classList(): DOMTokenList {
+    return this.#classList;
   }
 
   get outerHTML(): string {
