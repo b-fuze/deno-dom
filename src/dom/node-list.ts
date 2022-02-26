@@ -82,7 +82,11 @@ class NodeListMutatorImpl {
   }
 
   indexOf(item: any, fromIndex = 0) {
-    return indexOf.call(this.arrayInstance, item);
+    return indexOf.call(this.arrayInstance, item, fromIndex);
+  }
+
+  indexOfElementsView(item: any, fromIndex = 0) {
+    return indexOf.call(this.elementsView(), item, fromIndex);
   }
 
   // Return the elements-only view for this NodeList. Creates one if
@@ -199,6 +203,7 @@ export interface NodeListMutator {
   push(...nodes: Node[]): number;
   splice(start: number, deleteCount?: number, ...items: Node[]): Node[];
   indexOf(node: Node, fromIndex?: number | undefined): number;
+  indexOfElementsView(node: Node, fromIndex?: number | undefined): number;
   elementsView(): HTMLCollection;
 }
 
