@@ -81,7 +81,7 @@ class NodeListMutatorImpl {
     return splice.call(this.arrayInstance, index, deleteCount, ...items);
   }
 
-  indexOf(item: any) {
+  indexOf(item: any, fromIndex = 0) {
     return indexOf.call(this.arrayInstance, item);
   }
 
