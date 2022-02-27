@@ -22,6 +22,7 @@ Deno.test("Adjacent siblings", () => {
   assertEquals(divA?.nextSibling, divB, "div.b is div.a's nextSibling");
   assertEquals(divB?.previousSibling, divA, "div.a is div.b's previousSibling");
   assertEquals(divB?.nextSibling, comment, "comment is div.b's nextSibling");
+  assertEquals(divC?.previousSibling, comment, "comment is div.c's previousSibling");
 
   assertEquals(divMain?.nextElementSibling, null, "null is div.main's nextElementSibling");
   assertEquals(divMain?.previousElementSibling, null, "null is div.main's previousElementSibling");
