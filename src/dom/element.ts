@@ -351,6 +351,11 @@ export class Element extends Node {
     this._remove();
   }
 
+  append(...nodes: (Node | string)[]) {
+    const mutator = this._getChildNodesMutator();
+    mutator.push(...nodesAndTextNodes(nodes, this));
+  }
+
   private insertBeforeAfter(nodes: (Node | string)[], side: number) {
     const parentNode = this.parentNode!;
     const mutator = parentNode._getChildNodesMutator();
