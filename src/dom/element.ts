@@ -156,13 +156,7 @@ export class Element extends Node {
   }
 
   get childElementCount(): number {
-    let count = 0;
-    for (const { nodeType } of this.childNodes) {
-      if (nodeType === NodeType.ELEMENT_NODE) {
-        count++;
-      }
-    }
-    return count;
+    return this._getChildNodesMutator().elementsView().length;
   }
 
   get className(): string {
@@ -350,25 +344,13 @@ export class Element extends Node {
   }
 
   get firstElementChild(): Element | null {
-    for (const node of this.childNodes) {
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        return <Element> node; 
-      }
-    }
-
-    return null;
+    const elements = this._getChildNodesMutator().elementsView();
+    return elements[0] ?? null;
   }
 
   get lastElementChild(): Element | null {
-    const { childNodes } = this;
-    for (let i = childNodes.length - 1; i >= 0; i--) {
-      const node = childNodes[i];
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        return <Element> node;
-      }
-    }
-
-    return null;
+    const elements = this._getChildNodesMutator().elementsView();
+    return elements[elements.length - 1] ?? null;
   }
 
   get nextElementSibling(): Element | null {
@@ -378,20 +360,10 @@ export class Element extends Node {
       return null;
     }
 
-    const index = parent._getChildNodesMutator().indexOf(this);
-    const childNodes = parent.childNodes;
-    let next: Element | null = null;
-
-    for (let i = index + 1; i < childNodes.length; i++) {
-      const sibling = childNodes[i];
-
-      if (sibling.nodeType === NodeType.ELEMENT_NODE) {
-        next = <Element> sibling;
-        break;
-      }
-    }
-
-    return next;
+    const mutator = parent._getChildNodesMutator();
+    const index = mutator.indexOfElementsView(this);
+    const elements = mutator.elementsView();
+    return elements[index + 1] ?? null;
   }
 
   get previousElementSibling(): Element | null {
@@ -401,20 +373,10 @@ export class Element extends Node {
       return null;
     }
 
-    const index = parent._getChildNodesMutator().indexOf(this);
-    const childNodes = parent.childNodes;
-    let prev: Element | null = null;
-
-    for (let i = index - 1; i >= 0; i--) {
-      const sibling = childNodes[i];
-
-      if (sibling.nodeType === NodeType.ELEMENT_NODE) {
-        prev = <Element> sibling;
-        break;
-      }
-    }
-
-    return prev;
+    const mutator = parent._getChildNodesMutator();
+    const index = mutator.indexOfElementsView(this);
+    const elements = mutator.elementsView();
+    return elements[index - 1] ?? null;
   }
 
   querySelector(selectors: string): Element | null {
