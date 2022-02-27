@@ -18,11 +18,20 @@ export enum NodeType {
   NOTATION_NODE = 12,
 }
 
-const nodesAndTextNodes = (nodes: (Node | unknown)[], parentNode: Node) => {
+/**
+ * Throws if any of the nodes are an ancestor
+ * of `parentNode`
+ */
+export const nodesAndTextNodes = (nodes: (Node | unknown)[], parentNode: Node) => {
   return nodes.map(n => {
     const node: Node = n instanceof Node
       ? n
       : new Text("" + n);
+
+    // Make sure the node isn't an ancestor of parentNode
+    if (n === node && parentNode) {
+      parentNode._assertNotAncestor(node);
+    }
 
     // Remove from parentNode (if any)
     node._remove();
