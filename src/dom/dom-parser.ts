@@ -38,7 +38,7 @@ export class DOMParser {
       if (doc.childNodes.length === 0) {
         doc.appendChild(docType);
       } else {
-        doc.childNodes[0].before(docType);
+        doc.insertBefore(docType, doc.childNodes[0]);
       }
     }
 

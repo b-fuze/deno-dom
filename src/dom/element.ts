@@ -1,6 +1,6 @@
 import { CTOR_KEY } from "../constructor-lock.ts";
 import { fragmentNodesFromString } from "../deserialize.ts";
-import { Node, NodeType, Text, Comment } from "./node.ts";
+import { Node, NodeType, Text, Comment, nodesAndTextNodes } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { HTMLCollection, HTMLCollectionMutator, HTMLCollectionMutatorSym } from "./html-collection.ts";
 
@@ -341,6 +341,35 @@ export class Element extends Node {
   hasAttributeNS(_namespace: string, name: string): boolean {
     // TODO: Use namespace
     return this.attributes.hasOwnProperty(name?.toLowerCase());
+  }
+
+  replaceWith(...nodes: (Node | string)[]) {
+    this._replaceWith(...nodes);
+  }
+
+  remove() {
+    this._remove();
+  }
+
+  private insertBeforeAfter(nodes: (Node | string)[], side: number) {
+    const parentNode = this.parentNode!;
+    const mutator = parentNode._getChildNodesMutator();
+    const index = mutator.indexOf(this);
+    nodes = nodesAndTextNodes(nodes, parentNode);
+
+    mutator.splice(index + side, 0, ...(<Node[]> nodes));
+  }
+
+  before(...nodes: (Node | string)[]) {
+    if (this.parentNode) {
+      this.insertBeforeAfter(nodes, 0);
+    }
+  }
+
+  after(...nodes: (Node | string)[]) {
+    if (this.parentNode) {
+      this.insertBeforeAfter(nodes, 1);
+    }
   }
 
   get firstElementChild(): Element | null {

@@ -25,7 +25,7 @@ const nodesAndTextNodes = (nodes: (Node | unknown)[], parentNode: Node) => {
       : new Text("" + n);
 
     // Remove from parentNode (if any)
-    node.remove();
+    node._remove();
 
     // Set new parent
     node._setParent(parentNode, true);
@@ -198,7 +198,7 @@ export class Node extends EventTarget {
     throw new Error("Illegal invocation");
   }
 
-  remove() {
+  _remove() {
     const parent = this.parentNode;
 
     if (parent) {
@@ -223,7 +223,7 @@ export class Node extends EventTarget {
         return this;
       }
     } else if (oldParentNode) {
-      this.remove();
+      this._remove();
     }
 
     this._setParent(parentNode, true);
@@ -236,7 +236,7 @@ export class Node extends EventTarget {
     // Just copy Firefox's error messages
     if (child && typeof child === "object") {
       if (child.parentNode === this) {
-        return child.remove();
+        return child._remove();
       } else {
         throw new DOMException("Node.removeChild: The node to be removed is not a child of this node");
       }
@@ -250,29 +250,8 @@ export class Node extends EventTarget {
       throw new Error("Old child's parent is not the current node.");
     }
 
-    oldChild.replaceWith(newChild);
+    oldChild._replaceWith(newChild);
     return oldChild;
-  }
-
-  private insertBeforeAfter(nodes: (Node | string)[], side: number) {
-    const parentNode = this.parentNode!;
-    const mutator = parentNode._getChildNodesMutator();
-    const index = mutator.indexOf(this);
-    nodes = nodesAndTextNodes(nodes, parentNode);
-
-    mutator.splice(index + side, 0, ...(<Node[]> nodes));
-  }
-
-  before(...nodes: (Node | string)[]) {
-    if (this.parentNode) {
-      this.insertBeforeAfter(nodes, 0);
-    }
-  }
-
-  after(...nodes: (Node | string)[]) {
-    if (this.parentNode) {
-      this.insertBeforeAfter(nodes, 1);
-    }
   }
 
   insertBefore(newNode: Node, refNode: Node | null): Node {
@@ -296,7 +275,7 @@ export class Node extends EventTarget {
     return newNode;
   }
 
-  replaceWith(...nodes: (Node | string)[]) {
+  _replaceWith(...nodes: (Node | string)[]) {
     if (this.parentNode) {
       const parentNode = this.parentNode;
       const mutator = parentNode._getChildNodesMutator();

@@ -26,7 +26,7 @@ Deno.test("Element.children stays in sync with Node.childNodes", () => {
 
   // Removing comment node shouldn't affect
   // .children
-  childComment.remove();
+  parent.removeChild(childComment);
 
   assertEquals(children.length, 2);
 
