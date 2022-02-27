@@ -177,7 +177,7 @@ export class Node extends EventTarget {
   }
 
   hasChildNodes() {
-    return this.firstChild !== null;
+    return Boolean(this.childNodes.length);
   }
 
   cloneNode(deep = false): this {
