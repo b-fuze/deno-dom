@@ -303,7 +303,7 @@ export class Element extends Node {
   }
 
   set id(id: string) {
-    this.setAttribute(id, this.#currentId = id);
+    this.setAttribute("id", this.#currentId = id);
   }
 
   getAttributeNames(): string[] {
