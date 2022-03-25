@@ -76,7 +76,7 @@ deno test --allow-read wasm.test.ts
 ```
 Or the following for native (native requires more permissions)
 ```sh
-deno test --unstable --A native.test.ts
+deno test --unstable -A native.test.ts
 ```
 To run WPT tests update the WPT submodule
 ```sh
