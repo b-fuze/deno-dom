@@ -307,11 +307,26 @@ export class Document extends Node {
   private _getElementsByClassName(className: string, search: Node[]): Node[] {
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
-        className.split(" ").forEach((singleClassName) => {
+        // remove duplicate class names
+        const classList = new Set(className.split(" "));
+
+        let matches: Node[] = [];
+        let matchesCount = 0;
+
+        for (const singleClassName of classList) {
           if ((<Element> child).classList.contains(singleClassName)) {
-            search.push(child);
+            matchesCount++;
+            // avoid pushing the same element multiple times due to multiple class names
+            if (!matches.includes(child)) {
+              matches.push(child);
+            }
           }
-        });
+        }
+
+        // ensure that all class names are present
+        if (matchesCount >= classList.size) {
+          search.push(...matches);
+        }
 
         (<any> child)._getElementsByClassName(className, search);
       }
