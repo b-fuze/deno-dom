@@ -496,9 +496,11 @@ export class Element extends Node {
   private _getElementsByClassName(className: string, search: Node[]): Node[] {
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
-        if ((<Element> child).classList.contains(className)) {
-          search.push(child);
-        }
+        className.split(" ").forEach((singleClassName) => {
+          if ((<Element> child).classList.contains(singleClassName)) {
+            search.push(child);
+          }
+        });
 
         (<Element> child)._getElementsByClassName(className, search);
       }
