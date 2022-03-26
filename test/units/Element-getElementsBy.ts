@@ -52,7 +52,7 @@ Deno.test("Element.getElementsByClassName", () => {
           <article class=an-article>
             <p class=this-p>Foo bar baz</p>
           </article>
-					<p class="a b c">working</p>
+          <p class="a b c">working</p>
         </aside>
       </div>
     `,
