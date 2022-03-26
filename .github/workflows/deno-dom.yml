@@ -1,0 +1,32 @@
+name: Deno DOM
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+          - name: ubuntu-latest
+          - name: macos-latest
+          - name: windows-latest
+    runs-on: ${{ matrix.os.name }}
+
+    steps:
+      - name: Install Deno
+        uses: actions/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Get Deno DOM
+        uses: actions/checkout@v2
+
+      - name: Check code formatting
+        run: deno fmt --check --unstable
+
+      - name: Run tests
+        run: deno test -A --unstable --ignore=native.test.ts
