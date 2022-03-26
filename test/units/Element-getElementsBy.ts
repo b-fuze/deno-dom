@@ -52,6 +52,7 @@ Deno.test("Element.getElementsByClassName", () => {
           <article class=an-article>
             <p class=this-p>Foo bar baz</p>
           </article>
+					<p class="a b c">working</p>
         </aside>
       </div>
     `,
@@ -82,6 +83,14 @@ Deno.test("Element.getElementsByClassName", () => {
   assertEquals(mainP, articleP);
   assertEquals(mainP.parentNode, article);
   assertEquals(imgParentArticle, article);
+
+  assertEquals(doc.getElementsByClassName("a c").length, 1);
+  assertEquals(doc.getElementsByClassName("  a   b   ").length, 1);
+  assertEquals(doc.getElementsByClassName("  a  dd b   ").length, 0);
+  assertEquals(doc.getElementsByClassName("  a  c b   ").length, 1);
+  assertEquals(doc.getElementsByClassName("c").length, 1);
+  assertEquals(doc.getElementsByClassName("v").length, 0);
+  assertEquals(doc.getElementsByClassName("a a b c b").length, 1);
 });
 
 Deno.test("Element.getElementById", () => {
@@ -125,4 +134,3 @@ Deno.test("Element.getElementById", () => {
   assertEquals(mainP.parentNode, article);
   assertEquals(imgParentArticle, article);
 });
-

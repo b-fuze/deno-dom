@@ -3,6 +3,7 @@ import { Node, NodeType, Text, Comment } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
 import { DOM as NWAPI } from "./nwsapi-types.ts";
+import { getElementsByClassName } from "./utils.ts";
 
 export class DOMImplementation {
   constructor(key: typeof CTOR_KEY) {
@@ -301,38 +302,7 @@ export class Document extends Node {
   }
 
   getElementsByClassName(className: string): Element[] {
-    return <Element[]> this._getElementsByClassName(className, []);
-  }
-
-  private _getElementsByClassName(className: string, search: Node[]): Node[] {
-    for (const child of this.childNodes) {
-      if (child.nodeType === NodeType.ELEMENT_NODE) {
-        // remove duplicate class names
-        const classList = new Set(className.split(" "));
-
-        let matches: Node[] = [];
-        let matchesCount = 0;
-
-        for (const singleClassName of classList) {
-          if ((<Element> child).classList.contains(singleClassName)) {
-            matchesCount++;
-            // avoid pushing the same element multiple times due to multiple class names
-            if (!matches.includes(child)) {
-              matches.push(child);
-            }
-          }
-        }
-
-        // ensure that all class names are present
-        if (matchesCount >= classList.size) {
-          search.push(...matches);
-        }
-
-        (<any> child)._getElementsByClassName(className, search);
-      }
-    }
-
-    return search;
+    return <Element[]> getElementsByClassName(this, className, []);
   }
 
   hasFocus(): boolean {
@@ -352,4 +322,3 @@ export class HTMLDocument extends Document {
     return new HTMLDocument(CTOR_KEY);
   }
 }
-

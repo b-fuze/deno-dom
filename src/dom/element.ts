@@ -2,7 +2,8 @@ import { CTOR_KEY } from "../constructor-lock.ts";
 import { fragmentNodesFromString } from "../deserialize.ts";
 import { Node, NodeType, Text, Comment, nodesAndTextNodes } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
-import { HTMLCollection, HTMLCollectionMutator, HTMLCollectionMutatorSym } from "./html-collection.ts";
+import { HTMLCollection } from "./html-collection.ts";
+import { getElementsByClassName } from "./utils.ts";
 
 export class DOMTokenList extends Set<string> {
   #onChange: (className: string) => void;
@@ -485,43 +486,11 @@ export class Element extends Node {
   }
 
   getElementsByClassName(className: string): Element[] {
-    return <Element[]> this._getElementsByClassName(className, []);
+    return <Element[]> getElementsByClassName(this, className, []);
   }
 
   getElementsByTagNameNS(_namespace: string, localName: string): Element[] {
     // TODO: Use namespace
     return this.getElementsByTagName(localName);
   }
-
-  private _getElementsByClassName(className: string, search: Node[]): Node[] {
-    for (const child of this.childNodes) {
-      if (child.nodeType === NodeType.ELEMENT_NODE) {
-        // remove duplicate class names
-        const classList = new Set(className.split(" "));
-
-        let matches: Node[] = [];
-        let matchesCount = 0;
-
-        for (const singleClassName of classList) {
-          if ((<Element> child).classList.contains(singleClassName)) {
-            matchesCount++;
-            // avoid pushing the same element multiple times due to multiple class names
-            if (!matches.includes(child)) {
-              matches.push(child);
-            }
-          }
-        }
-
-        // ensure that all class names are present
-        if (matchesCount >= classList.size) {
-          search.push(...matches);
-        }
-
-        (<Element> child)._getElementsByClassName(className, search);
-      }
-    }
-
-    return search;
-  }
 }
-
