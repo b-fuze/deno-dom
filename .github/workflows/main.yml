@@ -8,7 +8,7 @@ on:
       - 'html-parser/plugin/**'
       - '.github/workflows/**'
   pull_request:
-    branches: [master]
+    branches-ignore: [master]
     paths:
       - 'Cargo.toml'
       - 'html-parser/core/**'
