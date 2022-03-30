@@ -101,8 +101,10 @@ class NodeListMutatorImpl {
       this.elementViews.push(view);
       push.call(
         view,
-        ...filter.call(this.arrayInstance, (item) =>
-          item.nodeType === Node.ELEMENT_NODE),
+        ...filter.call(
+          this.arrayInstance,
+          (item) => item.nodeType === Node.ELEMENT_NODE,
+        ),
       );
     }
 

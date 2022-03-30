@@ -955,11 +955,10 @@ function Factory(global, Export) {
                 "\\$&",
               );
             }
-            type =
-              match[5] == "i" ||
+            type = match[5] == "i" ||
                 (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()])
-                ? "i"
-                : "";
+              ? "i"
+              : "";
             source = "if(" + N + "(" +
               (!match[2]
                 ? (NS
@@ -1112,9 +1111,8 @@ function Factory(global, Export) {
                       if (n[0] == "-") a = -1;
                       if (n[0] == "+") a = +1;
                       test = (b
-                        ? "(n" + (b > 0
-                          ? "-"
-                          : "+") + Math.abs(b) + ")"
+                        ? "(n" + (b > 0 ? "-" : "+") + Math.abs(b) +
+                          ")"
                         : "n") + "%" + a + "==0";
                       test = a >= +1
                         ? (f
