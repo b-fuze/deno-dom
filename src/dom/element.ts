@@ -1,6 +1,6 @@
 import { CTOR_KEY } from "../constructor-lock.ts";
 import { fragmentNodesFromString } from "../deserialize.ts";
-import { Node, NodeType, Text, Comment, nodesAndTextNodes } from "./node.ts";
+import { Comment, Node, nodesAndTextNodes, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { HTMLCollection } from "./html-collection.ts";
 import { getElementsByClassName } from "./utils.ts";
@@ -36,7 +36,7 @@ export class DOMTokenList extends Set<string> {
 
   remove(...tokens: string[]): this {
     for (const token of tokens) {
-      super.delete(token)
+      super.delete(token);
     }
     this.#onChange([...this].join(" "));
     return this;
@@ -87,7 +87,9 @@ export class Attr {
   }
 
   get value() {
-    return (<{[attribute: string]: string}> <unknown> this.#namedNodeMap)[this.#name];
+    return (<{ [attribute: string]: string }> <unknown> this.#namedNodeMap)[
+      this.#name
+    ];
   }
 }
 
@@ -101,7 +103,8 @@ export class NamedNodeMap {
   }
 
   getNamedItem(attribute: string) {
-    return this.#attrObjCache[attribute] ?? (this.#attrObjCache[attribute] = this.newAttr(attribute));
+    return this.#attrObjCache[attribute] ??
+      (this.#attrObjCache[attribute] = this.newAttr(attribute));
   }
 
   setNamedItem(...args: any) {
@@ -115,7 +118,8 @@ export class Element extends Node {
       this.attributes["class"] = className;
     }
   });
-  public attributes: NamedNodeMap & {[attribute: string]: string} = <any> new NamedNodeMap();
+  public attributes: NamedNodeMap & { [attribute: string]: string } =
+    <any> new NamedNodeMap();
 
   #currentId = "";
 
@@ -151,7 +155,7 @@ export class Element extends Node {
   _shallowClone(): Node {
     const attributes: [string, string][] = [];
     for (const attribute of this.getAttributeNames()) {
-      attributes.push([attribute, this.attributes[attribute]])
+      attributes.push([attribute, this.attributes[attribute]]);
     }
     return new Element(this.nodeName, null, attributes, CTOR_KEY);
   }
@@ -179,15 +183,15 @@ export class Element extends Node {
     let out = "<" + tagName;
 
     for (const attribute of this.getAttributeNames()) {
-      out += ` ${ attribute.toLowerCase() }`;
+      out += ` ${attribute.toLowerCase()}`;
 
       // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
       if (attributes[attribute] != null) {
         out += `="${
           attributes[attribute]
-              .replace(/&/g, "&amp;")
-              .replace(/\xA0/g, "&nbsp;")
-              .replace(/"/g, "&quot;")
+            .replace(/&/g, "&amp;")
+            .replace(/\xA0/g, "&nbsp;")
+            .replace(/"/g, "&quot;")
         }"`;
       }
     }
@@ -212,7 +216,7 @@ export class Element extends Node {
         break;
 
       default:
-        out += ">" + this.innerHTML + `</${ tagName }>`;
+        out += ">" + this.innerHTML + `</${tagName}>`;
         break;
     }
 
@@ -233,7 +237,7 @@ export class Element extends Node {
           break;
 
         case NodeType.COMMENT_NODE:
-          out += `<!--${ (child as Comment).data }-->`;
+          out += `<!--${(child as Comment).data}-->`;
           break;
 
         case NodeType.TEXT_NODE:
@@ -429,13 +433,13 @@ export class Element extends Node {
 
     const nodeList = new NodeList();
     const mutator = nodeList[nodeListMutatorSym]();
-    mutator.push(...this.ownerDocument!._nwapi.select(selectors, this))
+    mutator.push(...this.ownerDocument!._nwapi.select(selectors, this));
 
     return nodeList;
   }
 
   matches(selectorString: string): boolean {
-    return this.ownerDocument!._nwapi.match(selectorString, this)
+    return this.ownerDocument!._nwapi.match(selectorString, this);
   }
 
   // TODO: DRY!!!

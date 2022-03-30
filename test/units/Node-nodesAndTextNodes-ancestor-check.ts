@@ -105,4 +105,3 @@ Deno.test("Element.append ancestor check", () => {
 
   divA.append(divB);
 });
-

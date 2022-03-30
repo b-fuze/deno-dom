@@ -1,15 +1,19 @@
 import { assertEquals } from "https://deno.land/std@0.75.0/testing/asserts.ts";
-import { dirname, join, basename } from "https://deno.land/std@0.75.0/path/mod.ts";
+import {
+  basename,
+  dirname,
+  join,
+} from "https://deno.land/std@0.75.0/path/mod.ts";
 import { DOMParser, Element } from "../deno-dom-wasm.ts";
 
 const parser = new DOMParser();
-const cachedScripts: {[script: string]: string} = {};
+const cachedScripts: { [script: string]: string } = {};
 export type Backend = "wasm" | "native";
 
 export async function run(path: string, root: string, backend: Backend) {
   const html = await Deno.readTextFile(path);
   const doc = parser.parseFromString(html, "text/html")!;
-  let scripts = Array.from(doc.querySelectorAll("script")).map(scriptNode => {
+  let scripts = Array.from(doc.querySelectorAll("script")).map((scriptNode) => {
     const scriptElement = scriptNode as Element;
     let script = scriptElement.getAttribute("src")!;
     let scriptContents: string;
@@ -40,7 +44,10 @@ export async function run(path: string, root: string, backend: Backend) {
     };
   }
 
-  const worker = new Worker(new URL("./wpt-runner-worker.ts", import.meta.url).href, workerOptions);
+  const worker = new Worker(
+    new URL("./wpt-runner-worker.ts", import.meta.url).href,
+    workerOptions,
+  );
   worker.postMessage({
     backend,
     html,
@@ -60,4 +67,3 @@ export async function run(path: string, root: string, backend: Backend) {
     });
   });
 }
-

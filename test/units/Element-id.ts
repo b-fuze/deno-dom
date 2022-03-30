@@ -1,4 +1,4 @@
-import { DOMParser, Comment, Node } from "../../deno-dom-wasm.ts";
+import { Comment, DOMParser, Node } from "../../deno-dom-wasm.ts";
 import { assertEquals } from "https://deno.land/std@0.85.0/testing/asserts.ts";
 
 Deno.test("Element.id", () => {
@@ -30,6 +30,4 @@ Deno.test("Element.id", () => {
 
   assertEquals(parent.id, nextId);
   assertEquals(parent.getAttribute("id"), nextId);
-
 });
-

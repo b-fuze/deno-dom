@@ -11,8 +11,11 @@ Deno.test("Element#innerText", () => {
 
   assertEquals(div.innerText, div.textContent, "innerText equals textContent");
   div.innerHTML = "<em>qux</em> fizz";
-  assertEquals(div.innerText, "qux fizz", "innerText reflects innerHTML changes");
+  assertEquals(
+    div.innerText,
+    "qux fizz",
+    "innerText reflects innerHTML changes",
+  );
   div.innerText = "42 divs";
   assertEquals(div.textContent, "42 divs", "setting innerText");
 });
-

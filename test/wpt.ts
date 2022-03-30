@@ -1,5 +1,9 @@
 import { walkSync } from "https://deno.land/std@0.75.0/fs/walk.ts";
-import { dirname, fromFileUrl, join } from "https://deno.land/std@0.75.0/path/mod.ts";
+import {
+  dirname,
+  fromFileUrl,
+  join,
+} from "https://deno.land/std@0.75.0/path/mod.ts";
 import { run } from "./wpt-runner.ts";
 import type { Backend } from "./wpt-runner.ts";
 
@@ -31,7 +35,7 @@ const exclude = new RegExp([
 
 export function test(backend: Backend) {
   // WPT tests are only explicitly run
-  if (!Deno.args.find(arg => ["-w", "--wpt"].includes(arg))) {
+  if (!Deno.args.find((arg) => ["-w", "--wpt"].includes(arg))) {
     return;
   }
 
@@ -64,4 +68,3 @@ export function test(backend: Backend) {
     });
   }
 }
-
