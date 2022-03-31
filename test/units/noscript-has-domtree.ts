@@ -11,5 +11,3 @@ Deno.test("Noscript has a DOM tree", () => {
   const noscript = doc.querySelector("noscript")!;
   assertEquals(noscript.children[0]?.tagName, "DIV");
 });
-
-

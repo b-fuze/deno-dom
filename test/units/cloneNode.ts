@@ -1,14 +1,21 @@
 import { DOMParser, Element, Node } from "../../deno-dom-wasm.ts";
-import { assert, assertEquals, assertNotEquals } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import {
+  assert,
+  assertEquals,
+  assertNotEquals,
+} from "https://deno.land/std@0.85.0/testing/asserts.ts";
 
 Deno.test("cloneNode", () => {
-  const doc = new DOMParser().parseFromString(`
+  const doc = new DOMParser().parseFromString(
+    `
     a
     <p>b</p>
     <ul><li>c</li></ul>
     <!-- d -->
     <a id="e">e</a>
-  `, "text/html")!;
+  `,
+    "text/html",
+  )!;
 
   checkClone(doc, doc.cloneNode(true));
 });

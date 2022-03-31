@@ -1,9 +1,9 @@
 import { assert, assertEquals } from "https://deno.land/std/testing/asserts.ts";
 import {
-  DOMParser,
-  Document,
   Comment,
+  Document,
   DocumentType,
+  DOMParser,
   Element,
 } from "../../deno-dom-wasm.ts";
 
@@ -16,19 +16,19 @@ Deno.test("Comment before <html>", async () => {
   assert(document.childNodes[0] instanceof Comment);
   assertEquals(
     (document.childNodes[0] as Comment).data,
-    " A popular English-language nursery rhyme. "
+    " A popular English-language nursery rhyme. ",
   );
   assert(document.childNodes[1] instanceof DocumentType);
   assert(document.childNodes[2] instanceof Comment);
   assertEquals(
     (document.childNodes[2] as Comment).data,
-    " TODO: Bells and whistles "
+    " TODO: Bells and whistles ",
   );
   assert(document.childNodes[3] instanceof Element);
   assertEquals(document.documentElement, document.childNodes[3]);
   assert(document.childNodes[4] instanceof Comment);
   assertEquals(
     (document.childNodes[4] as Comment).data,
-    " Copyright: public domain "
+    " Copyright: public domain ",
   );
 });

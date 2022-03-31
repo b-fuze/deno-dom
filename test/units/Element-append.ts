@@ -1,4 +1,4 @@
-import { DOMParser, Comment, Node } from "../../deno-dom-wasm.ts";
+import { Comment, DOMParser, Node } from "../../deno-dom-wasm.ts";
 import { assertEquals } from "https://deno.land/std@0.85.0/testing/asserts.ts";
 
 Deno.test("Element.append", () => {
@@ -48,4 +48,3 @@ Deno.test("Element.append", () => {
   assertEquals(childB.childNodes.length, 13);
   assertEquals(childB.children.length, 5);
 });
-

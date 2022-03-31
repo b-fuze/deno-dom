@@ -8,11 +8,25 @@ Deno.test("Case insensitive attributes", () => {
   )!;
   const div = doc.querySelector("div")!;
 
-  assertEquals(div.getAttribute("foobar"), "baz", "first HTML attribute takes precedence");
-  assertEquals(div.getAttribute("FooBar"), "baz", "first HTML attribute takes precedence");
+  assertEquals(
+    div.getAttribute("foobar"),
+    "baz",
+    "first HTML attribute takes precedence",
+  );
+  assertEquals(
+    div.getAttribute("FooBar"),
+    "baz",
+    "first HTML attribute takes precedence",
+  );
   div.setAttribute("fOObAR", "fizz");
-  assertEquals(div.getAttribute("FooBar"), "fizz", "HTML attributes mutations are case insensitive");
-  assertEquals(div.getAttribute("foobar"), "fizz", "HTML attributes mutations are case insensitive");
+  assertEquals(
+    div.getAttribute("FooBar"),
+    "fizz",
+    "HTML attributes mutations are case insensitive",
+  );
+  assertEquals(
+    div.getAttribute("foobar"),
+    "fizz",
+    "HTML attributes mutations are case insensitive",
+  );
 });
-
-

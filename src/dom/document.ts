@@ -1,5 +1,5 @@
 import { CTOR_KEY } from "../constructor-lock.ts";
-import { Node, NodeType, Text, Comment } from "./node.ts";
+import { Comment, Node, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
 import { DOM as NWAPI } from "./nwsapi-types.ts";
@@ -40,8 +40,17 @@ export class DOMImplementation {
     return doc;
   }
 
-  createDocumentType(qualifiedName: string, publicId: string, systemId: string): DocumentType {
-    const doctype = new DocumentType(qualifiedName, publicId, systemId, CTOR_KEY);
+  createDocumentType(
+    qualifiedName: string,
+    publicId: string,
+    systemId: string,
+  ): DocumentType {
+    const doctype = new DocumentType(
+      qualifiedName,
+      publicId,
+      systemId,
+      CTOR_KEY,
+    );
 
     return doctype;
   }
@@ -59,10 +68,10 @@ export class DocumentType extends Node {
     key: typeof CTOR_KEY,
   ) {
     super(
-      "html", 
-      NodeType.DOCUMENT_TYPE_NODE, 
+      "html",
+      NodeType.DOCUMENT_TYPE_NODE,
       null,
-      key
+      key,
     );
 
     this.#qualifiedName = name;
@@ -83,7 +92,12 @@ export class DocumentType extends Node {
   }
 
   _shallowClone(): Node {
-    return new DocumentType(this.#qualifiedName, this.#publicId, this.#systemId, CTOR_KEY);
+    return new DocumentType(
+      this.#qualifiedName,
+      this.#publicId,
+      this.#systemId,
+      CTOR_KEY,
+    );
   }
 }
 
@@ -92,7 +106,10 @@ export interface ElementCreationOptions {
 }
 
 export type VisibilityState = "visible" | "hidden" | "prerender";
-export type NamespaceURI = "http://www.w3.org/1999/xhtml" | "http://www.w3.org/2000/svg" | "http://www.w3.org/1998/Math/MathML";
+export type NamespaceURI =
+  | "http://www.w3.org/1999/xhtml"
+  | "http://www.w3.org/2000/svg"
+  | "http://www.w3.org/1998/Math/MathML";
 
 export class Document extends Node {
   public head: Element = <Element> <unknown> null;
@@ -205,7 +222,9 @@ export class Document extends Node {
     if (namespace === "http://www.w3.org/1999/xhtml") {
       return this.createElement(qualifiedName, options);
     } else {
-      throw new Error(`createElementNS: "${ namespace }" namespace unimplemented`); // TODO
+      throw new Error(
+        `createElementNS: "${namespace}" namespace unimplemented`,
+      ); // TODO
     }
   }
 
@@ -239,7 +258,7 @@ export class Document extends Node {
   querySelectorAll(selectors: string): NodeList {
     const nodeList = new NodeList();
     const mutator = nodeList[nodeListMutatorSym]();
-    mutator.push(...this.#nwapi.select(selectors, this))
+    mutator.push(...this.#nwapi.select(selectors, this));
 
     return nodeList;
   }
@@ -265,7 +284,10 @@ export class Document extends Node {
   getElementsByTagName(tagName: string): Element[] {
     if (tagName === "*") {
       return this.documentElement
-        ? <Element[]> this._getElementsByTagNameWildcard(this.documentElement, [])
+        ? <Element[]> this._getElementsByTagNameWildcard(
+          this.documentElement,
+          [],
+        )
         : [];
     } else {
       return <Element[]> this._getElementsByTagName(tagName.toUpperCase(), []);

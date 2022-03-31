@@ -22,11 +22,12 @@ export enum NodeType {
  * Throws if any of the nodes are an ancestor
  * of `parentNode`
  */
-export const nodesAndTextNodes = (nodes: (Node | unknown)[], parentNode: Node) => {
-  return nodes.map(n => {
-    const node: Node = n instanceof Node
-      ? n
-      : new Text("" + n);
+export const nodesAndTextNodes = (
+  nodes: (Node | unknown)[],
+  parentNode: Node,
+) => {
+  return nodes.map((n) => {
+    const node: Node = n instanceof Node ? n : new Text("" + n);
 
     // Make sure the node isn't an ancestor of parentNode
     if (n === node && parentNode) {
@@ -40,7 +41,7 @@ export const nodesAndTextNodes = (nodes: (Node | unknown)[], parentNode: Node) =
     node._setParent(parentNode, true);
     return node;
   });
-}
+};
 
 export class Node extends EventTarget {
   public nodeValue: string | null;
@@ -247,7 +248,9 @@ export class Node extends EventTarget {
       if (child.parentNode === this) {
         return child._remove();
       } else {
-        throw new DOMException("Node.removeChild: The node to be removed is not a child of this node");
+        throw new DOMException(
+          "Node.removeChild: The node to be removed is not a child of this node",
+        );
       }
     } else {
       throw new TypeError("Node.removeChild: Argument 1 is not an object.");
@@ -274,7 +277,9 @@ export class Node extends EventTarget {
 
     const index = mutator.indexOf(refNode);
     if (index === -1) {
-      throw new Error("DOMException: Child to insert before is not a child of this node");
+      throw new Error(
+        "DOMException: Child to insert before is not a child of this node",
+      );
     }
 
     const oldParentNode = newNode.parentNode;
@@ -344,7 +349,9 @@ export class Node extends EventTarget {
     // non-Node or nullish values so we just copy the most relevant error message
     // from Firefox
     if (!(other instanceof Node)) {
-      throw new TypeError("Node.compareDocumentPosition: Argument 1 does not implement interface Node.");
+      throw new TypeError(
+        "Node.compareDocumentPosition: Argument 1 does not implement interface Node.",
+      );
     }
 
     let node1Root = other;
@@ -352,15 +359,19 @@ export class Node extends EventTarget {
     const node1Hierarchy = [node1Root];
     const node2Hierarchy = [node2Root];
     while (node1Root.parentNode ?? node2Root.parentNode) {
-      node1Root = node1Root.parentNode ? (node1Hierarchy.push(node1Root.parentNode), node1Root.parentNode) : node1Root;
-      node2Root = node2Root.parentNode ? (node2Hierarchy.push(node2Root.parentNode), node2Root.parentNode) : node2Root;
+      node1Root = node1Root.parentNode
+        ? (node1Hierarchy.push(node1Root.parentNode), node1Root.parentNode)
+        : node1Root;
+      node2Root = node2Root.parentNode
+        ? (node2Hierarchy.push(node2Root.parentNode), node2Root.parentNode)
+        : node2Root;
     }
 
     // Check if they don't share the same root node
     if (node1Root !== node2Root) {
-      return Node.DOCUMENT_POSITION_DISCONNECTED
-        | Node.DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC
-        | Node.DOCUMENT_POSITION_PRECEDING;
+      return Node.DOCUMENT_POSITION_DISCONNECTED |
+        Node.DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC |
+        Node.DOCUMENT_POSITION_PRECEDING;
     }
 
     const longerHierarchy = node1Hierarchy.length > node2Hierarchy.length
@@ -371,12 +382,15 @@ export class Node extends EventTarget {
       : node1Hierarchy;
 
     // Check if either is a container of the other
-    if (longerHierarchy[longerHierarchy.length - shorterHierarchy.length] === shorterHierarchy[0]) {
+    if (
+      longerHierarchy[longerHierarchy.length - shorterHierarchy.length] ===
+        shorterHierarchy[0]
+    ) {
       return longerHierarchy === node1Hierarchy
         // other is a child of this
         ? Node.DOCUMENT_POSITION_CONTAINED_BY | Node.DOCUMENT_POSITION_FOLLOWING
-        // this is a child of other
-        : Node.DOCUMENT_POSITION_CONTAINS | Node.DOCUMENT_POSITION_PRECEDING;
+        : // this is a child of other
+          Node.DOCUMENT_POSITION_CONTAINS | Node.DOCUMENT_POSITION_PRECEDING;
     }
 
     // Find their first common ancestor and see whether they
@@ -388,9 +402,13 @@ export class Node extends EventTarget {
 
       // We found the first common ancestor
       if (longerHierarchyNode !== shorterHierarchyNode) {
-        const siblings = shorterHierarchyNode.parentNode!._getChildNodesMutator();
+        const siblings = shorterHierarchyNode.parentNode!
+          ._getChildNodesMutator();
 
-        if (siblings.indexOf(shorterHierarchyNode) < siblings.indexOf(longerHierarchyNode)) {
+        if (
+          siblings.indexOf(shorterHierarchyNode) <
+            siblings.indexOf(longerHierarchyNode)
+        ) {
           // Shorter is before longer
           if (shorterHierarchy === node1Hierarchy) {
             // Other is before this
@@ -451,7 +469,8 @@ Node.prototype.TEXT_NODE = NodeType.TEXT_NODE;
 Node.prototype.CDATA_SECTION_NODE = NodeType.CDATA_SECTION_NODE;
 Node.prototype.ENTITY_REFERENCE_NODE = NodeType.ENTITY_REFERENCE_NODE;
 Node.prototype.ENTITY_NODE = NodeType.ENTITY_NODE;
-Node.prototype.PROCESSING_INSTRUCTION_NODE = NodeType.PROCESSING_INSTRUCTION_NODE;
+Node.prototype.PROCESSING_INSTRUCTION_NODE =
+  NodeType.PROCESSING_INSTRUCTION_NODE;
 Node.prototype.COMMENT_NODE = NodeType.COMMENT_NODE;
 Node.prototype.DOCUMENT_NODE = NodeType.DOCUMENT_NODE;
 Node.prototype.DOCUMENT_TYPE_NODE = NodeType.DOCUMENT_TYPE_NODE;
@@ -531,4 +550,3 @@ export class Comment extends CharacterData {
     return <string> this.nodeValue;
   }
 }
-

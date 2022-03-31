@@ -3,10 +3,10 @@ type TestSetupEvent = {
     backend: "wasm" | "native";
     html: string;
     scripts: string[];
-  }
+  };
 };
 
-addEventListener("message", async event => {
+addEventListener("message", async (event) => {
   const { data: { backend, html, scripts } } = event as any as TestSetupEvent;
   const denoDom = await import("../deno-dom-" + backend + ".ts");
   const { DOMParser, Comment } = denoDom;
@@ -46,11 +46,15 @@ addEventListener("message", async event => {
   new Function(scripts.join("\n\n"))();
 
   // Add fake XML document implementation to skip XML doc tests
-  doc.implementation.createDocument = function(ns: any, qualifiedName: any, documentType: any) {
+  doc.implementation.createDocument = function (
+    ns: any,
+    qualifiedName: any,
+    documentType: any,
+  ) {
     const newDoc = doc.implementation.createHTMLDocument();
 
     // Return comments instead of PI's
-    newDoc.createProcessingInstruction = function(...args: any[]) {
+    newDoc.createProcessingInstruction = function (...args: any[]) {
       return new Comment(args[0]);
     };
   };
@@ -59,4 +63,3 @@ addEventListener("message", async event => {
     success: true,
   });
 });
-

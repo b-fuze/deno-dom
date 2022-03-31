@@ -7,4 +7,3 @@ Deno.test("collections-toString", () => {
   assertEquals(div.childNodes.toString(), "[object NodeList]");
   assertEquals(div.children.toString(), "[object HTMLCollection]");
 });
-

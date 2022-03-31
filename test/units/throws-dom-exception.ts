@@ -1,5 +1,8 @@
-import { HTMLDocument, DOMParser, NodeList } from "../../deno-dom-wasm.ts";
-import { assert, assertThrows } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { DOMParser, HTMLDocument, NodeList } from "../../deno-dom-wasm.ts";
+import {
+  assert,
+  assertThrows,
+} from "https://deno.land/std@0.85.0/testing/asserts.ts";
 
 Deno.test("Invalid querySelector query throws DOMException", () => {
   const doc = new DOMParser().parseFromString("<div></div>", "text/html")!;

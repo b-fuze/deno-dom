@@ -51,4 +51,3 @@ Deno.test("Node.compareDocumentPosition", () => {
     // bitmask values...
   ], [4, 4, 2, 0, 20, 10, 2, 2, 10, 20, 35, 35, 35, 20]);
 });
-

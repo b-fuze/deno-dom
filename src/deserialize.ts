@@ -1,6 +1,6 @@
 import { parse, parseFrag } from "./parser.ts";
 import { CTOR_KEY } from "./constructor-lock.ts";
-import { Node, NodeType, Text, Comment } from "./dom/node.ts";
+import { Comment, Node, NodeType, Text } from "./dom/node.ts";
 import { DocumentType } from "./dom/document.ts";
 import { Element } from "./dom/element.ts";
 
@@ -47,7 +47,7 @@ function nodeFromArray(data: any, parentNode: Node | null): Node {
 
       case NodeType.DOCUMENT_TYPE_NODE:
         childNode = new DocumentType(child[1], child[2], child[3], CTOR_KEY);
-        childNode.parentNode = childNode.parentElement = <Element>elm;
+        childNode.parentNode = childNode.parentElement = <Element> elm;
         childNodes.push(childNode);
         break;
     }
@@ -55,4 +55,3 @@ function nodeFromArray(data: any, parentNode: Node | null): Node {
 
   return elm;
 }
-
