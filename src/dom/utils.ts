@@ -3,12 +3,6 @@ import UtilTypes from "./utils-types.ts";
 import type { Element } from "./element.ts";
 import type { DocumentFragment } from "./document-fragment.ts";
 
-/**
- * Due to circular imports
- */
-export let DocumentFragmentDeferred: typeof DocumentFragment;
-export let ElementDeferred: typeof Element;
-
 export function getElementsByClassName(
   element: any,
   className: string,
@@ -54,7 +48,6 @@ export function isDocumentFragment(node: Node): node is DocumentFragment {
         return false;
 
       // FIXME: We should probably throw here?
-
       case Object:
       case null:
       case undefined:
