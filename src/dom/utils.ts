@@ -48,6 +48,7 @@ export function isDocumentFragment(node: Node): node is DocumentFragment {
         return false;
 
       // FIXME: We should probably throw here?
+
       case Object:
       case null:
       case undefined:

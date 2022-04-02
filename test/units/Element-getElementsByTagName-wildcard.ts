@@ -18,4 +18,3 @@ Deno.test("Element.getElementsByTagName(wildcard)", () => {
 
   assertEquals(parent.getElementsByTagName("*").length, 4);
 });
-

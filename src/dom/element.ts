@@ -476,7 +476,7 @@ export class Element extends Node {
     }
   }
 
-  private _getElementsByTagNameWildcard(search: Node[]): Node[] {
+  _getElementsByTagNameWildcard(search: Node[]): Node[] {
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
         search.push(child);
@@ -487,7 +487,7 @@ export class Element extends Node {
     return search;
   }
 
-  private _getElementsByTagName(tagName: string, search: Node[]): Node[] {
+  _getElementsByTagName(tagName: string, search: Node[]): Node[] {
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
         if ((<Element> child).tagName === tagName) {

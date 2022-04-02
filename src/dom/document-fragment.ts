@@ -3,6 +3,11 @@ import { HTMLCollection } from "./html-collection.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Node, nodesAndTextNodes, NodeType } from "./node.ts";
 import { Element } from "./element.ts";
+import {
+  customByClassNameSym,
+  customByTagNameSym,
+} from "./selectors/custom-api.ts";
+import { getElementsByClassName } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
 
 export class DocumentFragment extends Node {
@@ -98,3 +103,54 @@ export class DocumentFragment extends Node {
 }
 
 UtilTypes.DocumentFragment = DocumentFragment;
+
+// Add required methods just for Sizzle.js selector to work on
+// DocumentFragment's
+function documentFragmentGetElementsByTagName(
+  this: DocumentFragment,
+  tagName: string,
+): Node[] {
+  const search: Node[] = [];
+
+  if (tagName === "*") {
+    return documentFragmentGetElementsByTagNameWildcard(this, search);
+  }
+
+  for (const child of this.childNodes) {
+    if (child.nodeType === NodeType.ELEMENT_NODE) {
+      if ((<Element> child).tagName === tagName) {
+        search.push(child);
+      }
+
+      (<Element> child)._getElementsByTagName(tagName, search);
+    }
+  }
+
+  return search;
+}
+
+function documentFragmentGetElementsByClassName(
+  this: DocumentFragment,
+  className: string,
+) {
+  return getElementsByClassName(this, className, []);
+}
+
+function documentFragmentGetElementsByTagNameWildcard(
+  fragment: DocumentFragment,
+  search: Node[],
+): Node[] {
+  for (const child of fragment.childNodes) {
+    if (child.nodeType === NodeType.ELEMENT_NODE) {
+      search.push(child);
+      (<Element> child)._getElementsByTagNameWildcard(search);
+    }
+  }
+
+  return search;
+}
+
+(DocumentFragment as any).prototype[customByTagNameSym] =
+  documentFragmentGetElementsByTagName;
+(DocumentFragment as any).prototype[customByClassNameSym] =
+  documentFragmentGetElementsByClassName;

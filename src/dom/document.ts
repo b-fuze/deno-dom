@@ -3,7 +3,7 @@ import { Comment, Node, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
 import { DocumentFragment } from "./document-fragment.ts";
-import { DOM as NWAPI } from "./nwsapi-types.ts";
+import { getSelectorEngine, SelectorApi } from "./selectors/selectors.ts";
 import { getElementsByClassName } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
 
@@ -121,7 +121,7 @@ export class Document extends Node {
   #lockState = false;
   #documentURI = "about:blank"; // TODO
   #title = "";
-  #nwapi = NWAPI(this);
+  #nwapi: SelectorApi | null = null;
 
   constructor() {
     super(
@@ -141,7 +141,7 @@ export class Document extends Node {
   // Expose the document's NWAPI for Element's access to
   // querySelector/querySelectorAll
   get _nwapi() {
-    return this.#nwapi;
+    return this.#nwapi || (this.#nwapi = getSelectorEngine()(this));
   }
 
   get documentURI() {
@@ -260,13 +260,13 @@ export class Document extends Node {
   }
 
   querySelector(selectors: string): Element | null {
-    return this.#nwapi.first(selectors, this);
+    return this._nwapi.first(selectors, this);
   }
 
   querySelectorAll(selectors: string): NodeList {
     const nodeList = new NodeList();
     const mutator = nodeList[nodeListMutatorSym]();
-    mutator.push(...this.#nwapi.select(selectors, this));
+    mutator.push(...this._nwapi.select(selectors, this));
 
     return nodeList;
   }

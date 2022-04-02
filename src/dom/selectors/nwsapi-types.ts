@@ -1,6 +1,6 @@
 import NWDom from "./nwsapi.js";
-import type { Element } from "./element.ts";
-import type { Document } from "./document.ts";
+import type { Element } from "../element.ts";
+import type { Document } from "../document.ts";
 
 export const DOM: (doc: Document) => {
   ancestor(
@@ -26,4 +26,4 @@ export const DOM: (doc: Document) => {
   byId(id: string, from: Element | Document): Element[];
   byTag(tag: string, from: Element | Document): Element[];
   byClass(tag: string, from: Element | Document): Element[];
-} = <any> NWDom;
+} = NWDom as any;
