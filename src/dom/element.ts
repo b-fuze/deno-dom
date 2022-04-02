@@ -467,7 +467,13 @@ export class Element extends Node {
   }
 
   getElementsByTagName(tagName: string): Element[] {
-    return <Element[]> this._getElementsByTagName(tagName.toUpperCase(), []);
+    const fixCaseTagName = tagName.toUpperCase();
+
+    if (fixCaseTagName === "*") {
+      return <Element[]> this._getElementsByTagNameWildcard([]);
+    } else {
+      return <Element[]> this._getElementsByTagName(tagName.toUpperCase(), []);
+    }
   }
 
   private _getElementsByTagNameWildcard(search: Node[]): Node[] {
