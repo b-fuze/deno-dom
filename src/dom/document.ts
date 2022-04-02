@@ -2,8 +2,10 @@ import { CTOR_KEY } from "../constructor-lock.ts";
 import { Comment, Node, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
+import { DocumentFragment } from "./document-fragment.ts";
 import { DOM as NWAPI } from "./nwsapi-types.ts";
 import { getElementsByClassName } from "./utils.ts";
+import UtilTypes from "./utils-types.ts";
 
 export class DOMImplementation {
   constructor(key: typeof CTOR_KEY) {
@@ -236,6 +238,12 @@ export class Document extends Node {
     return new Comment(data);
   }
 
+  createDocumentFragment(): DocumentFragment {
+    const fragment = new DocumentFragment();
+    fragment._setOwnerDocument(this);
+    return fragment;
+  }
+
   importNode(node: Node, deep: boolean = false) {
     const copy = node.cloneNode(deep);
 
@@ -344,3 +352,5 @@ export class HTMLDocument extends Document {
     return new HTMLDocument(CTOR_KEY);
   }
 }
+
+UtilTypes.Document = Document;

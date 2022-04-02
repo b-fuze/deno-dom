@@ -4,6 +4,7 @@ import { Comment, Node, nodesAndTextNodes, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { HTMLCollection } from "./html-collection.ts";
 import { getElementsByClassName } from "./utils.ts";
+import UtilTypes from "./utils-types.ts";
 
 export class DOMTokenList extends Set<string> {
   #onChange: (className: string) => void;
@@ -503,3 +504,5 @@ export class Element extends Node {
     return this.getElementsByTagName(localName);
   }
 }
+
+UtilTypes.Element = Element;

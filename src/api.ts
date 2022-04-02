@@ -2,6 +2,7 @@ export { nodesFromString } from "./deserialize.ts";
 export * from "./dom/node.ts";
 export * from "./dom/element.ts";
 export * from "./dom/document.ts";
+export * from "./dom/document-fragment.ts";
 export * from "./dom/dom-parser.ts";
 
 // Re-export private constructors without constructor signature

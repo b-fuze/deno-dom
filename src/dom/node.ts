@@ -1,7 +1,9 @@
 import { CTOR_KEY } from "../constructor-lock.ts";
 import { NodeList, NodeListMutator, nodeListMutatorSym } from "./node-list.ts";
+import { isDocumentFragment, moveDocumentFragmentChildren } from "./utils.ts";
 import type { Element } from "./element.ts";
 import type { Document } from "./document.ts";
+import type { DocumentFragment } from "./document-fragment.ts";
 
 export enum NodeType {
   ELEMENT_NODE = 1,
@@ -26,20 +28,26 @@ export const nodesAndTextNodes = (
   nodes: (Node | unknown)[],
   parentNode: Node,
 ) => {
-  return nodes.map((n) => {
-    const node: Node = n instanceof Node ? n : new Text("" + n);
+  return nodes.flatMap((n) => {
+    if (isDocumentFragment(n as Node)) {
+      const children = Array.from((n as Node).childNodes);
+      moveDocumentFragmentChildren(n as DocumentFragment, parentNode);
+      return children;
+    } else {
+      const node: Node = n instanceof Node ? n : new Text("" + n);
 
-    // Make sure the node isn't an ancestor of parentNode
-    if (n === node && parentNode) {
-      parentNode._assertNotAncestor(node);
+      // Make sure the node isn't an ancestor of parentNode
+      if (n === node && parentNode) {
+        parentNode._assertNotAncestor(node);
+      }
+
+      // Remove from parentNode (if any)
+      node._remove(true);
+
+      // Set new parent
+      node._setParent(parentNode, true);
+      return [node];
     }
-
-    // Remove from parentNode (if any)
-    node._remove();
-
-    // Set new parent
-    node._setParent(parentNode, true);
-    return node;
   });
 };
 
@@ -92,6 +100,10 @@ export class Node extends EventTarget {
     return this.#childNodesMutator;
   }
 
+  /**
+   * Update ancestor chain & owner document for this child
+   * and all its children.
+   */
   _setParent(newParent: Node | null, force = false) {
     const sameParent = this.parentNode === newParent;
     const shouldUpdateParentAndAncestors = !sameParent || force;
@@ -208,19 +220,30 @@ export class Node extends EventTarget {
     throw new Error("Illegal invocation");
   }
 
-  _remove() {
+  _remove(skipSetParent = false) {
     const parent = this.parentNode;
 
     if (parent) {
       const nodeList = parent._getChildNodesMutator();
       const idx = nodeList.indexOf(this);
       nodeList.splice(idx, 1);
-      this._setParent(null);
+
+      if (!skipSetParent) {
+        this._setParent(null);
+      }
     }
   }
 
   appendChild(child: Node): Node {
-    return child._appendTo(this);
+    if (isDocumentFragment(child)) {
+      const mutator = this._getChildNodesMutator();
+      mutator.push(...child.childNodes);
+      moveDocumentFragmentChildren(child, this);
+
+      return child;
+    } else {
+      return child._appendTo(this);
+    }
   }
 
   _appendTo(parentNode: Node) {
@@ -282,9 +305,14 @@ export class Node extends EventTarget {
       );
     }
 
-    const oldParentNode = newNode.parentNode;
-    newNode._setParent(this, oldParentNode !== this);
-    mutator.splice(index, 0, newNode);
+    if (isDocumentFragment(newNode)) {
+      mutator.splice(index, 0, ...newNode.childNodes);
+      moveDocumentFragmentChildren(newNode, this);
+    } else {
+      const oldParentNode = newNode.parentNode;
+      newNode._setParent(this, oldParentNode !== this);
+      mutator.splice(index, 0, newNode);
+    }
 
     return newNode;
   }
