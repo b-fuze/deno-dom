@@ -52,7 +52,7 @@ export const nodesAndTextNodes = (
 };
 
 export class Node extends EventTarget {
-  public nodeValue: string | null;
+  #nodeValue: string | null = null;
   public childNodes: NodeList;
   public parentNode: Node | null = null;
   public parentElement: Element | null;
@@ -86,7 +86,7 @@ export class Node extends EventTarget {
     }
     super();
 
-    this.nodeValue = null;
+    this.#nodeValue = null;
     this.childNodes = new NodeList();
     this.#childNodesMutator = this.childNodes[nodeListMutatorSym]();
     this.parentElement = <Element> parentNode;
@@ -162,6 +162,10 @@ export class Node extends EventTarget {
 
   get ownerDocument() {
     return this.#ownerDocument;
+  }
+
+  get nodeValue(): string | null {
+    return this.#nodeValue;
   }
 
   get textContent(): string {
@@ -506,8 +510,10 @@ Node.prototype.DOCUMENT_FRAGMENT_NODE = NodeType.DOCUMENT_FRAGMENT_NODE;
 Node.prototype.NOTATION_NODE = NodeType.NOTATION_NODE;
 
 export class CharacterData extends Node {
+  #nodeValue = "";
+
   constructor(
-    public data: string,
+    data: string,
     nodeName: string,
     nodeType: NodeType,
     parentNode: Node | null,
@@ -520,7 +526,31 @@ export class CharacterData extends Node {
       key,
     );
 
-    this.nodeValue = data;
+    this.#nodeValue = data;
+  }
+
+  get nodeValue(): string {
+    return this.#nodeValue;
+  }
+
+  set nodeValue(value: any) {
+    this.#nodeValue = String(value ?? "");
+  }
+
+  get data(): string {
+    return this.#nodeValue;
+  }
+
+  set data(value: any) {
+    this.nodeValue = value;
+  }
+
+  get textContent(): string {
+    return this.#nodeValue;
+  }
+
+  set textContent(value: any) {
+    this.nodeValue = value;
   }
 
   get length(): number {
@@ -536,14 +566,12 @@ export class Text extends CharacterData {
     text: string = "",
   ) {
     super(
-      text,
+      String(text),
       "#text",
       NodeType.TEXT_NODE,
       null,
       CTOR_KEY,
     );
-
-    this.nodeValue = text;
   }
 
   _shallowClone(): Node {
@@ -560,14 +588,12 @@ export class Comment extends CharacterData {
     text: string = "",
   ) {
     super(
-      text,
+      String(text),
       "#comment",
       NodeType.COMMENT_NODE,
       null,
       CTOR_KEY,
     );
-
-    this.nodeValue = text;
   }
 
   _shallowClone(): Node {
