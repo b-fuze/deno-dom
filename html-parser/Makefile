@@ -17,7 +17,7 @@ CLI_OUT := cli-test/target/release/cli-test
 
 PLUGIN_SRC_DIR := plugin/src
 PLUGIN_SRC := $(wildcard $(PLUGIN_SRC_DIR)/*.rs)
-PLUGIN_OUT := $(CWD)/plugin/target/release/libplugin.so
+PLUGIN_OUT := $(CWD)/../target/release/libplugin.so
 PLUGIN_OUT_FINAL := $(CWD)/../build/linux-x86_64/libplugin.so
 
 .PHONY: all wasm plugin cli
