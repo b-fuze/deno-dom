@@ -3,7 +3,11 @@ import { fragmentNodesFromString } from "../deserialize.ts";
 import { Comment, Node, nodesAndTextNodes, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { HTMLCollection } from "./html-collection.ts";
-import { getElementsByClassName } from "./utils.ts";
+import {
+  getElementAttributesString,
+  getElementsByClassName,
+  getInnerHtmlFromNodes,
+} from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
 
 export class DOMTokenList extends Set<string> {
@@ -180,22 +184,9 @@ export class Element extends Node {
 
   get outerHTML(): string {
     const tagName = this.tagName.toLowerCase();
-    const attributes = this.attributes;
     let out = "<" + tagName;
 
-    for (const attribute of this.getAttributeNames()) {
-      out += ` ${attribute.toLowerCase()}`;
-
-      // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
-      if (attributes[attribute] != null) {
-        out += `="${
-          attributes[attribute]
-            .replace(/&/g, "&amp;")
-            .replace(/\xA0/g, "&nbsp;")
-            .replace(/"/g, "&quot;")
-        }"`;
-      }
-    }
+    out += getElementAttributesString(this.attributes);
 
     // Special handling for void elements
     switch (tagName) {
@@ -229,46 +220,7 @@ export class Element extends Node {
   }
 
   get innerHTML(): string {
-    let out = "";
-
-    for (const child of this.childNodes) {
-      switch (child.nodeType) {
-        case NodeType.ELEMENT_NODE:
-          out += (child as Element).outerHTML;
-          break;
-
-        case NodeType.COMMENT_NODE:
-          out += `<!--${(child as Comment).data}-->`;
-          break;
-
-        case NodeType.TEXT_NODE:
-          // Special handling for rawtext-like elements.
-          switch (this.tagName.toLowerCase()) {
-            case "style":
-            case "script":
-            case "xmp":
-            case "iframe":
-            case "noembed":
-            case "noframes":
-            case "plaintext":
-              out += (child as Text).data;
-              break;
-
-            default:
-              // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
-              out += (child as Text).data
-                .replace(/&/g, "&amp;")
-                .replace(/\xA0/g, "&nbsp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
-              break;
-          }
-
-          break;
-      }
-    }
-
-    return out;
+    return getInnerHtmlFromNodes(this.childNodes, this.tagName);
   }
 
   set innerHTML(html: string) {

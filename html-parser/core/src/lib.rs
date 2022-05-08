@@ -106,6 +106,7 @@ fn serialize_node(buf: &mut Vec<u8>, dom: &Rc<Node>) {
         NodeData::Element {
             ref name,
             ref attrs,
+            ref template_contents,
             ..
         } => {
             write!(&mut *buf, "[1,").unwrap();
@@ -113,31 +114,37 @@ fn serialize_node(buf: &mut Vec<u8>, dom: &Rc<Node>) {
             write!(&mut *buf, ",").unwrap();
             serialize_element_attributes(buf, attrs);
 
-            let children = dom.children.borrow();
+            if let Some(contents) = template_contents {
+                buf.push(b',');
+                // Include <template> contents
+                serialize_node(&mut *buf, &contents);
+            } else {
+                let children = dom.children.borrow();
 
-            let mut last_child_rendered = true;
-            for child in children.iter() {
-                if last_child_rendered {
-                    // assume something will be written
-                    buf.push(b',');
+                let mut last_child_rendered = true;
+                for child in children.iter() {
+                    if last_child_rendered {
+                        // assume something will be written
+                        buf.push(b',');
+                    }
+
+                    let child_rendered = {
+                        let len_before = buf.len();
+                        serialize_node(&mut *buf, child);
+                        let len_after = buf.len();
+
+                        len_after - len_before > 0
+                    };
+
+                    last_child_rendered = child_rendered;
                 }
 
-                let child_rendered = {
-                    let len_before = buf.len();
-                    serialize_node(&mut *buf, child);
-                    let len_after = buf.len();
-
-                    len_after - len_before > 0
-                };
-
-                last_child_rendered = child_rendered;
-            }
-
-            if !last_child_rendered {
-                // remove comma that was written if it turns out that
-                // nothing was written by the last child
-                // (or at least, nothing was written since the last comma)
-                buf.pop().unwrap();
+                if !last_child_rendered {
+                    // remove comma that was written if it turns out that
+                    // nothing was written by the last child
+                    // (or at least, nothing was written since the last comma)
+                    buf.pop().unwrap();
+                }
             }
 
             write!(&mut *buf, "]").unwrap();
