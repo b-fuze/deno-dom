@@ -35,7 +35,8 @@ if (denoNativePluginPath) {
   // Download the plugin
   dylib = await Plug.prepare({
     name: "plugin",
-    url: "https://github.com/b-fuze/deno-dom/releases/download/v0.1.23-alpha-artifacts/",
+    url:
+      "https://github.com/b-fuze/deno-dom/releases/download/v0.1.23-alpha-artifacts/",
   }, symbols);
 }
 
