@@ -1,4 +1,4 @@
-import { Comment, Node, NodeType, Text } from "./node.ts";
+import { Comment, Node, nodesAndTextNodes, NodeType, Text } from "./node.ts";
 import { NodeList } from "./node-list.ts";
 import UtilTypes from "./utils-types.ts";
 import type { Element } from "./element.ts";
@@ -100,6 +100,19 @@ export function getElementAttributesString(
   }
 
   return out;
+}
+
+export function insertBeforeAfter(
+  node: Node,
+  nodes: (Node | string)[],
+  side: number,
+) {
+  const parentNode = node.parentNode!;
+  const mutator = parentNode._getChildNodesMutator();
+  const index = mutator.indexOf(node);
+  nodes = nodesAndTextNodes(nodes, parentNode);
+
+  mutator.splice(index + side, 0, ...(<Node[]> nodes));
 }
 
 export function isDocumentFragment(node: Node): node is DocumentFragment {

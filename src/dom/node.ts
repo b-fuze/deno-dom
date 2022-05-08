@@ -1,6 +1,10 @@
 import { CTOR_KEY } from "../constructor-lock.ts";
 import { NodeList, NodeListMutator, nodeListMutatorSym } from "./node-list.ts";
-import { isDocumentFragment, moveDocumentFragmentChildren } from "./utils.ts";
+import {
+  insertBeforeAfter,
+  isDocumentFragment,
+  moveDocumentFragmentChildren,
+} from "./utils.ts";
 import type { Element } from "./element.ts";
 import type { Document } from "./document.ts";
 import type { DocumentFragment } from "./document-fragment.ts";
@@ -555,6 +559,26 @@ export class CharacterData extends Node {
 
   get length(): number {
     return this.data.length;
+  }
+
+  before(...nodes: (Node | string)[]) {
+    if (this.parentNode) {
+      insertBeforeAfter(this, nodes, 0);
+    }
+  }
+
+  after(...nodes: (Node | string)[]) {
+    if (this.parentNode) {
+      insertBeforeAfter(this, nodes, 1);
+    }
+  }
+
+  remove() {
+    this._remove();
+  }
+
+  replaceWith(...nodes: (Node | string)[]) {
+    this._replaceWith(...nodes);
   }
 
   // TODO: Implement NonDocumentTypeChildNode.nextElementSibling, etc

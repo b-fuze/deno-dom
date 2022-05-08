@@ -1,4 +1,4 @@
-import { Comment, DOMParser, Text } from "../../deno-dom-wasm.ts";
+import { Comment, DOMParser, NodeType, Text } from "../../deno-dom-wasm.ts";
 import { assertStrictEquals as assertEquals } from "https://deno.land/std@0.85.0/testing/asserts.ts";
 
 Deno.test("CharacterData.nodeValue/data", () => {
@@ -69,4 +69,62 @@ Deno.test("Text/Comment constructors with non-strings", () => {
   assertEquals(commentZero.nodeValue, "0");
   assertEquals(commentZero.data, "0");
   assertEquals(commentZero.textContent, "0");
+});
+
+Deno.test("CharacterData.after/before/remove/replaceWith", () => {
+  const doc = new DOMParser().parseFromString(
+    `foo<!--bar-->`,
+    "text/html",
+  )!;
+
+  const text = doc.body.childNodes[0] as Text;
+  const comment = doc.body.childNodes[1] as Comment;
+
+  assertEquals(doc.body.childNodes.length, 2);
+  assertEquals(text.previousSibling, null);
+
+  text.before(new Comment("fizz"));
+
+  assertEquals(doc.body.childNodes[0].nodeValue, "fizz");
+  assertEquals(doc.body.childNodes.length, 3);
+  assertEquals(text.previousSibling?.nodeValue, "fizz");
+  assertEquals(text.previousSibling?.nodeType, NodeType.COMMENT_NODE);
+  assertEquals(text.nextSibling?.nodeValue, "bar");
+  assertEquals(text.nextSibling?.nodeType, NodeType.COMMENT_NODE);
+
+  text.after(new Text(" extra"));
+
+  assertEquals(doc.body.childNodes[2].nodeValue, " extra");
+  assertEquals(doc.body.childNodes.length, 4);
+  assertEquals(
+    doc.body.outerHTML,
+    `<body><!--fizz-->foo extra<!--bar--></body>`,
+  );
+  assertEquals(text.nextSibling?.nodeValue, " extra");
+  assertEquals(text.nextSibling?.nodeType, NodeType.TEXT_NODE);
+
+  const div = doc.createElement("div");
+  div.innerHTML = "html";
+  text.replaceWith("stuff", div);
+
+  assertEquals(doc.body.childNodes.length, 5);
+  assertEquals(
+    doc.body.outerHTML,
+    `<body><!--fizz-->stuff<div>html</div> extra<!--bar--></body>`,
+  );
+  assertEquals(div.nextSibling?.nodeValue, " extra");
+  assertEquals(text.parentNode, null);
+  assertEquals(text.parentElement, null);
+  assertEquals(div.previousSibling?.nodeValue, "stuff");
+  assertEquals(div.nextSibling?.nodeValue, " extra");
+  assertEquals(div.nextSibling?.nextSibling, comment);
+
+  comment.remove();
+
+  assertEquals(doc.body.childNodes.length, 4);
+  assertEquals(div.nextSibling?.nextSibling, null);
+  assertEquals(comment.parentNode, null);
+  assertEquals(comment.parentElement, null);
+  assertEquals(comment.previousSibling, null);
+  assertEquals(comment.nextSibling, null);
 });

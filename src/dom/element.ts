@@ -7,6 +7,7 @@ import {
   getElementAttributesString,
   getElementsByClassName,
   getInnerHtmlFromNodes,
+  insertBeforeAfter,
 } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
 
@@ -319,24 +320,15 @@ export class Element extends Node {
     mutator.splice(0, 0, ...nodesAndTextNodes(nodes, this));
   }
 
-  private insertBeforeAfter(nodes: (Node | string)[], side: number) {
-    const parentNode = this.parentNode!;
-    const mutator = parentNode._getChildNodesMutator();
-    const index = mutator.indexOf(this);
-    nodes = nodesAndTextNodes(nodes, parentNode);
-
-    mutator.splice(index + side, 0, ...(<Node[]> nodes));
-  }
-
   before(...nodes: (Node | string)[]) {
     if (this.parentNode) {
-      this.insertBeforeAfter(nodes, 0);
+      insertBeforeAfter(this, nodes, 0);
     }
   }
 
   after(...nodes: (Node | string)[]) {
     if (this.parentNode) {
-      this.insertBeforeAfter(nodes, 1);
+      insertBeforeAfter(this, nodes, 1);
     }
   }
 
