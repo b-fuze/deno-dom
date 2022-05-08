@@ -78,6 +78,7 @@ Object.defineProperty(Array, Symbol.hasInstance, {
         return oldHasInstance.call(this, value);
     }
   },
+  configurable: true,
 });
 
 const oldIsArray = Array.isArray;
@@ -91,4 +92,5 @@ Object.defineProperty(Array, "isArray", {
         return oldIsArray.call(Array, value);
     }
   },
+  configurable: true,
 });
