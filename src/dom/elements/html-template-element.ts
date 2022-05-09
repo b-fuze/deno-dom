@@ -50,6 +50,25 @@ export class HTMLTemplateElement extends Element {
     }
   }
 
+  override _shallowClone(): HTMLTemplateElement {
+    const frag = new DocumentFragment();
+    const attributes = Object.entries(this.attributes);
+    return new HTMLTemplateElement(null, attributes, CTOR_KEY, frag);
+  }
+
+  override cloneNode(deep = false): HTMLTemplateElement {
+    const newNode = super.cloneNode(deep) as HTMLTemplateElement;
+
+    if (deep) {
+      const destContent = newNode.content;
+      for (const child of this.content.childNodes) {
+        destContent.appendChild(child.cloneNode(deep));
+      }
+    }
+
+    return newNode;
+  }
+
   get innerHTML(): string {
     return getInnerHtmlFromNodes(this.content.childNodes, "template");
   }

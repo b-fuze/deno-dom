@@ -159,6 +159,8 @@ export class Element extends Node {
   }
 
   _shallowClone(): Node {
+    // FIXME: This attribute copying needs to also be fixed in other
+    // elements that override _shallowClone like <template>
     const attributes: [string, string][] = [];
     for (const attribute of this.getAttributeNames()) {
       attributes.push([attribute, this.attributes[attribute]]);
