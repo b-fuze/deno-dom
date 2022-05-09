@@ -3,6 +3,7 @@ import { Comment, Node, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
 import { DocumentFragment } from "./document-fragment.ts";
+import { HTMLTemplateElement } from "./elements/html-template-element.ts";
 import { getSelectorEngine, SelectorApi } from "./selectors/selectors.ts";
 import { getElementsByClassName } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
@@ -211,9 +212,25 @@ export class Document extends Node {
   createElement(tagName: string, options?: ElementCreationOptions): Element {
     tagName = tagName.toUpperCase();
 
-    const elm = new Element(tagName, null, [], CTOR_KEY);
-    elm._setOwnerDocument(this);
-    return elm;
+    switch (tagName) {
+      case "TEMPLATE": {
+        const frag = new DocumentFragment();
+        const elm = new HTMLTemplateElement(
+          null,
+          [],
+          CTOR_KEY,
+          frag,
+        );
+        elm._setOwnerDocument(this);
+        return elm;
+      }
+
+      default: {
+        const elm = new Element(tagName, null, [], CTOR_KEY);
+        elm._setOwnerDocument(this);
+        return elm;
+      }
+    }
   }
 
   createElementNS(

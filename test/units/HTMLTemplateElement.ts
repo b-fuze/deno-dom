@@ -98,3 +98,12 @@ Deno.test("HTMLTemplateElement", () => {
     `<template class="templ-b"><aside>Some foo things</aside></template>`,
   );
 });
+
+Deno.test('document.createElement("template")', () => {
+  const doc = new DOMParser().parseFromString("", "text/html")!;
+  const templ = doc.createElement("template") as HTMLTemplateElement;
+
+  assertEquals(templ.constructor, HTMLTemplateElement);
+  assertEquals(templ.content?.constructor, DocumentFragment);
+  assertEquals(templ.content.childNodes.length, 0);
+});
