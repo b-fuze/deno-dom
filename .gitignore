@@ -1,5 +1,9 @@
 html-parser/*/target
+build/linux-x86_64
 Cargo.lock
 node_modules
 .deno_plugins
 /target
+*~
+/.vim
+/.vscode

@@ -17,7 +17,7 @@
  */
 
 export default document => {
-  const NW = Factory({ document }, "null");
+  const NW = Factory({ document, DOMException }, "null");
   NW.configure({
     IDS_DUPES: false,
     LOGERRORS: false,
@@ -1549,7 +1549,7 @@ function Factory(global, Export) {
           } else {
             token = ['', '*', '*'];
           }
-		}
+    }
 
         nodeset[i] = token[1] + token[2];
         htmlset[i] = compat[token[1]](context, token[2]);

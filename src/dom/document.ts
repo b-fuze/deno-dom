@@ -1,12 +1,16 @@
-import { setLock, getLock } from "../constructor-lock.ts";
-import { Node, NodeType, Text, Comment } from "./node.ts";
+import { CTOR_KEY } from "../constructor-lock.ts";
+import { Comment, Node, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
-import { DOM as NWAPI } from "./nwsapi-types.ts";
+import { DocumentFragment } from "./document-fragment.ts";
+import { HTMLTemplateElement } from "./elements/html-template-element.ts";
+import { getSelectorEngine, SelectorApi } from "./selectors/selectors.ts";
+import { getElementsByClassName } from "./utils.ts";
+import UtilTypes from "./utils-types.ts";
 
 export class DOMImplementation {
-  constructor() {
-    if (getLock()) {
+  constructor(key: typeof CTOR_KEY) {
+    if (key !== CTOR_KEY) {
       throw new TypeError("Illegal constructor.");
     }
   }
@@ -18,36 +22,38 @@ export class DOMImplementation {
   createHTMLDocument(titleStr?: string): HTMLDocument {
     titleStr += "";
 
-    // TODO: Figure out a way to make `setLock` invocations less redundant
-    setLock(false);
-    const doc = new HTMLDocument();
+    const doc = new HTMLDocument(CTOR_KEY);
 
-    setLock(false);
-    const docType = new DocumentType("html", "", "");
+    const docType = new DocumentType("html", "", "", CTOR_KEY);
     doc.appendChild(docType);
 
-    const html = new Element("html", doc, []);
+    const html = new Element("html", doc, [], CTOR_KEY);
     html._setOwnerDocument(doc);
 
-    const head = new Element("head", html, []);
-    const body = new Element("body", html, []);
+    const head = new Element("head", html, [], CTOR_KEY);
+    const body = new Element("body", html, [], CTOR_KEY);
 
-    const title = new Element("title", head, []);
+    const title = new Element("title", head, [], CTOR_KEY);
     const titleText = new Text(titleStr);
     title.appendChild(titleText);
-    doc._setDocumentTitle(titleStr!);
 
     doc.head = head;
     doc.body = body;
 
-    setLock(true);
     return doc;
   }
 
-  createDocumentType(qualifiedName: string, publicId: string, systemId: string): DocumentType {
-    setLock(false);
-    const doctype = new DocumentType(qualifiedName, publicId, systemId);
-    setLock(true);
+  createDocumentType(
+    qualifiedName: string,
+    publicId: string,
+    systemId: string,
+  ): DocumentType {
+    const doctype = new DocumentType(
+      qualifiedName,
+      publicId,
+      systemId,
+      CTOR_KEY,
+    );
 
     return doctype;
   }
@@ -62,11 +68,13 @@ export class DocumentType extends Node {
     name: string,
     publicId: string,
     systemId: string,
+    key: typeof CTOR_KEY,
   ) {
     super(
-      "html", 
-      NodeType.DOCUMENT_TYPE_NODE, 
-      null
+      "html",
+      NodeType.DOCUMENT_TYPE_NODE,
+      null,
+      key,
     );
 
     this.#qualifiedName = name;
@@ -85,6 +93,15 @@ export class DocumentType extends Node {
   get systemId() {
     return this.#systemId;
   }
+
+  _shallowClone(): Node {
+    return new DocumentType(
+      this.#qualifiedName,
+      this.#publicId,
+      this.#systemId,
+      CTOR_KEY,
+    );
+  }
 }
 
 export interface ElementCreationOptions {
@@ -92,6 +109,10 @@ export interface ElementCreationOptions {
 }
 
 export type VisibilityState = "visible" | "hidden" | "prerender";
+export type NamespaceURI =
+  | "http://www.w3.org/1999/xhtml"
+  | "http://www.w3.org/2000/svg"
+  | "http://www.w3.org/1998/Math/MathML";
 
 export class Document extends Node {
   public head: Element = <Element> <unknown> null;
@@ -101,18 +122,27 @@ export class Document extends Node {
   #lockState = false;
   #documentURI = "about:blank"; // TODO
   #title = "";
-  #nwapi = NWAPI(this);
+  #nwapi: SelectorApi | null = null;
 
   constructor() {
     super(
-      (setLock(false), "#document"),
+      "#document",
       NodeType.DOCUMENT_NODE,
       null,
+      CTOR_KEY,
     );
 
-    setLock(false);
-    this.implementation = new DOMImplementation();
-    setLock(true);
+    this.implementation = new DOMImplementation(CTOR_KEY);
+  }
+
+  _shallowClone(): Node {
+    return new Document();
+  }
+
+  // Expose the document's NWAPI for Element's access to
+  // querySelector/querySelectorAll
+  get _nwapi() {
+    return this.#nwapi || (this.#nwapi = getSelectorEngine()(this));
   }
 
   get documentURI() {
@@ -120,7 +150,7 @@ export class Document extends Node {
   }
 
   get title() {
-    return this.#title; // TODO
+    return this.querySelector("title")?.textContent || "";
   }
 
   get cookie() {
@@ -153,23 +183,68 @@ export class Document extends Node {
     return null;
   }
 
-  _setDocumentTitle(title: string) {
-    this.#title = title;
+  get doctype(): DocumentType | null {
+    for (const node of this.childNodes) {
+      if (node.nodeType === NodeType.DOCUMENT_TYPE_NODE) {
+        return <DocumentType> node;
+      }
+    }
+
+    return null;
   }
 
-  appendChild(child: Node) {
+  get childElementCount(): number {
+    let count = 0;
+    for (const { nodeType } of this.childNodes) {
+      if (nodeType === NodeType.ELEMENT_NODE) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  appendChild(child: Node): Node {
     super.appendChild(child);
     child._setOwnerDocument(this);
+    return child;
   }
 
   createElement(tagName: string, options?: ElementCreationOptions): Element {
     tagName = tagName.toUpperCase();
 
-    setLock(false);
-    const elm = new Element(tagName, null, []);
-    elm._setOwnerDocument(this);
-    setLock(true);
-    return elm;
+    switch (tagName) {
+      case "TEMPLATE": {
+        const frag = new DocumentFragment();
+        const elm = new HTMLTemplateElement(
+          null,
+          [],
+          CTOR_KEY,
+          frag,
+        );
+        elm._setOwnerDocument(this);
+        return elm;
+      }
+
+      default: {
+        const elm = new Element(tagName, null, [], CTOR_KEY);
+        elm._setOwnerDocument(this);
+        return elm;
+      }
+    }
+  }
+
+  createElementNS(
+    namespace: NamespaceURI,
+    qualifiedName: string,
+    options?: ElementCreationOptions,
+  ): Element {
+    if (namespace === "http://www.w3.org/1999/xhtml") {
+      return this.createElement(qualifiedName, options);
+    } else {
+      throw new Error(
+        `createElementNS: "${namespace}" namespace unimplemented`,
+      ); // TODO
+    }
   }
 
   createTextNode(data?: string): Text {
@@ -180,14 +255,35 @@ export class Document extends Node {
     return new Comment(data);
   }
 
+  createDocumentFragment(): DocumentFragment {
+    const fragment = new DocumentFragment();
+    fragment._setOwnerDocument(this);
+    return fragment;
+  }
+
+  importNode(node: Node, deep: boolean = false) {
+    const copy = node.cloneNode(deep);
+
+    copy._setOwnerDocument(this);
+
+    return copy;
+  }
+
+  adoptNode(node: Node) {
+    node._setParent(null);
+    node._setOwnerDocument(this);
+
+    return node;
+  }
+
   querySelector(selectors: string): Element | null {
-    return this.#nwapi.first(selectors, this);
+    return this._nwapi.first(selectors, this);
   }
 
   querySelectorAll(selectors: string): NodeList {
     const nodeList = new NodeList();
     const mutator = nodeList[nodeListMutatorSym]();
-    mutator.push(...this.#nwapi.select(selectors, this))
+    mutator.push(...this._nwapi.select(selectors, this));
 
     return nodeList;
   }
@@ -213,7 +309,10 @@ export class Document extends Node {
   getElementsByTagName(tagName: string): Element[] {
     if (tagName === "*") {
       return this.documentElement
-        ? <Element[]> this._getElementsByTagNameWildcard(this.documentElement, [])
+        ? <Element[]> this._getElementsByTagNameWildcard(
+          this.documentElement,
+          [],
+        )
         : [];
     } else {
       return <Element[]> this._getElementsByTagName(tagName.toUpperCase(), []);
@@ -250,21 +349,7 @@ export class Document extends Node {
   }
 
   getElementsByClassName(className: string): Element[] {
-    return <Element[]> this._getElementsByClassName(className, []);
-  }
-
-  private _getElementsByClassName(className: string, search: Node[]): Node[] {
-    for (const child of this.childNodes) {
-      if (child.nodeType === NodeType.ELEMENT_NODE) {
-        if ((<Element> child).classList.contains(className)) {
-          search.push(child);
-        }
-
-        (<any> child)._getElementsByClassName(className, search);
-      }
-    }
-
-    return search;
+    return <Element[]> getElementsByClassName(this, className, []);
   }
 
   hasFocus(): boolean {
@@ -273,15 +358,16 @@ export class Document extends Node {
 }
 
 export class HTMLDocument extends Document {
-  constructor() {
-    let lock = getLock();
-    super();
-
-    if (lock) {
+  constructor(key: typeof CTOR_KEY) {
+    if (key !== CTOR_KEY) {
       throw new TypeError("Illegal constructor.");
     }
+    super();
+  }
 
-    setLock(false);
+  _shallowClone(): Node {
+    return new HTMLDocument(CTOR_KEY);
   }
 }
 
+UtilTypes.Document = Document;
