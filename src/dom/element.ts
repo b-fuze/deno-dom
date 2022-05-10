@@ -11,7 +11,6 @@ import {
 } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
 
-let DOMTokenListLock = true;
 export interface DOMTokenList {
   [index: number]: string;
 }
@@ -22,8 +21,9 @@ export class DOMTokenList {
 
   constructor(
     onChange: (className: string) => void,
+    key: typeof CTOR_KEY,
   ) {
-    if (DOMTokenListLock) {
+    if (key !== CTOR_KEY) {
       throw new TypeError("Illegal constructor");
     }
     this.#onChange = onChange;
@@ -230,16 +230,14 @@ export class NamedNodeMap {
 }
 
 export class Element extends Node {
-  #classList = (() => {
-    DOMTokenListLock = false;
-    const list = new DOMTokenList((className) => {
+  #classList = new DOMTokenList(
+    (className) => {
       if (this.hasAttribute("class") || className !== "") {
         this.attributes["class"] = className;
       }
-    });
-    DOMTokenListLock = true;
-    return list;
-  })();
+    },
+    CTOR_KEY,
+  );
   public attributes: NamedNodeMap & { [attribute: string]: string } =
     <any> new NamedNodeMap();
 
