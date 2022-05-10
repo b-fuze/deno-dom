@@ -2,9 +2,172 @@ import { getLock } from "../constructor-lock.ts";
 import { fragmentNodesFromString } from "../deserialize.ts";
 import { Node, NodeType, Text } from "./node.ts";
 
-export class DOMTokenList extends Set<string> {
-  contains(token: string): boolean {
-    return this.has(token);
+class DOMException extends Error {
+  constructor (
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+let DOMTokenListLock = true;
+export interface DOMTokenList {
+  [index: number]: string;
+}
+export class DOMTokenList {
+  #value!: string;
+  #set!: Set<string>;
+
+  constructor (
+    input = "",
+  ) {
+    if (DOMTokenListLock) {
+      throw new TypeError("Illegal constructor");
+    }
+    this.value = input;
+  }
+
+  #setIndices () {
+    const classes = Array.from(this.#set);
+    for (let i = 0; i < classes.length; i++) {
+      this[i] = classes[i];
+    }
+  }
+
+  set value (
+    input: string,
+  ) {
+    this.#value = input;
+    this.#set = new Set(
+      input.split(" ").filter(Boolean),
+    );
+    this.#setIndices();
+  }
+
+  get value () {
+    return this.#value;
+  }
+
+  get length () {
+    return this.#set.size;
+  }
+
+  *entries (): IterableIterator<[number, string]> {
+    const array = Array.from(this.#set);
+    for (let i = 0; i < array.length; i++) {
+      yield [i, array[i]];
+    }
+  }
+
+  *values (): IterableIterator<string> {
+    yield* this.#set.values();
+  }
+
+  *keys (): IterableIterator<number> {
+    for (let i = 0; i < this.#set.size; i++) {
+      yield i;
+    }
+  }
+
+  *[Symbol.iterator] (): IterableIterator<string> {
+    yield* this.#set.values();
+  }
+
+  item (
+    index: number,
+  ) {
+    return this[index];
+  }
+
+  contains (
+    element: string,
+  ) {
+    return this.#set.has(element);
+  }
+
+  add (
+    ...elements: Array<string>
+  ) {
+    for (const element of elements) {
+      if (!element) {
+        throw new DOMException("Failed to execute 'add' on 'DOMTokenList': The token provided must not be empty.");
+      }
+      const { size } = this.#set;
+      this.#set.add(element);
+      if (size < this.#set.size) {
+        this[size] = element;
+      }
+    }
+    this.#value = Array.from(this.#set).join(" ");
+  }
+
+  remove (
+    ...elements: Array<string>
+  ) {
+    const { size } = this.#set;
+    for (const element of elements) {
+      if (!element) {
+        throw new DOMException("Failed to execute 'remove' on 'DOMTokenList': The token provided must not be empty.");
+      }
+      this.#set.delete(element);
+    }
+    if (size !== this.#set.size) {
+      for (let i = this.#set.size; i < size; i++) {
+        delete this[i];
+      }
+      this.#setIndices();
+    }
+    this.#value = Array.from(this.#set).join(" ");
+  }
+
+  replace (
+    oldToken: string,
+    newToken: string,
+  ) {
+    if (!oldToken || !newToken) {
+      throw new DOMException("Failed to execute 'replace' on 'DOMTokenList': The token provided must not be empty.");
+    }
+    if (!this.#set.has(oldToken)) {
+      return false;
+    }
+
+    if (this.#set.has(newToken)) {
+      this.remove(oldToken);
+    } else {
+      this.#set.delete(oldToken);
+      this.#set.add(newToken);
+      this.#setIndices();
+      this.#value = Array.from(this.#set).join(" ");
+    }
+    return true;
+  }
+
+  supports (): never {
+    throw new Error("Not implemented");
+  }
+
+  toggle (
+    element: string,
+    force?: boolean,
+  ) {
+    if (force !== undefined) {
+      const operation = force ? "add" : "remove";
+      this[operation](element);
+      return false;
+    } else {
+      const contains = this.contains(element); 
+      const operation = contains ? "remove" : "add";
+      this[operation](element);
+      return !contains;
+    }
+  }
+
+  forEach (
+    callback: (value: string, index: number, list: DOMTokenList) => void,
+  ) {
+    for (const [i, value] of this.entries()) {
+      callback(value, i, this);
+    }
   }
 }
 
@@ -53,7 +216,12 @@ export class NamedNodeMap {
 }
 
 export class Element extends Node {
-  public classList = new DOMTokenList();
+  public classList = (() => {
+    DOMTokenListLock = false;
+    const list = new DOMTokenList();
+    DOMTokenListLock = true;
+    return list;
+  })();
   public attributes: NamedNodeMap & {[attribute: string]: string} = <any> new NamedNodeMap();
 
   #currentId = "";
@@ -77,7 +245,7 @@ export class Element extends Node {
 
       switch (attr[0]) {
         case "class":
-          this.classList = new DOMTokenList(attr[1].split(/\s+/g));
+          this.classList.value = attr[1];
           break;
         case "id":
           this.#currentId = attr[1];
@@ -93,8 +261,7 @@ export class Element extends Node {
   }
 
   set className(className: string) {
-    // TODO: Probably don't replace the current classList
-    this.classList = new DOMTokenList(className.split(/\s+/g));
+    this.classList.value = className;
   }
 
   get outerHTML(): string {
