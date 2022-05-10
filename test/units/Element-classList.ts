@@ -56,3 +56,31 @@ Deno.test("Element.classList.remove", () => {
   // @ts-ignore
   assert(div.classList.value === "");
 });
+
+Deno.test("Element.classList.item", () => {
+  const doc = new DOMParser().parseFromString("<div class='a b c b a'></div>", "text/html")!;
+  const div = doc.querySelector("div")!;
+
+  assert(div.classList.item(0) === "a");
+  assert(div.classList.item(-0) === "a");
+  assert(div.classList.item(0.9) === "a");
+  assert(div.classList.item(-0.9) === "a");
+  assert(div.classList.item(NaN) === "a");
+  assert(div.classList.item(Infinity) === "a");
+  assert(div.classList.item(2**32) === "a");
+  assert(div.classList.item(2**32*2) === "a");
+
+  assert(div.classList.item(1) === "b");
+  assert(div.classList.item(2**32+1) === "b");
+  assert(div.classList.item(2**32*2+1) === "b");
+
+  assert(div.classList.item(2) === "c");
+  assert(div.classList.item(2**32*2+2) === "c");
+  assert(div.classList.item(Math.E) === "c");
+
+  assert(div.classList.item(3) == null);
+  assert(div.classList.item(2**16) === null);
+  assert(div.classList.item(2**32*2+3) === null);
+  assert(div.classList.item(-1) == null);
+  assert(div.classList.item(-Infinity) == null);
+});

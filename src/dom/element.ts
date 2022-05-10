@@ -85,7 +85,9 @@ export class DOMTokenList {
   item(
     index: number,
   ) {
-    return this[index];
+    index = Number(index);
+    if (Number.isNaN(index) || index === Infinity) index = 0;
+    return this[Math.trunc(index) % 2**32] ?? null;
   }
 
   contains(
