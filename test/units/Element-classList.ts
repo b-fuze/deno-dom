@@ -6,7 +6,7 @@ Deno.test("Element.classList.add", () => {
   const div = doc.querySelector("div")!;
   div.classList.add("a");
   div.classList.add("b", "c");
-  assert(div.classList.has("a"));
-  assert(div.classList.has("b"));
-  assert(div.classList.has("c"));
+  assert(div.classList.contains("a"));
+  assert(div.classList.contains("b"));
+  assert(div.classList.contains("c"));
 });
