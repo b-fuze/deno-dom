@@ -27,3 +27,13 @@ Deno.test("Element.classList.add", () => {
   assert(div.classList.contains("b"));
   assert(div.classList.contains("c"));
 });
+
+Deno.test("Element.classList.remove", () => {
+  const doc = new DOMParser().parseFromString("<div class='a b c'></div>", "text/html")!;
+  const div = doc.querySelector("div")!;
+  div.classList.remove("a");
+  assert(div.classList.value === "b c");
+  div.classList.remove("b", "c");
+  // @ts-ignore
+  assert(div.classList.value === "");
+});
