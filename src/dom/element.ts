@@ -12,7 +12,7 @@ import {
 import UtilTypes from "./utils-types.ts";
 
 class DOMException extends Error {
-  constructor (
+  constructor(
     message: string,
   ) {
     super(message);
@@ -28,7 +28,7 @@ export class DOMTokenList {
   #set = new Set<string>();
   #onChange: (className: string) => void;
 
-  constructor (
+  constructor(
     onChange: (className: string) => void,
   ) {
     if (DOMTokenListLock) {
@@ -37,20 +37,20 @@ export class DOMTokenList {
     this.#onChange = onChange;
   }
 
-  static #invalidToken (
+  static #invalidToken(
     token: string,
   ) {
     return token === "" && /[\t\n\f\r ]/.test(token);
   }
 
-  #setIndices () {
+  #setIndices() {
     const classes = Array.from(this.#set);
     for (let i = 0; i < classes.length; i++) {
       this[i] = classes[i];
     }
   }
 
-  set value (
+  set value(
     input: string,
   ) {
     this.#value = input;
@@ -61,53 +61,55 @@ export class DOMTokenList {
     this.#onChange(this.#value);
   }
 
-  get value () {
+  get value() {
     return this.#value;
   }
 
-  get length () {
+  get length() {
     return this.#set.size;
   }
 
-  *entries (): IterableIterator<[number, string]> {
+  *entries(): IterableIterator<[number, string]> {
     const array = Array.from(this.#set);
     for (let i = 0; i < array.length; i++) {
       yield [i, array[i]];
     }
   }
 
-  *values (): IterableIterator<string> {
+  *values(): IterableIterator<string> {
     yield* this.#set.values();
   }
 
-  *keys (): IterableIterator<number> {
+  *keys(): IterableIterator<number> {
     for (let i = 0; i < this.#set.size; i++) {
       yield i;
     }
   }
 
-  *[Symbol.iterator] (): IterableIterator<string> {
+  *[Symbol.iterator](): IterableIterator<string> {
     yield* this.#set.values();
   }
 
-  item (
+  item(
     index: number,
   ) {
     return this[index];
   }
 
-  contains (
+  contains(
     element: string,
   ) {
     return this.#set.has(element);
   }
 
-  add (
+  add(
     ...elements: Array<string>
   ) {
     for (const element of elements) {
       if (DOMTokenList.#invalidToken(element)) {
-        throw new DOMException("Failed to execute 'add' on 'DOMTokenList': The token provided must not be empty.");
+        throw new DOMException(
+          "Failed to execute 'add' on 'DOMTokenList': The token provided must not be empty.",
+        );
       }
       const { size } = this.#set;
       this.#set.add(element);
@@ -118,13 +120,15 @@ export class DOMTokenList {
     this.#value = Array.from(this.#set).join(" ");
   }
 
-  remove (
+  remove(
     ...elements: Array<string>
   ) {
     const { size } = this.#set;
     for (const element of elements) {
       if (DOMTokenList.#invalidToken(element)) {
-        throw new DOMException("Failed to execute 'remove' on 'DOMTokenList': The token provided must not be empty.");
+        throw new DOMException(
+          "Failed to execute 'remove' on 'DOMTokenList': The token provided must not be empty.",
+        );
       }
       this.#set.delete(element);
     }
@@ -137,12 +141,14 @@ export class DOMTokenList {
     this.#value = Array.from(this.#set).join(" ");
   }
 
-  replace (
+  replace(
     oldToken: string,
     newToken: string,
   ) {
-    if ([oldToken, newToken].some(v => DOMTokenList.#invalidToken(v))) {
-      throw new DOMException("Failed to execute 'replace' on 'DOMTokenList': The token provided must not be empty.");
+    if ([oldToken, newToken].some((v) => DOMTokenList.#invalidToken(v))) {
+      throw new DOMException(
+        "Failed to execute 'replace' on 'DOMTokenList': The token provided must not be empty.",
+      );
     }
     if (!this.#set.has(oldToken)) {
       return false;
@@ -159,11 +165,11 @@ export class DOMTokenList {
     return true;
   }
 
-  supports (): never {
+  supports(): never {
     throw new Error("Not implemented");
   }
 
-  toggle (
+  toggle(
     element: string,
     force?: boolean,
   ) {
@@ -172,14 +178,14 @@ export class DOMTokenList {
       this[operation](element);
       return false;
     } else {
-      const contains = this.contains(element); 
+      const contains = this.contains(element);
       const operation = contains ? "remove" : "add";
       this[operation](element);
       return !contains;
     }
   }
 
-  forEach (
+  forEach(
     callback: (value: string, index: number, list: DOMTokenList) => void,
   ) {
     for (const [i, value] of this.entries()) {
