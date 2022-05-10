@@ -17,3 +17,18 @@ Deno.test("Element.outerHTML", () => {
     `<button onclick="false" data-foo="bar baz">Hi, <strong qux="">there!</strong></button>`,
   );
 });
+
+Deno.test("rawtext elements don't get XML escaped", () => {
+  const doc = new DOMParser().parseFromString(
+    `
+      <script>((a,b) => a < b)(1337, 42 & 0);</script>
+    `,
+    "text/html",
+  )!;
+
+  const script = doc.querySelector("script")!;
+  assertEquals(
+    script.outerHTML,
+    `<script>((a,b) => a < b)(1337, 42 & 0);</script>`,
+  );
+});

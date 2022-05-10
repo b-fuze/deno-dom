@@ -32,6 +32,9 @@ export function getElementsByClassName(
   return search;
 }
 
+/**
+ * @param tagName Uppercase tagname like Element.tagName
+ */
 export function getInnerHtmlFromNodes(
   nodes: NodeList,
   tagName: string,
@@ -51,13 +54,13 @@ export function getInnerHtmlFromNodes(
       case NodeType.TEXT_NODE:
         // Special handling for rawtext-like elements.
         switch (tagName) {
-          case "style":
-          case "script":
-          case "xmp":
-          case "iframe":
-          case "noembed":
-          case "noframes":
-          case "plaintext":
+          case "STYLE":
+          case "SCRIPT":
+          case "XMP":
+          case "IFRAME":
+          case "NOEMBED":
+          case "NOFRAMES":
+          case "PLAINTEXT":
             out += (child as Text).data;
             break;
 
