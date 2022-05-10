@@ -18,6 +18,25 @@ Deno.test("Element.classList.value", () => {
   assert(div.classList.value === "fiz baz qux");
 });
 
+Deno.test("Element.classList.length", () => {
+  const doc = new DOMParser().parseFromString("<div class='a   b b'></div>", "text/html")!;
+  const div = doc.querySelector("div")!;
+  assert(div.classList.length === 2);
+  div.classList.add("c");
+  // @ts-ignore
+  assert(div.classList.length === 3);
+  div.classList.remove("a", "b");
+  assert(div.classList.length === 1);
+
+  try {
+    // @ts-ignore
+    div.classList.length = 0;
+    assert(div.classList.length === 1);
+  } catch (e) {
+    assert(e instanceof TypeError);
+  }
+});
+
 Deno.test("Element.classList.add", () => {
   const doc = new DOMParser().parseFromString("<div></div>", "text/html")!;
   const div = doc.querySelector("div")!;
