@@ -11,14 +11,6 @@ import {
 } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
 
-class DOMException extends Error {
-  constructor(
-    message: string,
-  ) {
-    super(message);
-  }
-}
-
 let DOMTokenListLock = true;
 export interface DOMTokenList {
   [index: number]: string;
