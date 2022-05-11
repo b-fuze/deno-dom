@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assert } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assert, assertThrows } from "https://deno.land/std@0.85.0/testing/asserts.ts";
 
 Deno.test("Element.classList.value", () => {
   const doc = new DOMParser().parseFromString("<div class='foo bar'></div>", "text/html")!;
@@ -83,4 +83,33 @@ Deno.test("Element.classList.item", () => {
   assert(div.classList.item(2**32*2+3) === null);
   assert(div.classList.item(-1) == null);
   assert(div.classList.item(-Infinity) == null);
+});
+
+Deno.test("Element.classList.replace", () => {
+  const doc = new DOMParser().parseFromString("<div class='a   b b'></div>", "text/html")!;
+  const div = doc.querySelector("div")!;
+
+  assert(div.classList.replace("a", "b") === true, "replace('a', 'b') should return true");
+  assert(div.classList.value === "b", "replace('a', 'b') on 'a   b b' should set value to 'b'");
+
+  assert(div.classList.replace("b", "c") === true, "replace('b', 'c') should return true");
+  // @ts-ignore
+  assert(div.classList.value === "c", "replace('b', 'c') on 'b' should set value to 'c'");
+
+  assert(div.classList.replace("a", "b") === false, "replace('a', 'b') on 'c' should return false");
+  assert(div.classList.value === "c", "replace('a', 'b') on 'c' should not change value");
+
+  assertThrows(
+    () => div.classList.replace("", "b"),
+    DOMException,
+    "The token provided must not be empty",
+    "replace('', 'b') should throw DOMException",
+  );
+
+  assertThrows(
+    () => div.classList.replace("a", ""),
+    DOMException,
+    "The token provided must not be empty",
+    "replace('a', '') should throw DOMException",
+  );
 });
