@@ -300,7 +300,8 @@ Deno.test("Element.classList.replace", () => {
     "replace('a', 'b') on 'c' should return false",
   );
   assertStrictEquals(
-    div.classList.value, "c",
+    div.classList.value,
+    "c",
     "replace('a', 'b') on 'c' should not change value",
   );
 
@@ -345,7 +346,7 @@ Deno.test("Element.classList.forEach", () => {
   });
 
   assertEquals(
-    classes, 
+    classes,
     [
       ["a", 0, div.classList],
       ["b", 1, div.classList],
@@ -363,7 +364,7 @@ Deno.test("Element.classList.entries", () => {
   const classes = [...div.classList.entries()];
 
   assertEquals(
-    classes, 
+    classes,
     [
       [0, "a"],
       [1, "b"],
@@ -381,7 +382,7 @@ Deno.test("Element.classList.values", () => {
   const classes = [...div.classList.values()];
 
   assertEquals(
-    classes, 
+    classes,
     ["a", "b"],
   );
 });
@@ -396,7 +397,7 @@ Deno.test("Element.classList.keys", () => {
   const classes = [...div.classList.keys()];
 
   assertEquals(
-    classes, 
+    classes,
     [0, 1],
   );
 });
@@ -411,7 +412,7 @@ Deno.test("Element.classList.@@iterator", () => {
   const classes = [...div.classList];
 
   assertEquals(
-    classes, 
+    classes,
     ["a", "b"],
   );
 });
