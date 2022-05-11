@@ -1,4 +1,4 @@
-import { DOMParser } from "../../deno-dom-wasm.ts";
+import { DOMParser, DOMTokenList } from "../../deno-dom-wasm.ts";
 import {
   assert,
   assertEquals,
@@ -304,4 +304,26 @@ Deno.test("Element.classList.toggle", () => {
   assert(div.classList.toggle("a"), "toggle('a') should return true");
   assert(div.classList.toggle("c"), "toggle('c') should return true");
   assertEquals(div.classList.value, "b a c");
+});
+
+
+Deno.test("Element.classList.forEach", () => {
+  const doc = new DOMParser().parseFromString(
+    "<div class='a   b b'></div>",
+    "text/html",
+  )!;
+  const div = doc.querySelector("div")!;
+
+  const classes: Array<[string, number, DOMTokenList]> = [];
+  div.classList.forEach((...args) => {
+    classes.push(args);
+  });
+
+  assertEquals(
+    classes, 
+    [
+      ["a", 0, div.classList],
+      ["b", 1, div.classList],
+    ],
+  );
 });
