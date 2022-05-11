@@ -32,7 +32,7 @@ export class DOMTokenList {
   static #invalidToken(
     token: string,
   ) {
-    return token === "" && /[\t\n\f\r ]/.test(token);
+    return token === "" || /[\t\n\f\r ]/.test(token);
   }
 
   #setIndices() {
