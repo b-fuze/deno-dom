@@ -327,3 +327,22 @@ Deno.test("Element.classList.forEach", () => {
     ],
   );
 });
+
+Deno.test("Element.classList.entries", () => {
+  const doc = new DOMParser().parseFromString(
+    "<div class='a   b b'></div>",
+    "text/html",
+  )!;
+  const div = doc.querySelector("div")!;
+
+  const classes = [...div.classList.entries()];
+
+  assertEquals(
+    classes, 
+    [
+      [0, "a"],
+      [1, "b"],
+    ],
+  );
+});
+
