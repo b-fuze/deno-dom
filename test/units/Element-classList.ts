@@ -360,3 +360,18 @@ Deno.test("Element.classList.values", () => {
     ["a", "b"],
   );
 });
+
+Deno.test("Element.classList.keys", () => {
+  const doc = new DOMParser().parseFromString(
+    "<div class='a   b b'></div>",
+    "text/html",
+  )!;
+  const div = doc.querySelector("div")!;
+
+  const classes = [...div.classList.keys()];
+
+  assertEquals(
+    classes, 
+    [0, 1],
+  );
+});
