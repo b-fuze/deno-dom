@@ -1,6 +1,7 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
 import {
   assert,
+  assertEquals,
   assertThrows,
 } from "https://deno.land/std@0.85.0/testing/asserts.ts";
 
@@ -290,4 +291,17 @@ Deno.test("Element.classList.replace", () => {
     "The token provided must not be empty",
     "replace('a', '') should throw DOMException",
   );
+});
+
+Deno.test("Element.classList.toggle", () => {
+  const doc = new DOMParser().parseFromString(
+    "<div class='a   b b'></div>",
+    "text/html",
+  )!;
+  const div = doc.querySelector("div")!;
+
+  assert(!div.classList.toggle("a"), "toggle('a') should return false");
+  assert(div.classList.toggle("a"), "toggle('a') should return true");
+  assert(div.classList.toggle("c"), "toggle('c') should return true");
+  assertEquals(div.classList.value, "b a c");
 });
