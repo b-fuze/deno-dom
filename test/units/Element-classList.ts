@@ -375,3 +375,18 @@ Deno.test("Element.classList.keys", () => {
     [0, 1],
   );
 });
+
+Deno.test("Element.classList.@@iterator", () => {
+  const doc = new DOMParser().parseFromString(
+    "<div class='a   b b'></div>",
+    "text/html",
+  )!;
+  const div = doc.querySelector("div")!;
+
+  const classes = [...div.classList];
+
+  assertEquals(
+    classes, 
+    ["a", "b"],
+  );
+});
