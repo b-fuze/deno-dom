@@ -242,6 +242,7 @@ export class Element extends Node {
   );
   public attributes: NamedNodeMap & { [attribute: string]: string } =
     <any> new NamedNodeMap();
+  localName: string;
 
   #currentId = "";
 
@@ -272,6 +273,7 @@ export class Element extends Node {
     }
 
     this.tagName = this.nodeName = tagName.toUpperCase();
+    this.localName = tagName.toLowerCase();
   }
 
   _shallowClone(): Node {
