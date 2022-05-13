@@ -7,34 +7,34 @@ import { HTMLBRElement } from "./html-br-element.ts";
 import { DOMStringMap } from "../../DOMStringMap.ts";
 
 export class HTMLElement extends Element {
-  static #convertLineBreaksToBRs (
+  static #convertLineBreaksToBRs(
     text: string,
   ) {
     return (
       text
-      .split("\n")
-      .flatMap(s => [
-        new Text(s),
-        new HTMLBRElement(null, [], CTOR_KEY),
-      ])
-      .slice(0, -1)
+        .split("\n")
+        .flatMap((s) => [
+          new Text(s),
+          new HTMLBRElement(null, [], CTOR_KEY),
+        ])
+        .slice(0, -1)
     );
   }
 
   accessKey: string = "";
 
-  get accessKeyLabel () {
+  get accessKeyLabel() {
     return "";
   }
 
-  #stylePropertyMap = new StylePropertyMap;
-  get attributeStyleMap (): StylePropertyMap {
+  #stylePropertyMap = new StylePropertyMap();
+  get attributeStyleMap(): StylePropertyMap {
     return this.#stylePropertyMap;
   }
 
   contentEditable = false;
 
-  get isContentEditable () {
+  get isContentEditable() {
     return this.contentEditable;
   }
 
@@ -68,49 +68,49 @@ export class HTMLElement extends Element {
 
   nonce = 0;
 
-  get offsetHeight () {
+  get offsetHeight() {
     return 0;
   }
 
-  get offsetLeft () {
+  get offsetLeft() {
     return 0;
   }
 
-  get offsetParent () {
+  get offsetParent() {
     return null;
   }
 
-  get offsetTop () {
+  get offsetTop() {
     return 0;
   }
 
-  get offsetWidth () { 
+  get offsetWidth() {
     return 0;
   }
 
-  get outerText () {
+  get outerText() {
     return this.textContent;
   }
 
-  set outerText (text: string) {
+  set outerText(text: string) {
     this.replaceWith(
       ...HTMLElement.#convertLineBreaksToBRs(text),
     );
   }
 
   // TODO: should return HTMLPropertiesCollection
-  get properties () {
+  get properties() {
     throw new Error("Method not implemented.");
   }
 
   spellcheck = true;
 
-  #cssStyleDeclaration = new CSSStyleDeclaration;
-  get style (): CSSStyleDeclaration {
+  #cssStyleDeclaration = new CSSStyleDeclaration();
+  get style(): CSSStyleDeclaration {
     return this.#cssStyleDeclaration;
   }
 
-  set style (
+  set style(
     text: string | CSSStyleDeclaration,
   ) {
     if (typeof text === "string") {
@@ -127,7 +127,7 @@ export class HTMLElement extends Element {
 
   translate = false;
 
-  attachInternals () {
+  attachInternals() {
     throw new Error("Method not implemented.");
   }
 }

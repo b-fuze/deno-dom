@@ -8,15 +8,15 @@ export class StylePropertyMapReadOnly {
     getMap = (instance: StylePropertyMapReadOnly) => instance.#map;
   }
 
-  get size () {
+  get size() {
     return this.#map.size;
   }
 
-  *entires () {
+  *entires() {
     yield* this.#map.entries();
   }
 
-  forEach (
+  forEach(
     callbackfn: (
       value: CSSStyleValue,
       key: string,
@@ -26,29 +26,29 @@ export class StylePropertyMapReadOnly {
     this.#map.forEach((value, key) => callbackfn(value, key, this));
   }
 
-  get (key: string) {
+  get(key: string) {
     return this.#map.get(key);
   }
 
-  getAll () {
+  getAll() {
     return Array.from(this.#map.values());
   }
 
-  has (key: string) {
+  has(key: string) {
     return this.#map.has(key);
-  } 
+  }
 
-  *keys () {
+  *keys() {
     yield* this.#map.keys();
   }
 
-  *values () {
+  *values() {
     yield* this.#map.values();
   }
 }
 
 export class StylePropertyMap extends StylePropertyMapReadOnly {
-  append (
+  append(
     key: string,
     value: string,
   ) {
@@ -58,15 +58,15 @@ export class StylePropertyMap extends StylePropertyMapReadOnly {
     );
   }
 
-  clear () {
+  clear() {
     getMap(this).clear();
   }
 
-  delete (key: string) {
+  delete(key: string) {
     return getMap(this).delete(key);
   }
 
-  set (
+  set(
     key: string,
     value: string,
   ) {

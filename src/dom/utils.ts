@@ -170,7 +170,7 @@ export function moveDocumentFragmentChildren(
   mutator.splice(0, childCount);
 }
 
-export function kebabToCamel (
+export function kebabToCamel(
   input: string,
 ) {
   return input.toLowerCase().replace(
@@ -179,7 +179,7 @@ export function kebabToCamel (
   );
 }
 
-export function camelToKebab (
+export function camelToKebab(
   input: string,
 ) {
   return input.replace(

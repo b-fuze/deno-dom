@@ -418,7 +418,7 @@ export class Element extends Node {
     this._replaceWith(...nodes);
   }
 
-  replaceChildren (
+  replaceChildren(
     ...nodes: Node[]
   ) {
     // TODO

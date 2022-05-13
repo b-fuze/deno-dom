@@ -1,20 +1,21 @@
 import { camelToKebab } from "../utils.ts";
 
 export class CSSStyleDeclaration {
-  [property: string]: unknown;
+  [property: string]: unknown
 
-  #map = new Map<string, {value: string, important: boolean}>();
+  #map = new Map<string, { value: string; important: boolean }>();
 
-  constructor () {
+  constructor() {
     return new Proxy(this, {
-      get (
+      get(
         target: CSSStyleDeclaration,
         property: string,
       ) {
-        return target[property] ?? target.#map.get(camelToKebab(property))?.value;
+        return target[property] ??
+          target.#map.get(camelToKebab(property))?.value;
       },
 
-      set (
+      set(
         target: CSSStyleDeclaration,
         property: string,
         value: string,
@@ -30,10 +31,11 @@ export class CSSStyleDeclaration {
     });
   }
 
-  static #parsePriority (
+  static #parsePriority(
     input: string,
   ) {
-    const {value, priority} = input.match(/(?<value>^.+)(?<priority>\s+!important$)/u)?.groups ?? {};
+    const { value, priority } =
+      input.match(/(?<value>^.+)(?<priority>\s+!important$)/u)?.groups ?? {};
     if (value && priority) {
       return {
         important: true,
@@ -47,53 +49,53 @@ export class CSSStyleDeclaration {
     }
   }
 
-  get cssText () {
+  get cssText() {
     let result = "";
-    for (const [key, {value, important}] of this.#map) {
+    for (const [key, { value, important }] of this.#map) {
       result += `${key}: ${value}${important ? " !important" : ""}; `;
     }
     return result;
   }
 
-  set cssText (
+  set cssText(
     text: string,
   ) {
     this.#map.clear();
     const entries = (
       text
-      .split(";")
-      .map(s => s.trim())
-      .filter(Boolean)
-      .map(s => 
-        s
-        .split(":")
-        .map(s => s.trim())
-      )
+        .split(";")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) =>
+          s
+            .split(":")
+            .map((s) => s.trim())
+        )
     );
     for (const [key, value] of entries) {
       this.#map.set(key, CSSStyleDeclaration.#parsePriority(value));
     }
   }
 
-  get length () {
+  get length() {
     return this.#map.size;
   }
 
-  get parentRule () {
+  get parentRule() {
     return null;
   }
 
-  get cssFloat () {
+  get cssFloat() {
     return this.#map.get("float")?.value ?? "";
   }
 
-  set cssFloat (
+  set cssFloat(
     value: string,
   ) {
     this.#map.set("float", CSSStyleDeclaration.#parsePriority(value));
   }
 
-  getPropertyPriority (
+  getPropertyPriority(
     propertyName: string,
   ) {
     return this.#map.get(propertyName)?.important ? "important" : "";
@@ -105,7 +107,7 @@ export class CSSStyleDeclaration {
     return this.#map.get(propertyName)?.value ?? "";
   }
 
-  item (
+  item(
     index: number,
   ) {
     return Array.from(this.#map.values())[index] ?? "";
