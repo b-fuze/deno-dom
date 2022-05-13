@@ -365,14 +365,6 @@ export class Element extends Node {
     }
   }
 
-  get innerText(): string {
-    return this.textContent;
-  }
-
-  set innerText(text: string) {
-    this.textContent = text;
-  }
-
   get children(): HTMLCollection {
     return this._getChildNodesMutator().elementsView();
   }
@@ -424,6 +416,13 @@ export class Element extends Node {
 
   replaceWith(...nodes: (Node | string)[]) {
     this._replaceWith(...nodes);
+  }
+
+  replaceChildren (
+    ...nodes: Node[]
+  ) {
+    // TODO
+    // this.childNodes.
   }
 
   remove() {
