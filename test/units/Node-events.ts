@@ -2,7 +2,7 @@ import { DOMParser } from "../../deno-dom-wasm.ts";
 import {
   assert,
   assertEquals,
-} from "https://deno.land/std@0.85.0/testing/asserts.ts";
+} from "https://deno.land/std@0.139.0/testing/asserts.ts";
 
 Deno.test("Node.dispatchEvent", () => {
   const doc = new DOMParser().parseFromString(

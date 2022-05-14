@@ -1,4 +1,7 @@
-import { assert, assertEquals } from "https://deno.land/std/testing/asserts.ts";
+import {
+  assert,
+  assertEquals,
+} from "https://deno.land/std@0.139.0/testing/asserts.ts";
 import {
   Comment,
   Document,
@@ -8,7 +11,9 @@ import {
 } from "../../deno-dom-wasm.ts";
 
 Deno.test("Comment before <html>", async () => {
-  const src = await Deno.readTextFile("./comments-outside-html.html");
+  const src = await Deno.readTextFile(
+    new URL("./comments-outside-html.html", import.meta.url),
+  );
   const document = new DOMParser().parseFromString(src, "text/html");
 
   assert(document instanceof Document);

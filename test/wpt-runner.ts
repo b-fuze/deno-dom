@@ -1,9 +1,9 @@
-import { assertEquals } from "https://deno.land/std@0.75.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts";
 import {
   basename,
   dirname,
   join,
-} from "https://deno.land/std@0.75.0/path/mod.ts";
+} from "https://deno.land/std@0.139.0/path/mod.ts";
 import { DOMParser, Element } from "../deno-dom-wasm.ts";
 
 const parser = new DOMParser();

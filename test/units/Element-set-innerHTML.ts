@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assertEquals } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts";
 
 Deno.test("setting Element.innerHTML yields children with correct .parentNode's", () => {
   const doc = new DOMParser().parseFromString(
