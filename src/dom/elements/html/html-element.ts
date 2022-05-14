@@ -1,26 +1,12 @@
 import { CTOR_KEY } from "../../../constructor-lock.ts";
 import { StylePropertyMap } from "../../css/StylePropertyMap.ts";
 import { Element } from "../../element.ts";
-import { Text } from "../../node.ts";
+import { Node, Text } from "../../node.ts";
 import { CSSStyleDeclaration } from "../../css/CSSStyleDeclaration.ts";
-import { HTMLBRElement } from "./html-br-element.ts";
 import { DOMStringMap } from "../../DOMStringMap.ts";
+// import { HTMLBRElement } from "./html-br-element.ts";
 
 export class HTMLElement extends Element {
-  static #convertLineBreaksToBRs(
-    text: string,
-  ) {
-    return (
-      text
-        .split("\n")
-        .flatMap((s) => [
-          new Text(s),
-          new HTMLBRElement(null, [], CTOR_KEY),
-        ])
-        .slice(0, -1)
-    );
-  }
-
   accessKey: string = "";
 
   get accessKeyLabel() {
@@ -58,7 +44,7 @@ export class HTMLElement extends Element {
     text: string,
   ) {
     this.replaceChildren(
-      ...HTMLElement.#convertLineBreaksToBRs(text),
+      ...convertLineBreaksToBRs(text),
     );
   }
 
@@ -94,7 +80,7 @@ export class HTMLElement extends Element {
 
   set outerText(text: string) {
     this.replaceWith(
-      ...HTMLElement.#convertLineBreaksToBRs(text),
+      ...convertLineBreaksToBRs(text),
     );
   }
 
@@ -130,4 +116,28 @@ export class HTMLElement extends Element {
   attachInternals() {
     throw new Error("Method not implemented.");
   }
+}
+
+export class HTMLBRElement extends HTMLElement {
+  constructor(
+    parentNode: Node | null,
+    attributes: [string, string][],
+    key: typeof CTOR_KEY,
+  ) {
+    super("BR", parentNode, attributes, key);
+  }
+}
+
+function convertLineBreaksToBRs(
+  text: string,
+) {
+  return (
+    text
+      .split("\n")
+      .flatMap((s) => [
+        new Text(s),
+        new HTMLBRElement(null, [], CTOR_KEY),
+      ])
+      .slice(0, -1)
+  );
 }
