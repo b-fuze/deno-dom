@@ -421,8 +421,10 @@ export class Element extends Node {
   replaceChildren(
     ...nodes: Node[]
   ) {
-    // TODO
-    // this.childNodes.
+    for (let i = this.childNodes.length - 1; i >= 0; i--) {
+      this.removeChild(this.childNodes[i]);
+    }
+    this.append(...nodes);
   }
 
   remove() {
