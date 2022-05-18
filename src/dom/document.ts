@@ -19,6 +19,7 @@ export class DOMImplementation {
     throw new Error("Unimplemented"); // TODO
   }
 
+  // TODO: This seems to be an ultra broken implementation
   createHTMLDocument(titleStr?: string): HTMLDocument {
     titleStr += "";
 
