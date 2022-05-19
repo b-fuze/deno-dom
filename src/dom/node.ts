@@ -172,8 +172,8 @@ export class Node extends EventTarget {
     return this.#nodeValue;
   }
 
-  set nodeValue(value: any) {
-    this.#nodeValue = String(value ?? "");
+  set nodeValue(value: unknown) {
+    // Setting is ignored
   }
 
   get textContent(): string {
