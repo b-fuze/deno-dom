@@ -172,6 +172,10 @@ export class Node extends EventTarget {
     return this.#nodeValue;
   }
 
+  set nodeValue(value: any) {
+    this.#nodeValue = String(value ?? "");
+  }
+
   get textContent(): string {
     let out = "";
 
