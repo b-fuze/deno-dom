@@ -416,3 +416,46 @@ Deno.test("Element.classList.@@iterator", () => {
     ["a", "b"],
   );
 });
+
+Deno.test("Element.classList.#onChange", () => {
+  const doc = new DOMParser().parseFromString(
+    "<div class='a'></div>",
+    "text/html",
+  )!;
+  const div = doc.querySelector("div")!;
+
+  div.classList.add("b");
+
+  assertEquals(
+    div.className,
+    "a b",
+  );
+
+  div.classList.remove("a");
+
+  assertEquals(
+    div.className,
+    "b",
+  );
+
+  div.classList.replace("b", "c");
+
+  assertEquals(
+    div.className,
+    "c",
+  );
+
+  div.classList.toggle("c");
+
+  assertEquals(
+    div.className,
+    "",
+  );
+
+  div.classList.value = "d e";
+
+  assertEquals(
+    div.className,
+    "d e",
+  );
+});
