@@ -15,7 +15,16 @@ export interface DOMTokenList {
   [index: number]: string;
 }
 export class DOMTokenList {
-  #value = "";
+  #_value = "";
+  get #value() {
+    return this.#_value;
+  }
+  set #value(
+    value: string,
+  ) {
+    this.#_value = value;
+    this.#onChange(value);
+  }
   #set = new Set<string>();
   #onChange: (className: string) => void;
 
@@ -50,11 +59,10 @@ export class DOMTokenList {
       input.trim().split(/[\t\n\f\r\s]+/g),
     );
     this.#setIndices();
-    this.#onChange(this.#value);
   }
 
   get value() {
-    return this.#value;
+    return this.#_value;
   }
 
   get length() {
