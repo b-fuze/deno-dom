@@ -56,7 +56,10 @@ export class DOMTokenList {
   ) {
     this.#value = input;
     this.#set = new Set(
-      input.trim().split(/[\t\n\f\r\s]+/g),
+      input
+        .trim()
+        .split(/[\t\n\f\r\s]+/g)
+        .filter(Boolean),
     );
     this.#setIndices();
   }
@@ -119,7 +122,7 @@ export class DOMTokenList {
         this[size] = element;
       }
     }
-    this.#value = Array.from(this.#set).join(" ");
+    this.#updateClassString();
   }
 
   remove(
@@ -140,7 +143,7 @@ export class DOMTokenList {
       }
       this.#setIndices();
     }
-    this.#value = Array.from(this.#set).join(" ");
+    this.#updateClassString();
   }
 
   replace(
@@ -162,7 +165,7 @@ export class DOMTokenList {
       this.#set.delete(oldToken);
       this.#set.add(newToken);
       this.#setIndices();
-      this.#value = Array.from(this.#set).join(" ");
+      this.#updateClassString();
     }
     return true;
   }
@@ -193,6 +196,10 @@ export class DOMTokenList {
     for (const [i, value] of this.entries()) {
       callback(value, i, this);
     }
+  }
+
+  #updateClassString() {
+    this.#value = Array.from(this.#set).join(" ");
   }
 }
 
