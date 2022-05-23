@@ -111,6 +111,12 @@ Deno.test("Element.classList.add", () => {
       div.classList.contains("c")
     }.`,
   );
+  assertThrows(
+    () => div.classList.add(""),
+    DOMException,
+    "The token provided must not be empty",
+    "DOMTokenList.add() shouldn't accept an empty string.",
+  );
 });
 
 Deno.test("Element.classList.remove", () => {
@@ -130,6 +136,12 @@ Deno.test("Element.classList.remove", () => {
     div.classList.value,
     "",
     `classList.value should be '' after removing 'b' and 'c'; got ${div.classList.value}.`,
+  );
+  assertThrows(
+    () => div.classList.remove(""),
+    DOMException,
+    "The token provided must not be empty",
+    "DOMTokenList.remove() shouldn't accept an empty string.",
   );
 });
 
@@ -457,5 +469,13 @@ Deno.test("Element.classList.#onChange", () => {
   assertEquals(
     div.className,
     "d e",
+  );
+
+  div.classList.value = "";
+  div.classList.add("f");
+
+  assertEquals(
+    div.className,
+    "f",
   );
 });
