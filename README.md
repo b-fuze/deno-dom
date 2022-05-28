@@ -17,9 +17,9 @@ const doc = new DOMParser().parseFromString(
   <p>Hello from <a href="https://deno.land/">Deno!</a></p>
 `,
   "text/html",
-)!;
+);
 
-const p = doc.querySelector("p")!;
+const p = doc.querySelector("p");
 
 console.log(p.textContent); // "Hello from Deno!"
 console.log(p.childNodes[1].textContent); // "Deno!"
