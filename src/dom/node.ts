@@ -322,6 +322,12 @@ export class Node extends EventTarget {
       moveDocumentFragmentChildren(newNode, this);
     } else {
       const oldParentNode = newNode.parentNode;
+      const oldMutator = oldParentNode?._getChildNodesMutator();
+
+      if (oldMutator) {
+        oldMutator.splice(oldMutator.indexOf(newNode), 1);
+      }
+
       newNode._setParent(this, oldParentNode !== this);
       mutator.splice(index, 0, newNode);
     }
