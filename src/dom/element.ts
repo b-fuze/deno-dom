@@ -207,7 +207,11 @@ export class Attr {
   #namedNodeMap: NamedNodeMap | null = null;
   #name: string = "";
 
-  constructor(map: NamedNodeMap, name: string, key: typeof CTOR_KEY) {
+  constructor(
+    map: NamedNodeMap,
+    name: string,
+    key: typeof CTOR_KEY,
+  ) {
     if (key !== CTOR_KEY) {
       throw new TypeError("Illegal constructor");
     }
@@ -232,16 +236,22 @@ export class NamedNodeMap {
     [attribute: string]: Attr;
   } = {};
 
-  private newAttr(attribute: string): Attr {
+  private newAttr(
+    attribute: string,
+  ): Attr {
     return new Attr(this, attribute, CTOR_KEY);
   }
 
-  getNamedItem(attribute: string) {
+  getNamedItem(
+    attribute: string,
+  ) {
     return this.#attrObjCache[attribute] ??
       (this.#attrObjCache[attribute] = this.newAttr(attribute));
   }
 
-  setNamedItem(...args: any) {
+  setNamedItem(
+    ...args: any
+  ) {
     // TODO
   }
 }
@@ -351,7 +361,9 @@ export class Element extends Node {
     return out;
   }
 
-  set outerHTML(html: string) {
+  set outerHTML(
+    html: string,
+  ) {
     // TODO: Someday...
   }
 
@@ -359,7 +371,9 @@ export class Element extends Node {
     return getInnerHtmlFromNodes(this.childNodes, this.tagName);
   }
 
-  set innerHTML(html: string) {
+  set innerHTML(
+    html: string,
+  ) {
     // Remove all children
     for (const child of this.childNodes) {
       child._setParent(null);
@@ -380,14 +394,6 @@ export class Element extends Node {
     }
   }
 
-  get innerText(): string {
-    return this.textContent;
-  }
-
-  set innerText(text: string) {
-    this.textContent = text;
-  }
-
   get children(): HTMLCollection {
     return this._getChildNodesMutator().elementsView();
   }
@@ -396,7 +402,9 @@ export class Element extends Node {
     return this.#currentId || "";
   }
 
-  set id(id: string) {
+  set id(
+    id: string,
+  ) {
     this.setAttribute("id", this.#currentId = id);
   }
 
@@ -404,11 +412,16 @@ export class Element extends Node {
     return Object.getOwnPropertyNames(this.attributes);
   }
 
-  getAttribute(name: string): string | null {
+  getAttribute(
+    name: string,
+  ): string | null {
     return this.attributes[name?.toLowerCase()] ?? null;
   }
 
-  setAttribute(rawName: string, value: any) {
+  setAttribute(
+    rawName: string,
+    value: unknown,
+  ) {
     const name = rawName?.toLowerCase();
     const strValue = String(value);
     this.attributes[name] = strValue;
@@ -420,7 +433,9 @@ export class Element extends Node {
     }
   }
 
-  removeAttribute(rawName: string) {
+  removeAttribute(
+    rawName: string,
+  ) {
     const name = rawName?.toLowerCase();
     delete this.attributes[name];
     if (name === "class") {
@@ -428,40 +443,64 @@ export class Element extends Node {
     }
   }
 
-  hasAttribute(name: string): boolean {
+  hasAttribute(
+    name: string,
+  ): boolean {
     return this.attributes.hasOwnProperty(name?.toLowerCase());
   }
 
-  hasAttributeNS(_namespace: string, name: string): boolean {
+  hasAttributeNS(
+    _namespace: string,
+    name: string,
+  ): boolean {
     // TODO: Use namespace
     return this.attributes.hasOwnProperty(name?.toLowerCase());
   }
 
-  replaceWith(...nodes: (Node | string)[]) {
+  replaceWith(
+    ...nodes: (Node | string)[]
+  ) {
     this._replaceWith(...nodes);
+  }
+
+  replaceChildren(
+    ...nodes: Node[]
+  ) {
+    for (let i = this.childNodes.length - 1; i >= 0; i--) {
+      this.removeChild(this.childNodes[i]);
+    }
+    this.append(...nodes);
   }
 
   remove() {
     this._remove();
   }
 
-  append(...nodes: (Node | string)[]) {
+  append(
+    ...nodes: (Node | string)[]
+  ) {
     const mutator = this._getChildNodesMutator();
     mutator.push(...nodesAndTextNodes(nodes, this));
   }
 
-  prepend(...nodes: (Node | string)[]) {
+  prepend(
+    ...nodes: (Node | string)[]
+  ) {
     const mutator = this._getChildNodesMutator();
     mutator.splice(0, 0, ...nodesAndTextNodes(nodes, this));
   }
 
-  before(...nodes: (Node | string)[]) {
+  before(
+    ...nodes: (Node | string)[]
+  ) {
     if (this.parentNode) {
       insertBeforeAfter(this, nodes, 0);
     }
   }
 
-  after(...nodes: (Node | string)[]) {
+  after(
+    ...nodes: (Node | string)[]
+  ) {
     if (this.parentNode) {
       insertBeforeAfter(this, nodes, 1);
     }
@@ -503,32 +542,40 @@ export class Element extends Node {
     return elements[index - 1] ?? null;
   }
 
-  querySelector(selectors: string): Element | null {
+  querySelector(
+    selector: string,
+  ): Element | null {
     if (!this.ownerDocument) {
       throw new Error("Element must have an owner document");
     }
 
-    return this.ownerDocument!._nwapi.first(selectors, this);
+    return this.ownerDocument!._nwapi.first(selector, this);
   }
 
-  querySelectorAll(selectors: string): NodeList {
+  querySelectorAll(
+    selector: string,
+  ): NodeList {
     if (!this.ownerDocument) {
       throw new Error("Element must have an owner document");
     }
 
     const nodeList = new NodeList();
     const mutator = nodeList[nodeListMutatorSym]();
-    mutator.push(...this.ownerDocument!._nwapi.select(selectors, this));
+    mutator.push(...this.ownerDocument!._nwapi.select(selector, this));
 
     return nodeList;
   }
 
-  matches(selectorString: string): boolean {
+  matches(
+    selectorString: string,
+  ): boolean {
     return this.ownerDocument!._nwapi.match(selectorString, this);
   }
 
   // TODO: DRY!!!
-  getElementById(id: string): Element | null {
+  getElementById(
+    id: string,
+  ): Element | null {
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
         if ((<Element> child).id === id) {
@@ -545,7 +592,9 @@ export class Element extends Node {
     return null;
   }
 
-  getElementsByTagName(tagName: string): Element[] {
+  getElementsByTagName(
+    tagName: string,
+  ): Element[] {
     const fixCaseTagName = tagName.toUpperCase();
 
     if (fixCaseTagName === "*") {
@@ -555,7 +604,9 @@ export class Element extends Node {
     }
   }
 
-  _getElementsByTagNameWildcard(search: Node[]): Node[] {
+  _getElementsByTagNameWildcard(
+    search: Node[],
+  ): Node[] {
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
         search.push(child);
@@ -566,7 +617,10 @@ export class Element extends Node {
     return search;
   }
 
-  _getElementsByTagName(tagName: string, search: Node[]): Node[] {
+  _getElementsByTagName(
+    tagName: string,
+    search: Node[],
+  ): Node[] {
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
         if ((<Element> child).tagName === tagName) {
@@ -580,11 +634,16 @@ export class Element extends Node {
     return search;
   }
 
-  getElementsByClassName(className: string): Element[] {
+  getElementsByClassName(
+    className: string,
+  ): Element[] {
     return <Element[]> getElementsByClassName(this, className, []);
   }
 
-  getElementsByTagNameNS(_namespace: string, localName: string): Element[] {
+  getElementsByTagNameNS(
+    _namespace: string,
+    localName: string,
+  ): Element[] {
     // TODO: Use namespace
     return this.getElementsByTagName(localName);
   }

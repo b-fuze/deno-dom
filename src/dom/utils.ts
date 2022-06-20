@@ -169,3 +169,21 @@ export function moveDocumentFragmentChildren(
   const mutator = fragment._getChildNodesMutator();
   mutator.splice(0, childCount);
 }
+
+export function kebabToCamel(
+  input: string,
+) {
+  return input.toLowerCase().replace(
+    /-([a-z])/g,
+    (_, letter) => letter.toUpperCase(),
+  );
+}
+
+export function camelToKebab(
+  input: string,
+) {
+  return input.replace(
+    /(?<!^)([A-Z])/g,
+    "-$1",
+  ).toLowerCase();
+}

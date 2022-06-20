@@ -1,5 +1,5 @@
 import { Comment, DOMParser, NodeType, Text } from "../../deno-dom-wasm.ts";
-import { assertStrictEquals as assertEquals } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assertStrictEquals as assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts";
 
 Deno.test("CharacterData.nodeValue/data", () => {
   const doc = new DOMParser().parseFromString(
@@ -87,7 +87,9 @@ Deno.test("CharacterData.after/before/remove/replaceWith", () => {
 
   assertEquals(doc.body.childNodes[0].nodeValue, "fizz");
   assertEquals(doc.body.childNodes.length, 3);
+  // @ts-ignore
   assertEquals(text.previousSibling?.nodeValue, "fizz");
+  // @ts-ignore
   assertEquals(text.previousSibling?.nodeType, NodeType.COMMENT_NODE);
   assertEquals(text.nextSibling?.nodeValue, "bar");
   assertEquals(text.nextSibling?.nodeType, NodeType.COMMENT_NODE);
