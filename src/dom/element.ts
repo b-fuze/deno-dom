@@ -255,8 +255,7 @@ export class Element extends Node {
     },
     CTOR_KEY,
   );
-  public attributes: NamedNodeMap & { [attribute: string]: string } =
-    <any> new NamedNodeMap();
+  public attributes = new NamedNodeMap();
   localName: string;
 
   #currentId = "";
