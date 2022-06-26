@@ -42,7 +42,7 @@ if (denoNativePluginPath) {
 
 const utf8Encoder = new TextEncoder();
 const utf8Decoder = new TextDecoder();
-const usizeBytes = dylib.symbols.deno_dom_usize_len() as number;
+const usizeBytes = Number(dylib.symbols.deno_dom_usize_len());
 const isBigEndian = Boolean(dylib.symbols.deno_dom_is_big_endian() as number);
 
 const dylibParseSync = dylib.symbols.deno_dom_parse_sync.bind(dylib.symbols);
