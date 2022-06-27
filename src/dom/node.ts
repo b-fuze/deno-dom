@@ -281,7 +281,8 @@ export class Node extends EventTarget {
     // Just copy Firefox's error messages
     if (child && typeof child === "object") {
       if (child.parentNode === this) {
-        return child._remove();
+        child._remove();
+        return child;
       } else {
         throw new DOMException(
           "Node.removeChild: The node to be removed is not a child of this node",

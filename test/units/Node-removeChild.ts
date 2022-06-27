@@ -12,8 +12,9 @@ Deno.test("Node.removeChild", () => {
   const parent = doc.querySelector(".parent")!;
   const child = doc.querySelector(".child")!;
 
-  parent.removeChild(child);
+  const removedChild = parent.removeChild(child);
   assertEquals(child.parentNode, null, "parentNode is null");
+  assertEquals(removedChild, child);
   assertEquals(
     parent.outerHTML,
     `<div class="parent"></div>`,
