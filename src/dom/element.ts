@@ -1,6 +1,6 @@
 import { CTOR_KEY } from "../constructor-lock.ts";
 import { fragmentNodesFromString } from "../deserialize.ts";
-import { Comment, Node, nodesAndTextNodes, NodeType, Text } from "./node.ts";
+import { Node, nodesAndTextNodes, NodeType } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { HTMLCollection } from "./html-collection.ts";
 import {
@@ -14,6 +14,7 @@ import UtilTypes from "./utils-types.ts";
 export interface DOMTokenList {
   [index: number]: string;
 }
+
 export class DOMTokenList {
   #_value = "";
   get #value() {
@@ -203,62 +204,307 @@ export class DOMTokenList {
   }
 }
 
-export class Attr {
+const setNamedNodeMapOwnerElementSym = Symbol();
+const setAttrValueSym = Symbol();
+export class Attr extends Node {
   #namedNodeMap: NamedNodeMap | null = null;
-  #name: string = "";
+  #name = "";
+  #value = "";
+  #ownerElement: Element | null = null;
 
-  constructor(map: NamedNodeMap, name: string, key: typeof CTOR_KEY) {
+  constructor(
+    map: NamedNodeMap | null,
+    name: string,
+    value: string,
+    key: typeof CTOR_KEY,
+  ) {
     if (key !== CTOR_KEY) {
       throw new TypeError("Illegal constructor");
     }
+    super(name, NodeType.ATTRIBUTE_NODE, null, CTOR_KEY);
 
     this.#name = name;
+    this.#value = value;
     this.#namedNodeMap = map;
+  }
+
+  [setNamedNodeMapOwnerElementSym](ownerElement: Element | null) {
+    this.#ownerElement = ownerElement;
+    this.#namedNodeMap = ownerElement?.attributes ?? null;
+
+    if (ownerElement) {
+      this._setOwnerDocument(ownerElement.ownerDocument);
+    }
+  }
+
+  [setAttrValueSym](value: string) {
+    this.#value = value;
+  }
+
+  override _shallowClone(): Attr {
+    const newAttr = new Attr(null, this.#name, this.#value, CTOR_KEY);
+    newAttr._setOwnerDocument(this.ownerDocument);
+    return newAttr;
+  }
+
+  override cloneNode(): Attr {
+    return super.cloneNode() as Attr;
+  }
+
+  override appendChild(): Node {
+    throw new DOMException("Cannot add children to an Attribute");
+  }
+
+  override replaceChild(): Node {
+    throw new DOMException("Cannot add children to an Attribute");
+  }
+
+  override insertBefore(): Node {
+    throw new DOMException("Cannot add children to an Attribute");
+  }
+
+  override removeChild(): Node {
+    throw new DOMException(
+      "The node to be removed is not a child of this node",
+    );
   }
 
   get name() {
     return this.#name;
   }
 
-  get value() {
-    return (<{ [attribute: string]: string }> <unknown> this.#namedNodeMap)[
-      this.#name
-    ];
+  get localName() {
+    // TODO: When we make namespaces a thing this needs
+    // to be updated
+    return this.#name;
+  }
+
+  get value(): string {
+    return this.#value;
+  }
+
+  set value(value: any) {
+    this.#value = String(value);
+
+    if (this.#namedNodeMap) {
+      this.#namedNodeMap[setNamedNodeMapValueSym](
+        this.#name,
+        this.#value,
+        true,
+      );
+    }
+  }
+
+  get ownerElement() {
+    return this.#ownerElement ?? null;
+  }
+
+  get specified() {
+    return true;
+  }
+
+  // TODO
+  get prefix(): string | null {
+    return null;
   }
 }
 
+export interface NamedNodeMap {
+  [index: number]: Attr;
+}
+
+const setNamedNodeMapValueSym = Symbol();
+const getNamedNodeMapValueSym = Symbol();
+const getNamedNodeMapAttrNamesSym = Symbol();
+const getNamedNodeMapAttrNodeSym = Symbol();
+const removeNamedNodeMapAttrSym = Symbol();
 export class NamedNodeMap {
-  #attrObjCache: {
-    [attribute: string]: Attr;
-  } = {};
+  static #indexedAttrAccess = function (
+    this: NamedNodeMap,
+    map: Record<string, string | undefined>,
+    index: number,
+  ): Attr | undefined {
+    if (index + 1 > this.length) {
+      return undefined;
+    }
 
-  private newAttr(attribute: string): Attr {
-    return new Attr(this, attribute, CTOR_KEY);
+    const attribute = Object
+      .keys(map)
+      .filter((attribute) => map[attribute] !== undefined)[index];
+    return this[getNamedNodeMapAttrNodeSym](attribute);
+  };
+  #onAttrNodeChange: (attr: string, value: string | null) => void;
+
+  constructor(
+    ownerElement: Element,
+    onAttrNodeChange: (attr: string, value: string | null) => void,
+    key: typeof CTOR_KEY,
+  ) {
+    if (key !== CTOR_KEY) {
+      throw new TypeError("Illegal constructor.");
+    }
+    this.#ownerElement = ownerElement;
+    this.#onAttrNodeChange = onAttrNodeChange;
   }
 
-  getNamedItem(attribute: string) {
-    return this.#attrObjCache[attribute] ??
-      (this.#attrObjCache[attribute] = this.newAttr(attribute));
+  #attrNodeCache: Record<string, Attr | undefined> = {};
+  #map: Record<string, string | undefined> = {};
+  #length = 0;
+  #capacity = 0;
+  #ownerElement: Element | null = null;
+
+  [getNamedNodeMapAttrNodeSym](attribute: string): Attr {
+    let attrNode = this.#attrNodeCache[attribute];
+    if (!attrNode) {
+      attrNode = this.#attrNodeCache[attribute] = new Attr(
+        this,
+        attribute,
+        this.#map[attribute] as string,
+        CTOR_KEY,
+      );
+      attrNode[setNamedNodeMapOwnerElementSym](this.#ownerElement);
+    }
+
+    return attrNode;
   }
 
-  setNamedItem(...args: any) {
-    // TODO
+  [getNamedNodeMapAttrNamesSym](): string[] {
+    const names: string[] = [];
+
+    for (const [name, value] of Object.entries(this.#map)) {
+      if (value !== undefined) {
+        names.push(name);
+      }
+    }
+
+    return names;
+  }
+
+  [getNamedNodeMapValueSym](attribute: string): string | undefined {
+    return this.#map[attribute];
+  }
+
+  [setNamedNodeMapValueSym](attribute: string, value: string, bubble = false) {
+    if (this.#map[attribute] === undefined) {
+      this.#length++;
+
+      if (this.#length > this.#capacity) {
+        this.#capacity = this.#length;
+        const index = this.#capacity - 1;
+        Object.defineProperty(this, String(this.#capacity - 1), {
+          get: NamedNodeMap.#indexedAttrAccess.bind(this, this.#map, index),
+        });
+      }
+    } else if (this.#attrNodeCache[attribute]) {
+      this.#attrNodeCache[attribute]![setAttrValueSym](value);
+    }
+
+    this.#map[attribute] = value;
+
+    if (bubble) {
+      this.#onAttrNodeChange(attribute, value);
+    }
+  }
+
+  /**
+   * Called when an attribute is removed from
+   * an element
+   */
+  [removeNamedNodeMapAttrSym](attribute: string) {
+    if (this.#map[attribute] !== undefined) {
+      this.#length--;
+      this.#map[attribute] = undefined;
+      this.#onAttrNodeChange(attribute, null);
+
+      const attrNode = this.#attrNodeCache[attribute];
+      if (attrNode) {
+        attrNode[setNamedNodeMapOwnerElementSym](null);
+        this.#attrNodeCache[attribute] = undefined;
+      }
+    }
+  }
+
+  *[Symbol.iterator](): Generator<Attr> {
+    for (let i = 0; i < this.length; i++) {
+      yield this[i];
+    }
+  }
+
+  get length() {
+    return this.#length;
+  }
+
+  // FIXME: This method should accept anything and basically
+  // coerce any non numbers (and Infinity/-Infinity) into 0
+  item(index: number): Attr | null {
+    if (index >= this.#length) {
+      return null;
+    }
+
+    return this[index];
+  }
+
+  getNamedItem(attribute: string): Attr | null {
+    if (this.#map[attribute] !== undefined) {
+      return this[getNamedNodeMapAttrNodeSym](attribute);
+    }
+
+    return null;
+  }
+
+  setNamedItem(attrNode: Attr) {
+    if (attrNode.ownerElement) {
+      throw new DOMException("Attribute already in use");
+    }
+
+    const previousAttr = this.#attrNodeCache[attrNode.name];
+    if (previousAttr) {
+      previousAttr[setNamedNodeMapOwnerElementSym](null);
+      this.#map[attrNode.name] = undefined;
+    }
+
+    attrNode[setNamedNodeMapOwnerElementSym](this.#ownerElement);
+    this.#attrNodeCache[attrNode.name] = attrNode;
+    this[setNamedNodeMapValueSym](attrNode.name, attrNode.value, true);
+  }
+
+  removeNamedItem(attribute: string): Attr {
+    if (this.#map[attribute] !== undefined) {
+      const attrNode = this[getNamedNodeMapAttrNodeSym](attribute);
+      this[removeNamedNodeMapAttrSym](attribute);
+      return attrNode;
+    }
+
+    throw new DOMException("Node was not found");
   }
 }
 
 export class Element extends Node {
+  localName: string;
+  attributes = new NamedNodeMap(this, (attribute, value) => {
+    if (value === null) {
+      value = "";
+    }
+
+    switch (attribute) {
+      case "class":
+        this.#classList.value = value;
+        break;
+      case "id":
+        this.#currentId = value;
+        break;
+    }
+  }, CTOR_KEY);
+
+  #currentId = "";
   #classList = new DOMTokenList(
     (className) => {
       if (this.hasAttribute("class") || className !== "") {
-        this.attributes["class"] = className;
+        this.attributes[setNamedNodeMapValueSym]("class", className);
       }
     },
     CTOR_KEY,
   );
-  public attributes = new NamedNodeMap();
-  localName: string;
-
-  #currentId = "";
 
   constructor(
     public tagName: string,
@@ -274,7 +520,7 @@ export class Element extends Node {
     );
 
     for (const attr of attributes) {
-      this.attributes[attr[0]] = attr[1];
+      this.setAttribute(attr[0], attr[1]);
 
       switch (attr[0]) {
         case "class":
@@ -295,7 +541,7 @@ export class Element extends Node {
     // elements that override _shallowClone like <template>
     const attributes: [string, string][] = [];
     for (const attribute of this.getAttributeNames()) {
-      attributes.push([attribute, this.attributes[attribute]]);
+      attributes.push([attribute, this.getAttribute(attribute)!]);
     }
     return new Element(this.nodeName, null, attributes, CTOR_KEY);
   }
@@ -321,7 +567,7 @@ export class Element extends Node {
     const tagName = this.tagName.toLowerCase();
     let out = "<" + tagName;
 
-    out += getElementAttributesString(this.attributes);
+    out += getElementAttributesString(this);
 
     // Special handling for void elements
     switch (tagName) {
@@ -400,17 +646,17 @@ export class Element extends Node {
   }
 
   getAttributeNames(): string[] {
-    return Object.getOwnPropertyNames(this.attributes);
+    return this.attributes[getNamedNodeMapAttrNamesSym]();
   }
 
   getAttribute(name: string): string | null {
-    return this.attributes[name?.toLowerCase()] ?? null;
+    return this.attributes[getNamedNodeMapValueSym](name.toLowerCase()) ?? null;
   }
 
   setAttribute(rawName: string, value: any) {
-    const name = rawName?.toLowerCase();
+    const name = String(rawName?.toLowerCase());
     const strValue = String(value);
-    this.attributes[name] = strValue;
+    this.attributes[setNamedNodeMapValueSym](name, strValue);
 
     if (name === "id") {
       this.#currentId = strValue;
@@ -420,20 +666,25 @@ export class Element extends Node {
   }
 
   removeAttribute(rawName: string) {
-    const name = rawName?.toLowerCase();
-    delete this.attributes[name];
+    const name = String(rawName?.toLowerCase());
+    this.attributes[removeNamedNodeMapAttrSym](name);
+
     if (name === "class") {
       this.#classList.value = "";
     }
   }
 
   hasAttribute(name: string): boolean {
-    return this.attributes.hasOwnProperty(name?.toLowerCase());
+    return this.attributes[getNamedNodeMapValueSym](
+      String(name?.toLowerCase()),
+    ) !== undefined;
   }
 
   hasAttributeNS(_namespace: string, name: string): boolean {
     // TODO: Use namespace
-    return this.attributes.hasOwnProperty(name?.toLowerCase());
+    return this.attributes[getNamedNodeMapValueSym](
+      String(name?.toLowerCase()),
+    ) !== undefined;
   }
 
   replaceWith(...nodes: (Node | string)[]) {

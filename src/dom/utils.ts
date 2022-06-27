@@ -84,22 +84,20 @@ export function getInnerHtmlFromNodes(
 // FIXME: This uses the incorrect .attributes implementation, it
 // should probably be changed when .attributes is fixed
 export function getElementAttributesString(
-  attributes: Record<string, string>,
+  element: Element,
 ): string {
   let out = "";
 
-  for (const attribute of Object.keys(attributes)) {
+  for (const attribute of element.getAttributeNames()) {
     out += ` ${attribute.toLowerCase()}`;
 
     // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
-    if (attributes[attribute] != null) {
-      out += `="${
-        attributes[attribute]
-          .replace(/&/g, "&amp;")
-          .replace(/\xA0/g, "&nbsp;")
-          .replace(/"/g, "&quot;")
-      }"`;
-    }
+    out += `="${
+      element.getAttribute(attribute)!
+        .replace(/&/g, "&amp;")
+        .replace(/\xA0/g, "&nbsp;")
+        .replace(/"/g, "&quot;")
+    }"`;
   }
 
   return out;

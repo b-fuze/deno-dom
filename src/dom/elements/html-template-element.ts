@@ -52,7 +52,9 @@ export class HTMLTemplateElement extends Element {
 
   override _shallowClone(): HTMLTemplateElement {
     const frag = new DocumentFragment();
-    const attributes = Object.entries(this.attributes);
+    const attributes = this
+      .getAttributeNames()
+      .map((name) => [name, this.getAttribute(name)!] as [string, string]);
     return new HTMLTemplateElement(null, attributes, CTOR_KEY, frag);
   }
 
@@ -99,7 +101,7 @@ export class HTMLTemplateElement extends Element {
 
   get outerHTML(): string {
     return `<template${
-      getElementAttributesString(this.attributes)
+      getElementAttributesString(this)
     }>${this.innerHTML}</template>`;
   }
 }
