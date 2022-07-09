@@ -270,6 +270,12 @@ export class Document extends Node {
   }
 
   adoptNode(node: Node) {
+    if (node instanceof Document) {
+      throw new DOMException(
+        "Adopting a Document node is not supported.",
+        "NotSupportedError",
+      );
+    }
     node._setParent(null);
     node._setOwnerDocument(this);
 
