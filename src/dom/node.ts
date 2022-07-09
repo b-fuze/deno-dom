@@ -340,10 +340,29 @@ export class Node extends EventTarget {
     if (this.parentNode) {
       const parentNode = this.parentNode;
       const mutator = parentNode._getChildNodesMutator();
-      const index = mutator.indexOf(this);
+      let viableNextSibling: Node | null = null;
+      {
+        const thisIndex = mutator.indexOf(this);
+        for (let i = thisIndex + 1; i < mutator.arrayInstance.length; i++) {
+          if (!nodes.includes(mutator.arrayInstance[i])) {
+            viableNextSibling = mutator.arrayInstance[i];
+            break;
+          }
+        }
+      }
       nodes = nodesAndTextNodes(nodes, parentNode);
 
-      mutator.splice(index, 1, ...(nodes as Node[]));
+      let index = viableNextSibling
+        ? mutator.indexOf(viableNextSibling)
+        : mutator.arrayInstance.length;
+      let deleteNumber;
+      if (mutator.arrayInstance[index - 1] === this) {
+        index--;
+        deleteNumber = 1;
+      } else {
+        deleteNumber = 0;
+      }
+      mutator.splice(index, deleteNumber, ...(nodes as Node[]));
       this._setParent(null);
     }
   }
@@ -574,13 +593,13 @@ export class CharacterData extends Node {
 
   before(...nodes: (Node | string)[]) {
     if (this.parentNode) {
-      insertBeforeAfter(this, nodes, 0);
+      insertBeforeAfter(this, nodes, true);
     }
   }
 
   after(...nodes: (Node | string)[]) {
     if (this.parentNode) {
-      insertBeforeAfter(this, nodes, 1);
+      insertBeforeAfter(this, nodes, false);
     }
   }
 

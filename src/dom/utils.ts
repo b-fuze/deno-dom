@@ -106,14 +106,34 @@ export function getElementAttributesString(
 export function insertBeforeAfter(
   node: Node,
   nodes: (Node | string)[],
-  side: number,
+  before: boolean,
 ) {
   const parentNode = node.parentNode!;
   const mutator = parentNode._getChildNodesMutator();
-  const index = mutator.indexOf(node);
+  // Find the previous/next sibling to `node` that isn't in `nodes` before the
+  // nodes in `nodes` are removed from their parents.
+  let viablePrevNextSibling: Node | null = null;
+  {
+    for (
+      let i = mutator.indexOf(node) + (before ? -1 : +1);
+      0 <= i && i < mutator.arrayInstance.length;
+      before ? i-- : i++
+    ) {
+      if (!nodes.includes(mutator.arrayInstance[i])) {
+        viablePrevNextSibling = mutator.arrayInstance[i];
+        break;
+      }
+    }
+  }
   nodes = nodesAndTextNodes(nodes, parentNode);
 
-  mutator.splice(index + side, 0, ...(<Node[]> nodes));
+  let index;
+  if (viablePrevNextSibling) {
+    index = mutator.indexOf(viablePrevNextSibling) + (before ? 1 : 0);
+  } else {
+    index = before ? 0 : mutator.arrayInstance.length;
+  }
+  mutator.splice(index, 0, ...(<Node[]> nodes));
 }
 
 export function isDocumentFragment(node: Node): node is DocumentFragment {

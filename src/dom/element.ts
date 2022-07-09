@@ -707,13 +707,13 @@ export class Element extends Node {
 
   before(...nodes: (Node | string)[]) {
     if (this.parentNode) {
-      insertBeforeAfter(this, nodes, 0);
+      insertBeforeAfter(this, nodes, true);
     }
   }
 
   after(...nodes: (Node | string)[]) {
     if (this.parentNode) {
-      insertBeforeAfter(this, nodes, 1);
+      insertBeforeAfter(this, nodes, false);
     }
   }
 
