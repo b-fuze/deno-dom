@@ -93,7 +93,7 @@ inconsistencies (that aren't a result of legacy APIs) file an issue.
 To run tests (excluding WPT tests) use the following for WASM
 
 ```sh
-deno test --allow-read wasm.test.ts
+deno test --allow-read --allow-net wasm.test.ts
 ```
 
 Or the following for native (native requires more permissions)
@@ -111,7 +111,7 @@ git submodule update --progress --depth 1
 Then append `-- --wpt` to the test command before running it, e.g. for WASM
 
 ```sh
-deno test --allow-read wasm.test.ts -- --wpt
+deno test --allow-read --allow-net wasm.test.ts -- --wpt
 ```
 
 WPT tests are still a WIP, passed tests likely haven't actually passed.
