@@ -343,9 +343,9 @@ export class Node extends EventTarget {
       let viableNextSibling: Node | null = null;
       {
         const thisIndex = mutator.indexOf(this);
-        for (let i = thisIndex + 1; i < mutator.arrayInstance.length; i++) {
-          if (!nodes.includes(mutator.arrayInstance[i])) {
-            viableNextSibling = mutator.arrayInstance[i];
+        for (let i = thisIndex + 1; i < parentNode.childNodes.length; i++) {
+          if (!nodes.includes(parentNode.childNodes[i])) {
+            viableNextSibling = parentNode.childNodes[i];
             break;
           }
         }
@@ -354,9 +354,9 @@ export class Node extends EventTarget {
 
       let index = viableNextSibling
         ? mutator.indexOf(viableNextSibling)
-        : mutator.arrayInstance.length;
+        : parentNode.childNodes.length;
       let deleteNumber;
-      if (mutator.arrayInstance[index - 1] === this) {
+      if (parentNode.childNodes[index - 1] === this) {
         index--;
         deleteNumber = 1;
       } else {

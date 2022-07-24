@@ -212,7 +212,6 @@ export interface NodeListPublic extends NodeList {
 }
 
 export interface NodeListMutator {
-  arrayInstance: Node[];
   push(...nodes: Node[]): number;
   splice(start: number, deleteCount?: number, ...items: Node[]): Node[];
   indexOf(node: Node, fromIndex?: number | undefined): number;

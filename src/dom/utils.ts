@@ -114,13 +114,14 @@ export function insertBeforeAfter(
   // nodes in `nodes` are removed from their parents.
   let viablePrevNextSibling: Node | null = null;
   {
+    const difference = before ? -1 : +1;
     for (
-      let i = mutator.indexOf(node) + (before ? -1 : +1);
-      0 <= i && i < mutator.arrayInstance.length;
-      before ? i-- : i++
+      let i = mutator.indexOf(node) + difference;
+      0 <= i && i < parentNode.childNodes.length;
+      i += difference
     ) {
-      if (!nodes.includes(mutator.arrayInstance[i])) {
-        viablePrevNextSibling = mutator.arrayInstance[i];
+      if (!nodes.includes(parentNode.childNodes[i])) {
+        viablePrevNextSibling = parentNode.childNodes[i];
         break;
       }
     }
@@ -131,7 +132,7 @@ export function insertBeforeAfter(
   if (viablePrevNextSibling) {
     index = mutator.indexOf(viablePrevNextSibling) + (before ? 1 : 0);
   } else {
-    index = before ? 0 : mutator.arrayInstance.length;
+    index = before ? 0 : parentNode.childNodes.length;
   }
   mutator.splice(index, 0, ...(<Node[]> nodes));
 }
