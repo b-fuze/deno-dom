@@ -31,8 +31,8 @@ console.log(p.children[0].outerHTML); // "<b>Deno</b>"
 Deno DOM has **two** backends, WASM and native using Deno native plugins. Both
 APIs are **identical**, the difference being only in performance. The WASM
 backend works with all Deno restrictions, but the native backend requires the
-`--unstable --allow-plugin` flags. You can switch between them by importing
-either `deno-dom-wasm.ts` or `deno-dom-native.ts`.
+`--unstable --allow-ffi` flags. You can switch between them by importing either
+`deno-dom-wasm.ts` or `deno-dom-native.ts`.
 
 Deno DOM is still under development, but is fairly usable for basic HTML
 manipulation needs.
