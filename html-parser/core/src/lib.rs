@@ -72,8 +72,9 @@ fn serialize_node(buf: &mut Vec<u8>, dom: &Rc<Node>) {
         NodeData::Document => {
             let children = dom.children.borrow();
 
-            write!(&mut *buf, "[9,\"#document\",[],").unwrap();
+            write!(&mut *buf, "[9,\"#document\",[]").unwrap();
             if children.len() > 0 {
+                write!(&mut *buf, ",").unwrap();
                 let mut last_child_rendered = false;
 
                 for child in children.iter() {
