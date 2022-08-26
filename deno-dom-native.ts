@@ -14,15 +14,15 @@ type DeepWriteable<T> = { -readonly [P in keyof T]: DeepWriteable<T[P]> };
 const _symbols = {
   deno_dom_usize_len: { parameters: [], result: "usize" },
   deno_dom_parse_sync: {
-    parameters: ["pointer", "usize", "pointer"],
+    parameters: ["buffer", "usize", "buffer"],
     result: "void",
   },
   deno_dom_parse_frag_sync: {
-    parameters: ["pointer", "usize", "pointer"],
+    parameters: ["buffer", "usize", "buffer"],
     result: "void",
   },
   deno_dom_is_big_endian: { parameters: [], result: "u32" },
-  deno_dom_copy_buf: { parameters: ["pointer", "pointer"], result: "void" },
+  deno_dom_copy_buf: { parameters: ["buffer", "buffer"], result: "void" },
 } as const;
 const symbols = _symbols as DeepWriteable<typeof _symbols>;
 
