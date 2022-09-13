@@ -1,4 +1,9 @@
-import { NodeList, HTMLDocument, Element, Document } from "../../deno-dom-wasm.ts";
+import {
+  Document,
+  Element,
+  HTMLDocument,
+  NodeList,
+} from "../../deno-dom-wasm.ts";
 
 Deno.test("Using the public API types for NodeList works", () => {
   interface Queryable {
@@ -8,7 +13,7 @@ Deno.test("Using the public API types for NodeList works", () => {
 
   // Note this test is a type assertion, so there are no actual assertions.
   // Type assertions
-  (d: HTMLDocument): Queryable => d;
-  (e: Document): Queryable => e;
-  (e: Element): Queryable => e;
+  ((d: HTMLDocument): Queryable => d);
+  ((e: Document): Queryable => e);
+  ((e: Element): Queryable => e);
 });
