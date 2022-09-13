@@ -455,8 +455,8 @@ export class Node extends EventTarget {
       return longerHierarchy === node1Hierarchy
         // other is a child of this
         ? Node.DOCUMENT_POSITION_CONTAINED_BY | Node.DOCUMENT_POSITION_FOLLOWING
-        : // this is a child of other
-          Node.DOCUMENT_POSITION_CONTAINS | Node.DOCUMENT_POSITION_PRECEDING;
+        // this is a child of other
+        : Node.DOCUMENT_POSITION_CONTAINS | Node.DOCUMENT_POSITION_PRECEDING;
     }
 
     // Find their first common ancestor and see whether they

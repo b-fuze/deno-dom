@@ -207,10 +207,7 @@ export interface NodeList {
   [nodeListMutatorSym](): NodeListMutator;
 }
 
-export interface NodeListPublic extends NodeList {
-  [nodeListMutatorSym]: never;
-}
-
+export type NodeListPublic = Omit<NodeList, typeof nodeListMutatorSym>;
 export interface NodeListMutator {
   push(...nodes: Node[]): number;
   splice(start: number, deleteCount?: number, ...items: Node[]): Node[];
