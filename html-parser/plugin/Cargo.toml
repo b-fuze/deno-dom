@@ -10,3 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 core = { path = "../core" }
+
+# Allow running Deno DOM Native in a Windows Sandbox
+[build-dependencies]
+static_vcruntime = "2.0"
