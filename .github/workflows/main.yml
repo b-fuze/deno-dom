@@ -89,7 +89,7 @@ jobs:
           CONFIG
           )
 
-          install -D <(print %s "$arm64_cargo_config") .cargo/config.toml
+          install -D <(printf %s "$arm64_cargo_config") .cargo/config.toml
           rustup target add "$target"
 
           # Add ARM64 Ubuntu repos
