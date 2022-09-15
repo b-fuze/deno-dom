@@ -78,6 +78,9 @@ jobs:
           RUST_BACKTRACE: 1
         shell: bash
         run: |
+          set -x
+          # set +e
+          # set +o pipefail
           target=aarch64-unknown-linux-gnu
           read -r -d '' arm64_cargo_config <<CONFIG
           [build]
