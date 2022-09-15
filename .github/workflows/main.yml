@@ -117,7 +117,8 @@ jobs:
             cd /usr/lib/aarch64-linux-gnu
             for lib in gcc_s util rt pthread m dl c; do
               for file in lib$lib.so.*; do
-                [[ -f $file ]] && sudo ln -s "$file" lib$lib.so
+                link_path=lib$lib.so
+                [[ -f $file && ! -e $link_path ]] && sudo ln -s "$file" "$link_path"
               done
             done
           )
