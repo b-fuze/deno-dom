@@ -78,9 +78,10 @@ jobs:
           RUST_BACKTRACE: 1
         shell: bash
         run: |
-          set -x
-          # set +e
-          # set +o pipefail
+          # Keep the Linux x86_64 build artifact around since
+          # we'll be clearing it to build the ARM64 artifact
+          cp target/release/libplugin.so .
+
           target=aarch64-unknown-linux-gnu
           arm64_cargo_config=$(cat <<CONFIG
           [build]
@@ -131,6 +132,9 @@ jobs:
           else
             echo "Failed to build Linux ARM64 target"
           fi
+
+          # Put the x86_64 build artifact back
+          install -D libplugin.so target/release/libplugin.so
 
       - name: Release Plugin
         uses: softprops/action-gh-release@master
