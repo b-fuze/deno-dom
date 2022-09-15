@@ -82,7 +82,7 @@ jobs:
           # set +e
           # set +o pipefail
           target=aarch64-unknown-linux-gnu
-          arm64_cargo_config=(cat <<CONFIG
+          arm64_cargo_config=$(cat <<CONFIG
           [build]
           target = "$target"
           rustflags = ["-C", "linker=clang", "-C", "link-arg=--target=$target", "-C", "link-arg=-fuse-ld=lld"]
