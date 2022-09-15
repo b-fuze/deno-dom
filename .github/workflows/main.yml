@@ -72,6 +72,44 @@ jobs:
           RUST_BACKTRACE: 1
         run: cargo clean && cargo build --release
 
+      - name: Build ARM64 Linux
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          RUST_BACKTRACE: 1
+        shell: bash
+        run: |
+          target=aarch64-unknown-linux-gnu
+          read -r -d '' arm64_cargo_config <<CONFIG
+          [build]
+          target = "$target"
+          rustflags = ["-C", "linker=clang", "-C", "link-arg=--target=$target", "-C", "link-arg=-fuse-ld=lld"]
+          CONFIG
+
+          install -D <(print %s "$arm64_cargo_config") .cargo/config.toml
+          rustup target add "$target"
+
+          # Add ARM64 Ubuntu repos
+          sed -E '/^deb/!d; s|.+/|deb [arch=arm64] http://ports.ubuntu.com/|' /etc/apt/sources.list | sudo tee /etc/apt/sources.list.d/sources-arm64.list
+          sudo apt update
+          sudo apt install libgcc-s1:arm64 libc6:arm64 libc6-dev:arm64 libgcc-11-dev:arm64
+
+          # Make sure the ARM64 dependency libraries are found by the linker
+          (
+            cd /usr/lib/aarch64-linux-gnu
+            for lib in gcc_s util rt pthread m dl c; do
+              for file in lib$lib.so.*; do
+                [[ -f $file ]] && sudo ln -s "$file" lib$lib.so
+              done
+            done
+          )
+
+          if cargo clean && cargo build --release; then
+            lib=target/$target/release/libplugin.so
+            cp "$lib" "${lib%.so}-linux-aarch64.so"
+          else
+            echo "Failed to build Linux ARM64 target"
+          fi
+
       - name: Release Plugin
         uses: softprops/action-gh-release@master
         env:
@@ -83,3 +121,4 @@ jobs:
             target/release/libplugin.dylib
             target/release/plugin.dll
             target/release/libplugin.so
+            target/aarch64-unknown-linux-gnu/release/libplugin-linux-aarch64.so
