@@ -95,7 +95,7 @@ jobs:
           # Add ARM64 Ubuntu repos
           sed -E '/^deb/!d; s|.+/|deb [arch=arm64] http://ports.ubuntu.com/|' /etc/apt/sources.list | sudo tee /etc/apt/sources.list.d/sources-arm64.list
           sudo dpkg --add-architecture arm64
-          sudo apt update
+          sudo bash -c 'apt update; true'
 
           # Install ARM64 deps
           ubuntu_version=$(grep VERSION_ID /etc/os-release | tr -dc '[:digit:].')
