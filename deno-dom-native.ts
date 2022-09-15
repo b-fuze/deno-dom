@@ -32,9 +32,28 @@ if (denoNativePluginPath) {
   // Load the plugin locally
   dylib = Deno.dlopen(denoNativePluginPath, symbols);
 } else {
+  const host = `${Deno.build.os}-${Deno.build.arch}` as const;
+  let name = "";
+
+  switch (host) {
+    case "linux-x86_64":
+    case "darwin-x86_64":
+    case "windows-x86_64":
+      name = "plugin";
+      break;
+
+    case "linux-aarch64":
+      name = "plugin-linux-aarch64";
+      break;
+
+    default:
+      console.error(`deno-dom-native: host ${host} has no supported backend`);
+      Deno.exit(1);
+  }
+
   // Download the plugin
   dylib = await Plug.prepare({
-    name: "plugin",
+    name,
     url:
       "https://github.com/b-fuze/deno-dom/releases/download/v0.1.23-alpha-artifacts/",
   }, symbols);
