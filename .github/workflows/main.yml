@@ -118,7 +118,9 @@ jobs:
             for lib in gcc_s util rt pthread m dl c; do
               for file in lib$lib.so.*; do
                 link_path=lib$lib.so
-                [[ -f $file && ! -e $link_path ]] && sudo ln -s "$file" "$link_path"
+                if [[ -f $file && ! -e $link_path ]]; then
+                  sudo ln -s "$file" "$link_path"
+                fi
               done
             done
           )
