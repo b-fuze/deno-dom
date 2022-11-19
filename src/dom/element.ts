@@ -616,7 +616,9 @@ export class Element extends Node {
     // Parse HTML into new children
     if (html.length) {
       const parsed = fragmentNodesFromString(html);
-      mutator.push(...parsed.childNodes[0].childNodes);
+      for (const child of parsed.childNodes[0].childNodes) {
+        mutator.push(child);
+      }
 
       for (const child of this.childNodes) {
         child._setParent(this);
@@ -768,7 +770,10 @@ export class Element extends Node {
 
     const nodeList = new NodeList();
     const mutator = nodeList[nodeListMutatorSym]();
-    mutator.push(...this.ownerDocument!._nwapi.select(selectors, this));
+
+    for (const match of this.ownerDocument!._nwapi.select(selectors, this)) {
+      mutator.push(match);
+    }
 
     return nodeList;
   }

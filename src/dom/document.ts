@@ -289,7 +289,10 @@ export class Document extends Node {
   querySelectorAll(selectors: string): NodeList {
     const nodeList = new NodeList();
     const mutator = nodeList[nodeListMutatorSym]();
-    mutator.push(...this._nwapi.select(selectors, this));
+
+    for (const match of this._nwapi.select(selectors, this)) {
+      mutator.push(match);
+    }
 
     return nodeList;
   }
