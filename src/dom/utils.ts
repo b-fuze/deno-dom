@@ -2,6 +2,7 @@ import { Comment, Node, nodesAndTextNodes, NodeType, Text } from "./node.ts";
 import { NodeList } from "./node-list.ts";
 import UtilTypes from "./utils-types.ts";
 import type { Element } from "./element.ts";
+import type { HTMLTemplateElement } from "./elements/html-template-element.ts";
 import type { DocumentFragment } from "./document-fragment.ts";
 
 export function getElementsByClassName(
@@ -32,53 +33,121 @@ export function getElementsByClassName(
   return search;
 }
 
+function getOuterHTMLOpeningTag(parentElement: Element) {
+  return "<" + parentElement.localName +
+    getElementAttributesString(parentElement) + ">";
+}
+
+const voidElements = new Set([
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr",
+]);
+
 /**
- * @param tagName Uppercase tagname like Element.tagName
+ * .innerHTML/.outerHTML implementation without recursion to avoid stack
+ * overflows
  */
-export function getInnerHtmlFromNodes(
-  nodes: NodeList,
-  tagName: string,
+export function getOuterOrInnerHtml(
+  parentElement: Element,
+  asOuterHtml: boolean,
+  isTemplateElement = false,
 ): string {
-  let out = "";
+  let outerHTMLOpeningTag = "";
+  let outerHTMLClosingTag = "";
+  let innerHTML = "";
 
-  for (const child of nodes) {
-    switch (child.nodeType) {
-      case NodeType.ELEMENT_NODE:
-        out += (child as Element).outerHTML;
-        break;
+  if (asOuterHtml) {
+    outerHTMLOpeningTag = getOuterHTMLOpeningTag(parentElement);
+    outerHTMLClosingTag = `</${parentElement.localName}>`;
 
-      case NodeType.COMMENT_NODE:
-        out += `<!--${(child as Comment).data}-->`;
-        break;
-
-      case NodeType.TEXT_NODE:
-        // Special handling for rawtext-like elements.
-        switch (tagName) {
-          case "STYLE":
-          case "SCRIPT":
-          case "XMP":
-          case "IFRAME":
-          case "NOEMBED":
-          case "NOFRAMES":
-          case "PLAINTEXT":
-            out += (child as Text).data;
-            break;
-
-          default:
-            // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
-            out += (child as Text).data
-              .replace(/&/g, "&amp;")
-              .replace(/\xA0/g, "&nbsp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
-            break;
-        }
-
-        break;
+    if (voidElements.has(parentElement.localName)) {
+      return outerHTMLOpeningTag;
     }
   }
 
-  return out;
+  const initialChildNodes = isTemplateElement
+    ? (parentElement as HTMLTemplateElement).content.childNodes
+    : parentElement.childNodes;
+  const childNodeDepth = [initialChildNodes];
+  const indexDepth = [0];
+  const closingTagDepth = [outerHTMLClosingTag];
+  let depth = 0;
+
+  depthLoop:
+  while (depth > -1) {
+    const child = childNodeDepth[depth][indexDepth[depth]];
+
+    if (child) {
+      switch (child.nodeType) {
+        case NodeType.ELEMENT_NODE: {
+          innerHTML += getOuterHTMLOpeningTag(child as Element);
+          const childLocalName = (child as Element).localName;
+
+          // Void elements don't have a closing tag nor print innerHTML
+          if (!voidElements.has(childLocalName)) {
+            childNodeDepth.push(child.childNodes);
+            indexDepth.push(0);
+            closingTagDepth.push(`</${childLocalName}>`);
+            depth++;
+            continue depthLoop;
+          }
+          break;
+        }
+
+        case NodeType.COMMENT_NODE:
+          innerHTML += `<!--${(child as Comment).data}-->`;
+          break;
+
+        case NodeType.TEXT_NODE:
+          // Special handling for rawtext-like elements.
+          switch ((child.parentNode! as Element).localName) {
+            case "style":
+            case "script":
+            case "xmp":
+            case "iframe":
+            case "noembed":
+            case "noframes":
+            case "plaintext":
+              innerHTML += (child as Text).data;
+              break;
+
+            default:
+              // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
+              innerHTML += (child as Text).data
+                .replace(/&/g, "&amp;")
+                .replace(/\xA0/g, "&nbsp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+              break;
+          }
+          break;
+      }
+    } else {
+      depth--;
+
+      indexDepth.pop();
+      childNodeDepth.pop();
+      innerHTML += closingTagDepth.pop();
+    }
+
+    // Go to next child
+    indexDepth[depth]++;
+  }
+
+  // If innerHTML is requested then the opening tag should be an empty string
+  return outerHTMLOpeningTag + innerHTML;
 }
 
 // FIXME: This uses the incorrect .attributes implementation, it

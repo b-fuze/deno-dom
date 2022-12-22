@@ -4,9 +4,8 @@ import { Node, nodesAndTextNodes, NodeType } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { HTMLCollection } from "./html-collection.ts";
 import {
-  getElementAttributesString,
   getElementsByClassName,
-  getInnerHtmlFromNodes,
+  getOuterOrInnerHtml,
   insertBeforeAfter,
 } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
@@ -564,36 +563,7 @@ export class Element extends Node {
   }
 
   get outerHTML(): string {
-    const tagName = this.tagName.toLowerCase();
-    let out = "<" + tagName;
-
-    out += getElementAttributesString(this);
-
-    // Special handling for void elements
-    switch (tagName) {
-      case "area":
-      case "base":
-      case "br":
-      case "col":
-      case "embed":
-      case "hr":
-      case "img":
-      case "input":
-      case "link":
-      case "meta":
-      case "param":
-      case "source":
-      case "track":
-      case "wbr":
-        out += ">";
-        break;
-
-      default:
-        out += ">" + this.innerHTML + `</${tagName}>`;
-        break;
-    }
-
-    return out;
+    return getOuterOrInnerHtml(this, true);
   }
 
   set outerHTML(html: string) {
@@ -601,7 +571,7 @@ export class Element extends Node {
   }
 
   get innerHTML(): string {
-    return getInnerHtmlFromNodes(this.childNodes, this.tagName);
+    return getOuterOrInnerHtml(this, false);
   }
 
   set innerHTML(html: string) {
