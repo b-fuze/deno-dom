@@ -329,7 +329,8 @@ export class NamedNodeMap {
 
     const attribute = Object
       .keys(map)
-      .filter((attribute) => map[attribute] !== undefined)[index];
+      .filter((attribute) => map[attribute] !== undefined)[index]
+      ?.slice(1); // Remove "a" for safeAttrName
     return this[getNamedNodeMapAttrNodeSym](attribute);
   };
   #onAttrNodeChange: (attr: string, value: string | null) => void;
@@ -353,12 +354,13 @@ export class NamedNodeMap {
   #ownerElement: Element | null = null;
 
   [getNamedNodeMapAttrNodeSym](attribute: string): Attr {
-    let attrNode = this.#attrNodeCache[attribute];
+    const safeAttrName = "a" + attribute;
+    let attrNode = this.#attrNodeCache[safeAttrName];
     if (!attrNode) {
-      attrNode = this.#attrNodeCache[attribute] = new Attr(
+      attrNode = this.#attrNodeCache[safeAttrName] = new Attr(
         this,
         attribute,
-        this.#map[attribute] as string,
+        this.#map[safeAttrName] as string,
         CTOR_KEY,
       );
       attrNode[setNamedNodeMapOwnerElementSym](this.#ownerElement);
@@ -372,7 +374,7 @@ export class NamedNodeMap {
 
     for (const [name, value] of Object.entries(this.#map)) {
       if (value !== undefined) {
-        names.push(name);
+        names.push(name.slice(1)); // Remove "a" for safeAttrName
       }
     }
 
@@ -380,11 +382,13 @@ export class NamedNodeMap {
   }
 
   [getNamedNodeMapValueSym](attribute: string): string | undefined {
-    return this.#map[attribute];
+    const safeAttrName = "a" + attribute;
+    return this.#map[safeAttrName];
   }
 
   [setNamedNodeMapValueSym](attribute: string, value: string, bubble = false) {
-    if (this.#map[attribute] === undefined) {
+    const safeAttrName = "a" + attribute;
+    if (this.#map[safeAttrName] === undefined) {
       this.#length++;
 
       if (this.#length > this.#capacity) {
@@ -394,11 +398,11 @@ export class NamedNodeMap {
           get: NamedNodeMap.#indexedAttrAccess.bind(this, this.#map, index),
         });
       }
-    } else if (this.#attrNodeCache[attribute]) {
-      this.#attrNodeCache[attribute]![setAttrValueSym](value);
+    } else if (this.#attrNodeCache[safeAttrName]) {
+      this.#attrNodeCache[safeAttrName]![setAttrValueSym](value);
     }
 
-    this.#map[attribute] = value;
+    this.#map[safeAttrName] = value;
 
     if (bubble) {
       this.#onAttrNodeChange(attribute, value);
@@ -410,15 +414,16 @@ export class NamedNodeMap {
    * an element
    */
   [removeNamedNodeMapAttrSym](attribute: string) {
-    if (this.#map[attribute] !== undefined) {
+    const safeAttrName = "a" + attribute;
+    if (this.#map[safeAttrName] !== undefined) {
       this.#length--;
-      this.#map[attribute] = undefined;
+      this.#map[safeAttrName] = undefined;
       this.#onAttrNodeChange(attribute, null);
 
-      const attrNode = this.#attrNodeCache[attribute];
+      const attrNode = this.#attrNodeCache[safeAttrName];
       if (attrNode) {
         attrNode[setNamedNodeMapOwnerElementSym](null);
-        this.#attrNodeCache[attribute] = undefined;
+        this.#attrNodeCache[safeAttrName] = undefined;
       }
     }
   }
@@ -444,7 +449,8 @@ export class NamedNodeMap {
   }
 
   getNamedItem(attribute: string): Attr | null {
-    if (this.#map[attribute] !== undefined) {
+    const safeAttrName = "a" + attribute;
+    if (this.#map[safeAttrName] !== undefined) {
       return this[getNamedNodeMapAttrNodeSym](attribute);
     }
 
@@ -456,19 +462,21 @@ export class NamedNodeMap {
       throw new DOMException("Attribute already in use");
     }
 
-    const previousAttr = this.#attrNodeCache[attrNode.name];
+    const safeAttrName = "a" + attrNode.name;
+    const previousAttr = this.#attrNodeCache[safeAttrName];
     if (previousAttr) {
       previousAttr[setNamedNodeMapOwnerElementSym](null);
-      this.#map[attrNode.name] = undefined;
+      this.#map[safeAttrName] = undefined;
     }
 
     attrNode[setNamedNodeMapOwnerElementSym](this.#ownerElement);
-    this.#attrNodeCache[attrNode.name] = attrNode;
+    this.#attrNodeCache[safeAttrName] = attrNode;
     this[setNamedNodeMapValueSym](attrNode.name, attrNode.value, true);
   }
 
   removeNamedItem(attribute: string): Attr {
-    if (this.#map[attribute] !== undefined) {
+    const safeAttrName = "a" + attribute;
+    if (this.#map[safeAttrName] !== undefined) {
       const attrNode = this[getNamedNodeMapAttrNodeSym](attribute);
       this[removeNamedNodeMapAttrSym](attribute);
       return attrNode;
