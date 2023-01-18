@@ -1,4 +1,4 @@
-import { Plug } from "https://deno.land/x/plug/mod.ts";
+import { dlopen } from "https://deno.land/x/plug@1.0.0-rc.3/mod.ts";
 import { register } from "./src/parser.ts";
 
 const nativeEnv = "DENO_DOM_PLUGIN";
@@ -52,7 +52,7 @@ if (denoNativePluginPath) {
   }
 
   // Download the plugin
-  dylib = await Plug.prepare({
+  dylib = await dlopen({
     name,
     url:
       "https://github.com/b-fuze/deno-dom/releases/download/v0.1.35-alpha-artifacts/",
