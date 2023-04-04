@@ -287,3 +287,17 @@ Deno.test("HTMLTemplateElement.cloneNode", () => {
     undefined,
   );
 });
+
+Deno.test("HTMLTemplateElement parent will properly print its innerHTML", () => {
+  const doc = new DOMParser().parseFromString(
+    `
+      <div class=parent><template><p>foo bars</p></template></div>
+    `,
+    "text/html",
+  )!;
+  const templateParent = doc.querySelector(".parent")!;
+  assertEquals(
+    templateParent.outerHTML,
+    `<div class="parent"><template><p>foo bars</p></template></div>`,
+  );
+});

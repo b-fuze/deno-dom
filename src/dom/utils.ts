@@ -62,7 +62,6 @@ const voidElements = new Set([
 export function getOuterOrInnerHtml(
   parentElement: Element,
   asOuterHtml: boolean,
-  isTemplateElement = false,
 ): string {
   let outerHTMLOpeningTag = "";
   let outerHTMLClosingTag = "";
@@ -77,7 +76,7 @@ export function getOuterOrInnerHtml(
     }
   }
 
-  const initialChildNodes = isTemplateElement
+  const initialChildNodes = parentElement.localName === "template"
     ? (parentElement as HTMLTemplateElement).content.childNodes
     : parentElement.childNodes;
   const childNodeDepth = [initialChildNodes];
@@ -97,7 +96,13 @@ export function getOuterOrInnerHtml(
 
           // Void elements don't have a closing tag nor print innerHTML
           if (!voidElements.has(childLocalName)) {
-            childNodeDepth.push(child.childNodes);
+            if (childLocalName === "template") {
+              childNodeDepth.push(
+                (child as HTMLTemplateElement).content.childNodes,
+              );
+            } else {
+              childNodeDepth.push(child.childNodes);
+            }
             indexDepth.push(0);
             closingTagDepth.push(`</${childLocalName}>`);
             depth++;

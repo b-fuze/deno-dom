@@ -72,7 +72,7 @@ export class HTMLTemplateElement extends Element {
   }
 
   get innerHTML(): string {
-    return getOuterOrInnerHtml(this, false, true);
+    return getOuterOrInnerHtml(this, false);
   }
 
   // Replace children in the `.content`
