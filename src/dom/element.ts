@@ -760,6 +760,21 @@ export class Element extends Node {
     return this.ownerDocument!._nwapi.match(selectorString, this);
   }
 
+  closest(selectorString: string): Element | null {
+    const { match } = this.ownerDocument!._nwapi; // See note below
+    // deno-lint-ignore no-this-alias
+    let el: Element | null = this;
+    do {
+      // Note: Not using `el.matches(selectorString)` because on a browser if you override
+      // `matches`, you *don't* see it being used by `closest`.
+      if (match(selectorString, el)) {
+        return el;
+      }
+      el = el.parentElement;
+    } while (el !== null);
+    return null;
+  }
+
   // TODO: DRY!!!
   getElementById(id: string): Element | null {
     for (const child of this.childNodes) {
