@@ -38,6 +38,10 @@ export class DocumentFragment extends Node {
     return elements[elements.length - 1] ?? null;
   }
 
+  override _shallowClone(): DocumentFragment {
+    return new DocumentFragment();
+  }
+
   append(...nodes: (Node | string)[]) {
     const mutator = this._getChildNodesMutator();
     mutator.push(...nodesAndTextNodes(nodes, this));
