@@ -8,6 +8,7 @@ import {
 } from "../../deno-dom-wasm.ts";
 import {
   assert,
+  assertNotStrictEquals as assetNotEquals,
   assertStrictEquals as assertEquals,
 } from "https://deno.land/std@0.85.0/testing/asserts.ts";
 
@@ -104,4 +105,36 @@ Deno.test("DocumentFragment", () => {
   assertEquals(frag2.childNodes.length, 0);
   assertEquals(frag2.parentNode, null);
   assertEquals(frag2.parentElement, null);
+});
+
+Deno.test("DocumentFragment.cloneNode", () => {
+  const doc = new DOMParser().parseFromString(
+    `
+      <div>foo <b>bar</b></div>
+    `,
+    "text/html",
+  )!;
+  const frag = doc.createDocumentFragment()!;
+  const div = doc.querySelector("div")!;
+  frag.append(div);
+
+  const shallowFragClone = frag.cloneNode() as DocumentFragment;
+
+  assertEquals(shallowFragClone.childNodes.length, 0);
+  assertEquals(shallowFragClone.children.length, 0);
+  assertEquals(shallowFragClone.querySelectorAll("*").length, 0);
+  assetNotEquals(frag, shallowFragClone);
+
+  const deepFragClone = frag.cloneNode(true) as DocumentFragment;
+
+  assertEquals(deepFragClone.childNodes.length, 1);
+  assertEquals(deepFragClone.children.length, 1);
+  assertEquals(
+    deepFragClone.children[0].outerHTML,
+    `<div>foo <b>bar</b></div>`,
+  );
+  assertEquals(deepFragClone.querySelectorAll("*").length, 2);
+  assetNotEquals(frag, deepFragClone);
+  assetNotEquals(shallowFragClone, deepFragClone);
+  assetNotEquals(div, deepFragClone.children[0]);
 });
