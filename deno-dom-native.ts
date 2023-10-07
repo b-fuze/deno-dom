@@ -55,7 +55,7 @@ if (denoNativePluginPath) {
   dylib = await dlopen({
     name,
     url:
-      "https://github.com/b-fuze/deno-dom/releases/download/v0.1.35-alpha-artifacts/",
+      "https://github.com/b-fuze/deno-dom/releases/download/v0.1.41-alpha-artifacts/",
   }, symbols);
 }
 
