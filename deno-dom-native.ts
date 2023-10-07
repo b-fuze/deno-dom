@@ -18,7 +18,7 @@ const _symbols = {
     result: "void",
   },
   deno_dom_parse_frag_sync: {
-    parameters: ["buffer", "usize", "buffer"],
+    parameters: ["buffer", "usize", "buffer", "usize", "buffer"],
     result: "void",
   },
   deno_dom_is_big_endian: { parameters: [], result: "u32" },
@@ -74,16 +74,41 @@ const dylibParseFragSync = dylib.symbols.deno_dom_parse_frag_sync.bind(
 const returnBufSizeLenRaw = new ArrayBuffer(usizeBytes * 2);
 const returnBufSizeLen = new Uint8Array(returnBufSizeLenRaw);
 
+type DocumentParser = (
+  srcBuf: Uint8Array,
+  srcLength: number,
+  returnBuf: Uint8Array,
+) => void;
+type FragmentParser = (
+  srcBuf: Uint8Array,
+  srcLength: number,
+  contextLocalNameBuf: Uint8Array,
+  contextLocalNameLength: number,
+  returnBuf: Uint8Array,
+) => void;
+
 function genericParse(
-  parser: (
-    srcBuf: Uint8Array,
-    srcLength: number,
-    returnBuf: Uint8Array,
-  ) => void,
+  parser: DocumentParser | FragmentParser,
   srcHtml: string,
+  contextLocalName?: string,
 ): string {
   const encodedHtml = utf8Encoder.encode(srcHtml);
-  parser(encodedHtml, encodedHtml.length, returnBufSizeLen);
+  if (contextLocalName) {
+    const encodedContextLocalName = utf8Encoder.encode(contextLocalName);
+    (parser as FragmentParser)(
+      encodedHtml,
+      encodedHtml.length,
+      encodedContextLocalName,
+      encodedContextLocalName.length,
+      returnBufSizeLen,
+    );
+  } else {
+    (parser as DocumentParser)(
+      encodedHtml,
+      encodedHtml.length,
+      returnBufSizeLen,
+    );
+  }
 
   const outBufSize = Number(
     new DataView(returnBufSizeLenRaw).getBigUint64(0, !isBigEndian),
@@ -98,8 +123,8 @@ function parse(html: string): string {
   return genericParse(dylibParseSync, html);
 }
 
-function parseFrag(html: string): string {
-  return genericParse(dylibParseFragSync, html);
+function parseFrag(html: string, contextLocalName?: string): string {
+  return genericParse(dylibParseFragSync, html, contextLocalName);
 }
 
 // Register parse function

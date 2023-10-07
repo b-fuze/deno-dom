@@ -89,7 +89,7 @@ export class HTMLTemplateElement extends Element {
 
     // Parse HTML into new children
     if (html.length) {
-      const parsed = fragmentNodesFromString(html);
+      const parsed = fragmentNodesFromString(html, this.localName);
       mutator.push(...parsed.childNodes[0].childNodes);
 
       for (const child of content.childNodes) {

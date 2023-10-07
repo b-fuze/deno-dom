@@ -593,7 +593,7 @@ export class Element extends Node {
 
     // Parse HTML into new children
     if (html.length) {
-      const parsed = fragmentNodesFromString(html);
+      const parsed = fragmentNodesFromString(html, this.localName);
       for (const child of parsed.childNodes[0].childNodes) {
         mutator.push(child);
       }

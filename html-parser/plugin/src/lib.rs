@@ -36,9 +36,18 @@ pub extern "C" fn deno_dom_parse_sync(src_buf: *mut u8, src_len: usize, dest_buf
 }
 
 #[no_mangle]
-pub extern "C" fn deno_dom_parse_frag_sync(src_buf: *mut u8, src_len: usize, dest_buf_size_ptr: *mut usize) {
+pub extern "C" fn deno_dom_parse_frag_sync(
+    src_buf: *mut u8,
+    src_len: usize,
+    context_local_name_buf: *mut u8,
+    context_local_name_len: usize,
+    dest_buf_size_ptr: *mut usize
+) {
     let src_html = unsafe {
         String::from_raw_parts(src_buf, src_len, src_len)
+    };
+    let context_local_name = unsafe {
+        String::from_raw_parts(context_local_name_buf, context_local_name_len, context_local_name_len)
     };
     let dest_buf_meta = unsafe {
         std::slice::from_raw_parts_mut(
@@ -47,11 +56,12 @@ pub extern "C" fn deno_dom_parse_frag_sync(src_buf: *mut u8, src_len: usize, des
         )
     };
 
-    let parsed = Box::new(parse_frag(src_html.clone()));
+    let parsed = Box::new(parse_frag(src_html.clone(), context_local_name.clone()));
     dest_buf_meta[0] = parsed.len();
     dest_buf_meta[1] = Box::into_raw(parsed) as usize;
 
     std::mem::forget(src_html);
+    std::mem::forget(context_local_name);
     std::mem::forget(dest_buf_meta);
 }
 

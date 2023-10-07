@@ -9,13 +9,18 @@ enum Method {
 
 fn main() {
     let mut method = Method::Document;
+    let mut context_local_name = "div".to_string();
 
     for arg in args() {
-        match arg.as_str() {
-            "fragment" => {
-                method = Method::Fragment;
-            },
-            _ => {},
+        if let Method::Document = method {
+            match arg.as_str() {
+                "fragment" => {
+                    method = Method::Fragment;
+                },
+                _ => {},
+            }
+        } else {
+            context_local_name = arg;
         }
     }
 
@@ -25,7 +30,7 @@ fn main() {
     if let Method::Document = method {
         println!("{}", parse(buf));
     } else {
-        println!("{}", parse_frag(buf));
+        println!("{}", parse_frag(buf, context_local_name));
     }
 }
 

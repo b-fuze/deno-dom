@@ -8,7 +8,7 @@ pub fn parse(html: &str) -> String {
 }
 
 #[wasm_bindgen]
-pub fn parse_frag(html: &str) -> String {
-    parse_frag_rs(html.into())
+pub fn parse_frag(html: &str, context_local_name: &str) -> String {
+    parse_frag_rs(html.into(), context_local_name.into())
 }
 

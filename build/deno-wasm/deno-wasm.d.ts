@@ -7,9 +7,10 @@
 export function parse(html: string): string;
 /**
  * @param {string} html
+ * @param {string} context_local_name
  * @returns {string}
  */
-export function parse_frag(html: string): string;
+export function parse_frag(html: string, context_local_name: string): string;
 
 export type InitInput =
   | RequestInfo
@@ -21,7 +22,13 @@ export type InitInput =
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly parse: (a: number, b: number, c: number) => void;
-  readonly parse_frag: (a: number, b: number, c: number) => void;
+  readonly parse_frag: (
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    e: number,
+  ) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;

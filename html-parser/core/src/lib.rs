@@ -37,7 +37,7 @@ pub fn parse(html: String) -> String {
     dom_to_string(len, &dom)
 }
 
-pub fn parse_frag(html: String) -> String {
+pub fn parse_frag(html: String, context_local_name: String) -> String {
     let len = html.len();
     let sink: RcDom = Default::default();
     let parser = parse_fragment(
@@ -46,7 +46,7 @@ pub fn parse_frag(html: String) -> String {
         QualName::new(
             None,
             ns!(html),
-            LocalName::from("div"),
+            LocalName::from(context_local_name),
         ),
         vec![],
     );

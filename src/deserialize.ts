@@ -13,8 +13,11 @@ export function nodesFromString(html: string): Node {
   return node;
 }
 
-export function fragmentNodesFromString(html: string): Node {
-  const parsed = JSON.parse(parseFrag(html));
+export function fragmentNodesFromString(
+  html: string,
+  contextLocalName: string,
+): Node {
+  const parsed = JSON.parse(parseFrag(html, contextLocalName));
   const node = nodeFromArray(parsed, null);
 
   return node;
