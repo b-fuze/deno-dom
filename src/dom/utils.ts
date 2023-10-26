@@ -5,6 +5,41 @@ import type { Element } from "./element.ts";
 import type { HTMLTemplateElement } from "./elements/html-template-element.ts";
 import type { DocumentFragment } from "./document-fragment.ts";
 
+export const upperCaseCharRe = /[A-Z]/;
+export const lowerCaseCharRe = /[a-z]/;
+/**
+ * Convert JS property name to dataset attribute name without
+ * validation
+ */
+export function getDatasetHtmlAttrName(name: string): `data-${string}` {
+  let attributeName: `data-${string}` = "data-";
+  for (const char of name) {
+    if (upperCaseCharRe.test(char)) {
+      attributeName += "-" + char.toLowerCase();
+    } else {
+      attributeName += char;
+    }
+  }
+
+  return attributeName;
+}
+
+export function getDatasetJavascriptName(name: string): string {
+  let javascriptName = "";
+  let prevChar = "";
+  for (const char of name.slice("data-".length)) {
+    if (prevChar === "-" && lowerCaseCharRe.test(char)) {
+      javascriptName += char.toUpperCase();
+      prevChar = "";
+    } else {
+      javascriptName += prevChar;
+      prevChar = char;
+    }
+  }
+
+  return javascriptName + prevChar;
+}
+
 export function getElementsByClassName(
   element: any,
   className: string,

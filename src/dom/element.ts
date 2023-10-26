@@ -4,9 +4,13 @@ import { Node, nodesAndTextNodes, NodeType } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { HTMLCollection } from "./html-collection.ts";
 import {
+  getDatasetHtmlAttrName,
+  getDatasetJavascriptName,
   getElementsByClassName,
   getOuterOrInnerHtml,
   insertBeforeAfter,
+  lowerCaseCharRe,
+  upperCaseCharRe,
 } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
 
@@ -486,6 +490,17 @@ export class NamedNodeMap {
   }
 }
 
+const XML_NAMESTART_CHAR_RE_SRC = ":A-Za-z_" +
+  String.raw`\u{C0}-\u{D6}\u{D8}-\u{F6}\u{F8}-\u{2FF}\u{370}-\u{37D}` +
+  String
+    .raw`\u{37F}-\u{1FFF}\u{200C}-\u{200D}\u{2070}-\u{218F}\u{2C00}-\u{2FEF}` +
+  String
+    .raw`\u{3001}-\u{D7FF}\u{F900}-\u{FDCF}\u{FDF0}-\u{FFFD}\u{10000}-\u{EFFFF}`;
+const XML_NAME_CHAR_RE_SRC = XML_NAMESTART_CHAR_RE_SRC +
+  String.raw`\u{B7}\u{0300}-\u{036F}\u{203F}-\u{2040}0-9.-`;
+const xmlNamestartCharRe = new RegExp(`[${XML_NAMESTART_CHAR_RE_SRC}]`, "u");
+const xmlNameCharRe = new RegExp(`[${XML_NAME_CHAR_RE_SRC}]`, "u");
+
 export class Element extends Node {
   localName: string;
   attributes = new NamedNodeMap(this, (attribute, value) => {
@@ -503,6 +518,7 @@ export class Element extends Node {
     }
   }, CTOR_KEY);
 
+  #datasetProxy: Record<string, string | undefined> | null = null;
   #currentId = "";
   #classList = new DOMTokenList(
     (className) => {
@@ -623,6 +639,103 @@ export class Element extends Node {
 
   set id(id: string) {
     this.setAttribute("id", this.#currentId = id);
+  }
+
+  get dataset(): Record<string, string | undefined> {
+    if (this.#datasetProxy) {
+      return this.#datasetProxy;
+    }
+
+    this.#datasetProxy = new Proxy<Record<string, string | undefined>>({}, {
+      get: (_target, property, _receiver) => {
+        if (typeof property === "string") {
+          const attributeName = getDatasetHtmlAttrName(property);
+          return this.getAttribute(attributeName) ?? undefined;
+        }
+
+        return undefined;
+      },
+
+      set: (_target, property, value, _receiver) => {
+        if (typeof property === "string") {
+          let attributeName = "data-";
+
+          let prevChar = "";
+          for (const char of property) {
+            // Step 1. https://html.spec.whatwg.org/multipage/dom.html#dom-domstringmap-setitem
+            if (prevChar === "-" && lowerCaseCharRe.test(char)) {
+              throw new DOMException(
+                "An invalid or illegal string was specified",
+              );
+            }
+
+            // Step 4. https://html.spec.whatwg.org/multipage/dom.html#dom-domstringmap-setitem
+            if (!xmlNameCharRe.test(char)) {
+              throw new DOMException("String contains an invalid character");
+            }
+
+            // Step 2. https://html.spec.whatwg.org/multipage/dom.html#dom-domstringmap-setitem
+            if (upperCaseCharRe.test(char)) {
+              attributeName += "-";
+            }
+
+            attributeName += char.toLowerCase();
+            prevChar = char;
+          }
+
+          this.setAttribute(attributeName, String(value));
+        }
+
+        return true;
+      },
+
+      deleteProperty: (_target, property) => {
+        if (typeof property === "string") {
+          const attributeName = getDatasetHtmlAttrName(property);
+          this.removeAttribute(attributeName);
+        }
+
+        return true;
+      },
+
+      ownKeys: (_target) => {
+        return this
+          .getAttributeNames()
+          .flatMap((attributeName) => {
+            if (attributeName.startsWith?.("data-")) {
+              return [getDatasetJavascriptName(attributeName)];
+            } else {
+              return [];
+            }
+          });
+      },
+
+      getOwnPropertyDescriptor: (_target, property) => {
+        if (typeof property === "string") {
+          const attributeName = getDatasetHtmlAttrName(property);
+          if (this.hasAttribute(attributeName)) {
+            return {
+              writable: true,
+              enumerable: true,
+              configurable: true,
+            };
+          }
+        }
+
+        return undefined;
+      },
+
+      has: (_target, property) => {
+        if (typeof property === "string") {
+          const attributeName = getDatasetHtmlAttrName(property);
+          return this.hasAttribute(attributeName);
+        }
+
+        return false;
+      },
+    });
+
+    return this.#datasetProxy;
   }
 
   getAttributeNames(): string[] {
