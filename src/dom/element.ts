@@ -591,7 +591,41 @@ export class Element extends Node {
   }
 
   set outerHTML(html: string) {
-    // TODO: Someday...
+    if (this.parentNode) {
+      const { parentElement, parentNode } = this;
+      let contextLocalName = parentElement?.localName;
+
+      switch (parentNode.nodeType) {
+        case NodeType.DOCUMENT_NODE: {
+          throw new DOMException(
+            "Modifications are not allowed for this document",
+          );
+        }
+
+        // setting outerHTML, step 4. Document Fragment
+        // ref: https://w3c.github.io/DOM-Parsing/#dom-element-outerhtml
+        case NodeType.DOCUMENT_FRAGMENT_NODE: {
+          contextLocalName = "body";
+          // fall-through
+        }
+
+        default: {
+          const { childNodes: newChildNodes } =
+            fragmentNodesFromString(html, contextLocalName!).childNodes[0];
+          const mutator = parentNode._getChildNodesMutator();
+          const insertionIndex = mutator.indexOf(this);
+
+          for (let i = newChildNodes.length - 1; i >= 0; i--) {
+            const child = newChildNodes[i];
+            mutator.splice(insertionIndex, 0, child);
+            child._setParent(parentNode);
+            child._setOwnerDocument(parentNode.ownerDocument);
+          }
+
+          this.remove();
+        }
+      }
+    }
   }
 
   get innerHTML(): string {
