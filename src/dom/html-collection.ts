@@ -20,10 +20,9 @@ export const HTMLCollectionMutatorSym = Symbol();
 const HTMLCollectionClass: any = (() => {
   // @ts-ignore
   class HTMLCollection extends Array<Element> {
-    // @ts-ignore
     forEach(
       cb: (node: Element, index: number, nodeList: Element[]) => void,
-      thisArg: HTMLCollection | undefined = undefined,
+      thisArg?: unknown,
     ) {
       super.forEach(cb, thisArg);
     }

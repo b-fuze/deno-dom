@@ -118,10 +118,9 @@ class NodeListMutatorImpl {
 const NodeListClass: any = (() => {
   // @ts-ignore
   class NodeList extends Array<Node> {
-    // @ts-ignore
     forEach(
       cb: (node: Node, index: number, nodeList: Node[]) => void,
-      thisArg: NodeList | undefined = undefined,
+      thisArg?: unknown,
     ) {
       super.forEach(cb, thisArg);
     }
