@@ -282,6 +282,31 @@ export class Document extends Node {
     return node;
   }
 
+  // FIXME: This is a bad solution. The correct solution
+  // would be to make `.body` and `.head` dynamic getters,
+  // but that would be a breaking change since `.body`
+  // and `.head` would need to be typed as `Element | null`.
+  // Currently they're typed as `Element` which is incorrect...
+  cloneNode(deep?: boolean): Document {
+    const doc = super.cloneNode(deep) as Document;
+
+    for (const child of doc.documentElement?.childNodes || []) {
+      switch (child.nodeName) {
+        case "BODY": {
+          doc.body = child as Element;
+          break;
+        }
+
+        case "HEAD": {
+          doc.head = child as Element;
+          break;
+        }
+      }
+    }
+
+    return doc;
+  }
+
   querySelector(selectors: string): Element | null {
     return this._nwapi.first(selectors, this);
   }
