@@ -307,11 +307,11 @@ export class Document extends Node {
     return doc;
   }
 
-  querySelector(selectors: string): Element | null {
-    return this._nwapi.first(selectors, this);
+  querySelector<T = Element>(selectors: string): T | null {
+    return this._nwapi.first(selectors, this) as T;
   }
 
-  querySelectorAll(selectors: string): NodeList {
+  querySelectorAll<T = Element>(selectors: string): NodeList<T> {
     const nodeList = new NodeList();
     const mutator = nodeList[nodeListMutatorSym]();
 
