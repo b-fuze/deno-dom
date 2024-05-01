@@ -803,13 +803,19 @@ export class Element extends Node {
 
   toggleAttribute(rawName: string, force?: boolean) {
     const name = String(rawName?.toLowerCase());
-    if (force === undefined) {
-      force = !this.hasAttribute(name);
-    }
-    if (force) {
-      this.setAttribute(name, "");
-    } else {
-      this.removeAttribute(name);
+    switch (this.hasAttribute(name)) {
+      case true:
+        if ((force === undefined) || (force === false)) {
+          this.removeAttribute(name);
+          return false;
+        }
+        return true;
+      case false:
+        if ((force === undefined) || (force === true)) {
+          this.setAttribute(name, "");
+          return true;
+        }
+        return false;
     }
   }
 
