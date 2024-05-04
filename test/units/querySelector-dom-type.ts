@@ -8,5 +8,5 @@ Deno.test("querySelector<T> and querySelectorAll<T> typings", () => {
   )!;
 
   // We don't actually test anything here, we just challenge the TypeScript typings
-  doc.querySelector<HTMLTemplateElement>("div")!.content;
+  doc.querySelector<HTMLTemplateElement>("template")!.content;
 });
