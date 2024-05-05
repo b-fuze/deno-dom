@@ -801,6 +801,22 @@ export class Element extends Node {
     }
   }
 
+  toggleAttribute(rawName: string, force?: boolean) {
+    const name = String(rawName?.toLowerCase());
+    if (this.hasAttribute(name)) {
+      if ((force === undefined) || (force === false)) {
+        this.removeAttribute(name);
+        return false;
+      }
+      return true;
+    }
+    if ((force === undefined) || (force === true)) {
+      this.setAttribute(name, "");
+      return true;
+    }
+    return false;
+  }
+
   hasAttribute(name: string): boolean {
     return this.attributes[getNamedNodeMapValueSym](
       String(name?.toLowerCase()),
