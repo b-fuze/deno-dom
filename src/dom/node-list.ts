@@ -117,15 +117,15 @@ class NodeListMutatorImpl {
 // its prototype and completely change its TypeScript-recognized type.
 const NodeListClass: any = (() => {
   // @ts-ignore
-  class NodeList extends Array<Node> {
+  class NodeList<T = Node> extends Array<T> {
     forEach(
-      cb: (node: Node, index: number, nodeList: Node[]) => void,
+      cb: (node: T, index: number, nodeList: T[]) => void,
       thisArg?: unknown,
     ) {
       super.forEach(cb, thisArg);
     }
 
-    item(index: number): Node | null {
+    item(index: number): T | null {
       return this[index] ?? null;
     }
 
@@ -192,7 +192,7 @@ for (
   NodeListClass.prototype[instanceMethod] = undefined;
 }
 
-export interface NodeList {
+export interface NodeList<T = Node> {
   new (): NodeList;
   readonly [index: number]: Node;
   readonly length: number;

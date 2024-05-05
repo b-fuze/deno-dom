@@ -880,15 +880,15 @@ export class Element extends Node {
     return elements[index - 1] ?? null;
   }
 
-  querySelector(selectors: string): Element | null {
+  querySelector<T = Element>(selectors: string): T | null {
     if (!this.ownerDocument) {
       throw new Error("Element must have an owner document");
     }
 
-    return this.ownerDocument!._nwapi.first(selectors, this);
+    return this.ownerDocument!._nwapi.first(selectors, this) as T;
   }
 
-  querySelectorAll(selectors: string): NodeList {
+  querySelectorAll<T = Element>(selectors: string): NodeList<T> {
     if (!this.ownerDocument) {
       throw new Error("Element must have an owner document");
     }
