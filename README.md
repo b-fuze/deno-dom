@@ -17,7 +17,7 @@ const doc = new DOMParser().parseFromString(
   <p>Hello from <a href="https://deno.land/">Deno!</a></p>
 `,
   "text/html",
-)!;
+);
 
 const p = doc.querySelector("p")!;
 
