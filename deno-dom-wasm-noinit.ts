@@ -6,7 +6,13 @@ import { register } from "./src/parser.ts";
 
 export async function initParser() {
   await initWasm();
-  register(parse, parseFrag);
+  register(
+    parse,
+    parseFrag as unknown as (
+      html: string,
+      context_local_name?: string,
+    ) => string,
+  );
 }
 
 export * from "./src/api.ts";

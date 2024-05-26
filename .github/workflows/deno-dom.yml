@@ -28,5 +28,11 @@ jobs:
       - name: Check code formatting
         run: deno fmt --check --unstable
 
+      # We check in a separate step because dynamic imports
+      # no longer type check at runtime which we need for
+      # invoking the unit tests
+      - name: Check TypeScript types
+        run: deno task type-check
+
       - name: Run tests
-        run: deno test --allow-read --allow-net wasm.test.ts
+        run: deno test --no-check --allow-read --allow-net wasm.test.ts
