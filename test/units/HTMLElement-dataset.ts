@@ -9,7 +9,7 @@ Deno.test("Element#dataset", () => {
   const doc = new DOMParser().parseFromString(
     `<div bar=nope foo=notdataset data-foo=bar data--foo-bar=baz></div>`,
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   assertEquals(div.dataset.foo, "bar");

@@ -15,7 +15,7 @@ Deno.test("cloneNode", () => {
     <a id="e">e</a>
   `,
     "text/html",
-  )!;
+  );
 
   checkClone(doc, doc.cloneNode(true));
 });

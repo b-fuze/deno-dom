@@ -5,7 +5,7 @@ Deno.test("Deserialize and query large child count", () => {
   const doc = new DOMParser().parseFromString(
     `<div id="parent"></div>`,
     "text/html",
-  )!;
+  );
 
   // Arbitrarily large number that causes a stack overflow on
   // my machine. Probably not a good test, but it works for now.

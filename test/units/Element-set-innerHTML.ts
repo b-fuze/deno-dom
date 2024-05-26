@@ -5,7 +5,7 @@ Deno.test("setting Element.innerHTML yields children with correct .parentNode's"
   const doc = new DOMParser().parseFromString(
     `<div id=parent></div>`,
     "text/html",
-  )!;
+  );
 
   const parent = doc.querySelector("#parent")!;
   parent.innerHTML = `
@@ -25,7 +25,7 @@ Deno.test(
         <div id=parent-div></div>
       `,
       "text/html",
-    )!;
+    );
 
     const parentRow = doc.querySelector("#parent-row")!;
     parentRow.innerHTML = "<th>This is a header</th>";

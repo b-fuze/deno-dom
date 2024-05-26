@@ -8,7 +8,7 @@ Deno.test("querySelectorAll-selector-list", () => {
     <link>
   `,
     "text/html",
-  )!;
+  );
 
   const docReverse = new DOMParser().parseFromString(
     `
@@ -16,7 +16,7 @@ Deno.test("querySelectorAll-selector-list", () => {
     <a></a>
   `,
     "text/html",
-  )!;
+  );
 
   assertEquals(
     Array.from(doc.querySelectorAll("a, link"), (n) => n.nodeName),

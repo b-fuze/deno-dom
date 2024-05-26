@@ -16,7 +16,7 @@ Deno.test("Node.insertBefore", () => {
       </div>
     `,
     "text/html",
-  )!;
+  );
 
   const body = doc.body;
   const parent = doc.querySelector(".parent")!;

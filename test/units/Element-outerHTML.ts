@@ -28,7 +28,7 @@ Deno.test("Element.outerHTML rawtext elements don't get XML escaped", () => {
       <div>((a,b) => a < b)(1337, 42 & 0);</div>
     `,
     "text/html",
-  )!;
+  );
 
   const script = doc.querySelector("script")!;
   const div = doc.querySelector("div")!;
@@ -46,7 +46,7 @@ Deno.test("Element.outerHTML void elements don't print their contents", () => {
   const doc = new DOMParser().parseFromString(
     `<img src="./foo.png" class="bar"/> <img class="invalid-img"></img> <div>unclosed`,
     "text/html",
-  )!;
+  );
 
   const body = doc.querySelector("body")!;
   assertEquals(
@@ -67,7 +67,7 @@ Deno.test("Element.outerHTML won't overflow the stack for deeply nested HTML", (
   const html = new Array(2000)
     .fill("<div>Hello ")
     .reduce((acc, tag, i) => tag + (i + 1) + acc + "</div>", "");
-  const doc = new DOMParser().parseFromString(html, "text/html")!;
+  const doc = new DOMParser().parseFromString(html, "text/html");
 
   const htmlElement = doc.documentElement!;
   assertEquals(htmlElement.outerHTML.length > 0, true);
@@ -81,7 +81,7 @@ Deno.test("Element.outerHTML can be set to replace element", () => {
       <table><tbody><tr><td>hello</td></tr></tbody></table>
     `,
     "text/html",
-  )!;
+  );
   const parent = doc.querySelector(".parent")!;
   const child = doc.querySelector(".child")!;
   const otherParent = doc.querySelector(".otherparent")!;

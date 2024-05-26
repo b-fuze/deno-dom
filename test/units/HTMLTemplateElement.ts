@@ -30,7 +30,7 @@ Deno.test("HTMLTemplateElement", () => {
       </html>
     `,
     "text/html",
-  )!;
+  );
 
   const templA = doc.querySelector(".templ-a")! as HTMLTemplateElement;
   const templB = doc.querySelector(".templ-b")! as HTMLTemplateElement;
@@ -103,7 +103,7 @@ Deno.test("HTMLTemplateElement", () => {
 });
 
 Deno.test('document.createElement("template")', () => {
-  const doc = new DOMParser().parseFromString("", "text/html")!;
+  const doc = new DOMParser().parseFromString("", "text/html");
   const templ = doc.createElement("template") as HTMLTemplateElement;
 
   assertEquals(templ.constructor, HTMLTemplateElement);
@@ -128,7 +128,7 @@ Deno.test("HTMLTemplateElement.cloneNode", () => {
       </template>
     `,
     "text/html",
-  )!;
+  );
 
   const templ = doc.querySelector("template#first") as HTMLTemplateElement;
   const templShallowClone = templ.cloneNode();
@@ -294,7 +294,7 @@ Deno.test("HTMLTemplateElement parent will properly print its innerHTML", () => 
       <div class=parent><template><p>foo bars</p></template></div>
     `,
     "text/html",
-  )!;
+  );
   const templateParent = doc.querySelector(".parent")!;
   assertEquals(
     templateParent.outerHTML,

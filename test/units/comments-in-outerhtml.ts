@@ -5,7 +5,7 @@ Deno.test("Comments show in outerHTML", () => {
   const doc = new DOMParser().parseFromString(
     "<div><!-- foo --></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   assert(div.outerHTML === "<div><!-- foo --></div>");
@@ -15,14 +15,14 @@ Deno.test("Comments show in innerHTML", () => {
   const doc = new DOMParser().parseFromString(
     "<div><!-- foo --></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   assert(div.innerHTML === "<!-- foo -->");
 });
 
 Deno.test("Dynamically inserted comments show in outerHTML", () => {
-  const doc = new DOMParser().parseFromString("<div></div>", "text/html")!;
+  const doc = new DOMParser().parseFromString("<div></div>", "text/html");
   const div = doc.querySelector("div")!;
 
   assert(div.outerHTML === "<div></div>");

@@ -9,7 +9,7 @@ Deno.test("Setting Node.nodeValue is ignored", () => {
       <div></div>
     `,
     "text/html",
-  )!;
+  );
 
   const div = doc.querySelector("div")!;
 

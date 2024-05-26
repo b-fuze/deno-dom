@@ -8,7 +8,7 @@ Deno.test("Element.toggleAttribute toggles attribute", () => {
   const doc = new DOMParser().parseFromString(
     `<input>`,
     "text/html",
-  )!;
+  );
 
   const input = doc.querySelector("input")!;
   assert(!input.hasAttribute("disabled"));
@@ -35,7 +35,7 @@ Deno.test("Element.toggleAttribute does not override value when forced", () => {
   const doc = new DOMParser().parseFromString(
     `<input disabled="disabled">`,
     "text/html",
-  )!;
+  );
 
   const input = doc.querySelector("input")!;
   input.toggleAttribute("disabled", true);

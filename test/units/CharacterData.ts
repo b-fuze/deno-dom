@@ -5,7 +5,7 @@ Deno.test("CharacterData.nodeValue/data", () => {
   const doc = new DOMParser().parseFromString(
     `foo<!--bar-->`,
     "text/html",
-  )!;
+  );
 
   const text = doc.body.childNodes[0] as Text;
   const comment = doc.body.childNodes[1] as Comment;
@@ -75,7 +75,7 @@ Deno.test("CharacterData.after/before/remove/replaceWith", () => {
   const doc = new DOMParser().parseFromString(
     `foo<!--bar-->`,
     "text/html",
-  )!;
+  );
 
   const text = doc.body.childNodes[0] as Text;
   const comment = doc.body.childNodes[1] as Comment;

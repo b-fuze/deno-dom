@@ -5,7 +5,7 @@ Deno.test("Element.before with siblings", () => {
   const doc = new DOMParser().parseFromString(
     `<div id="parent"><a></a><b></b><c></c></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.getElementById("parent")!;
   const a = doc.querySelector("a")!;
   const b = doc.querySelector("b")!;
@@ -18,7 +18,7 @@ Deno.test("Element.before with current node", () => {
   const doc = new DOMParser().parseFromString(
     `<div id="parent"><a></a><b></b><c></c></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.getElementById("parent")!;
   const b = doc.querySelector("b")!;
   const c = doc.querySelector("c")!;
@@ -30,7 +30,7 @@ Deno.test("Element.after with siblings", () => {
   const doc = new DOMParser().parseFromString(
     `<div id="parent"><a></a><b></b><c></c></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.getElementById("parent")!;
   const a = doc.querySelector("a")!;
   const b = doc.querySelector("b")!;
@@ -43,7 +43,7 @@ Deno.test("Element.after with current node", () => {
   const doc = new DOMParser().parseFromString(
     `<div id="parent"><a></a><b></b><c></c></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.getElementById("parent")!;
   const b = doc.querySelector("b")!;
   const c = doc.querySelector("c")!;
@@ -55,7 +55,7 @@ Deno.test("Element.replaceWith with siblings", () => {
   const doc = new DOMParser().parseFromString(
     `<div id="parent"><a></a><b></b><c></c></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.getElementById("parent")!;
   const a = doc.querySelector("a")!;
   const b = doc.querySelector("b")!;
@@ -67,7 +67,7 @@ Deno.test("Element.replaceWith with current node", () => {
   const doc = new DOMParser().parseFromString(
     `<div id="parent"><a></a><b></b><c></c></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.getElementById("parent")!;
   const a = doc.querySelector("a")!;
   const b = doc.querySelector("b")!;

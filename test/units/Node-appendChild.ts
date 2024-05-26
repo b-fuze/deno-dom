@@ -8,7 +8,7 @@ Deno.test("Node.appendChild", () => {
   const doc = new DOMParser().parseFromString(
     `<div class=parent></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.querySelector(".parent")!;
   const child = doc.createElement("div");
 
@@ -26,7 +26,7 @@ Deno.test("Node.appendChild throws", () => {
   const doc = new DOMParser().parseFromString(
     `<div class=parent><div class=child></div></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.querySelector(".parent")!;
   const child = doc.querySelector(".child")!;
 
@@ -50,7 +50,7 @@ Deno.test("Node.appendChild throws with new parent & grandchild", () => {
       <div class=newparent></div>
     `,
     "text/html",
-  )!;
+  );
   const newParent = doc.querySelector(".newparent")!;
   const child = doc.querySelector(".child")!;
   const grandChild = doc.querySelector(".grandchild")!;

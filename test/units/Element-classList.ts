@@ -10,7 +10,7 @@ Deno.test("Element.classList.value", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a b'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
   assertStrictEquals(
     div.classList.value,
@@ -59,7 +59,7 @@ Deno.test("Element.classList.length", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a   b b'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
   assertStrictEquals(
     div.classList.length,
@@ -89,7 +89,7 @@ Deno.test("Element.classList.length", () => {
 });
 
 Deno.test("Element.classList.add", () => {
-  const doc = new DOMParser().parseFromString("<div></div>", "text/html")!;
+  const doc = new DOMParser().parseFromString("<div></div>", "text/html");
   const div = doc.querySelector("div")!;
   div.classList.add("a");
   div.classList.add("b", "c");
@@ -123,7 +123,7 @@ Deno.test("Element.classList.remove", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a b c'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
   div.classList.remove("a");
   assertStrictEquals(
@@ -149,7 +149,7 @@ Deno.test("Element.classList.item", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a b c b a'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   assertStrictEquals(
@@ -284,7 +284,7 @@ Deno.test("Element.classList.replace", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a   b b'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   assert(
@@ -336,7 +336,7 @@ Deno.test("Element.classList.toggle", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a   b b'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   assert(!div.classList.toggle("a"), "toggle('a') should return false");
@@ -349,7 +349,7 @@ Deno.test("Element.classList.forEach", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a   b b'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   const classes: Array<[string, number, DOMTokenList]> = [];
@@ -370,7 +370,7 @@ Deno.test("Element.classList.entries", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a   b b'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   const classes = [...div.classList.entries()];
@@ -388,7 +388,7 @@ Deno.test("Element.classList.values", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a   b b'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   const classes = [...div.classList.values()];
@@ -403,7 +403,7 @@ Deno.test("Element.classList.keys", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a   b b'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   const classes = [...div.classList.keys()];
@@ -418,7 +418,7 @@ Deno.test("Element.classList.@@iterator", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a   b b'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   const classes = [...div.classList];
@@ -433,7 +433,7 @@ Deno.test("Element.classList.#onChange", () => {
   const doc = new DOMParser().parseFromString(
     "<div class='a'></div>",
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   div.classList.add("b");

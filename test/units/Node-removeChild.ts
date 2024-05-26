@@ -8,7 +8,7 @@ Deno.test("Node.removeChild", () => {
   const doc = new DOMParser().parseFromString(
     `<div class=parent><div class=child></div></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.querySelector(".parent")!;
   const child = doc.querySelector(".child")!;
 
@@ -26,7 +26,7 @@ Deno.test("Node.removeChild throws", () => {
   const doc = new DOMParser().parseFromString(
     `<div class=parent><div class=child></div></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.querySelector(".parent")!;
   const child = doc.querySelector(".child")!;
   parent.removeChild(child);

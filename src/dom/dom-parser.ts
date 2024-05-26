@@ -14,7 +14,7 @@ export class DOMParser {
   parseFromString(
     source: string,
     mimeType: DOMParserMimeType,
-  ): HTMLDocument | null {
+  ): HTMLDocument {
     if (mimeType !== "text/html") {
       throw new Error(`DOMParser: "${mimeType}" unimplemented`); // TODO
     }

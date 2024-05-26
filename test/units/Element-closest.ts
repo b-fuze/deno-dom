@@ -13,7 +13,7 @@ Deno.test("Element-closest", () => {
     </html>
   `,
     "text/html",
-  )!;
+  );
   const a = doc.getElementById("a")!;
   const b = doc.getElementById("b")!;
   const c = doc.getElementById("c")!;

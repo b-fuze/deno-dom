@@ -17,7 +17,7 @@ Deno.test("Element.getElementsByTagName", () => {
       </div>
     `,
     "text/html",
-  )!;
+  );
   const divMain = doc.querySelector("div")!;
   const aside = divMain.getElementsByTagName("aside")[0];
   const article = divMain.getElementsByTagName("article")[0];
@@ -61,7 +61,7 @@ Deno.test("Element.getElementsByClassName", () => {
       </div>
     `,
     "text/html",
-  )!;
+  );
   const divMain = doc.querySelector(".main")!;
   const aside = divMain.getElementsByClassName("an-aside")[0];
   const article = divMain.getElementsByClassName("an-article")[0];
@@ -111,7 +111,7 @@ Deno.test("Element.getElementById", () => {
       </div>
     `,
     "text/html",
-  )!;
+  );
   const divMain = doc.querySelector("#main")!;
   const aside = divMain.getElementById("an-aside")!;
   const article = divMain.getElementById("an-article")!;

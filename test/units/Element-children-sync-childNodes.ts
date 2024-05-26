@@ -11,7 +11,7 @@ Deno.test("Element.children stays in sync with Node.childNodes", () => {
       </div>
     `,
     "text/html",
-  )!;
+  );
 
   const parent = doc.querySelector("#parent")!;
   const childA = doc.querySelector("#childA")!;

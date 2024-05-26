@@ -8,7 +8,7 @@ Deno.test("Node.dispatchEvent", () => {
   const doc = new DOMParser().parseFromString(
     `<div></div>`,
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
   let called = false;
   div.addEventListener("click", () => {
@@ -22,7 +22,7 @@ Deno.test("Node.dispatchEvent, event bubbles", async () => {
   const doc = new DOMParser().parseFromString(
     `<div class="parent"><div class="child"></div></div>`,
     "text/html",
-  )!;
+  );
   const parent = doc.querySelector(".parent")!;
   const child = doc.querySelector(".child")!;
   let called = false;
@@ -41,7 +41,7 @@ Deno.test("Node.removeEventListener removes the event listener", () => {
   const doc = new DOMParser().parseFromString(
     `<div></div>`,
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
   let callCount = 0;
   const handler = () => {

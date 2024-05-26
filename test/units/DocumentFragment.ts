@@ -18,7 +18,7 @@ Deno.test("DocumentFragment", () => {
       <div id=parent></div>
     `,
     "text/html",
-  )!;
+  );
 
   const parent = doc.querySelector("#parent")!;
   const frag = new DocumentFragment();
@@ -113,7 +113,7 @@ Deno.test("DocumentFragment.cloneNode", () => {
       <div>foo <b>bar</b></div>
     `,
     "text/html",
-  )!;
+  );
   const frag = doc.createDocumentFragment()!;
   const div = doc.querySelector("div")!;
   frag.append(div);

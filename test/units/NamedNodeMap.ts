@@ -14,7 +14,7 @@ Deno.test("NamedNodeMap", () => {
       <aside class=bar></article>
     `,
     "text/html",
-  )!;
+  );
 
   const div = doc.querySelector("div")!;
   const article = doc.querySelector("article")!;
@@ -236,7 +236,7 @@ Deno.test("NamedNodeMap stores unsafe Javascript property names", () => {
       <div Constructor=fizz __pRoTo__=qux constructor=foo __proto__=bar></div>
     `,
     "text/html",
-  )!;
+  );
 
   const div = doc.querySelector("div")!;
 

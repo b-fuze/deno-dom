@@ -6,7 +6,7 @@ Deno.test("Element#innerText", () => {
   const doc = new DOMParser().parseFromString(
     `<div>foo <strong>bar</strong></div>`,
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   assertEquals(div.innerText, div.textContent, "innerText equals textContent");

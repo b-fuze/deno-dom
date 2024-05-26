@@ -9,7 +9,7 @@ Deno.test("Adjacent siblings", () => {
         <div class=a>a</div><div class=b>b</div><!-- foo bar --><div class=c>c</div>
       </div>`,
     "text/html",
-  )!;
+  );
   const divMain = doc.querySelector(".main");
   const divA = doc.querySelector(".a");
   const divB = doc.querySelector(".b");

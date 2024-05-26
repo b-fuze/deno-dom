@@ -11,7 +11,7 @@ Deno.test("Element.prepend", () => {
       </div>
     `,
     "text/html",
-  )!;
+  );
 
   const parent = doc.querySelector("#parent")!;
   const childB = doc.querySelector("#childB")!;

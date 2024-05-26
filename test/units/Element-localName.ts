@@ -10,7 +10,7 @@ Deno.test("Element.localName", () => {
       <article></article>
     `,
     "text/html",
-  )!;
+  );
 
   const div = doc.querySelector("div")!;
   const article = doc.querySelector("article")!;

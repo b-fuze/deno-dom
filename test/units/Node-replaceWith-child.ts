@@ -11,7 +11,7 @@ Deno.test("Node.replaceWith(childNode) correctly sets new childNode's parent", (
       </div>
     `,
     "text/html",
-  )!;
+  );
 
   const child = doc.querySelector("#child")!;
   const grandchild = doc.querySelector("#grandchild")!;

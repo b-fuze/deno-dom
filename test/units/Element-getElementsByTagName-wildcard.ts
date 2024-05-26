@@ -12,7 +12,7 @@ Deno.test("Element.getElementsByTagName(wildcard)", () => {
     </div>
   `,
     "text/html",
-  )!;
+  );
 
   const parent = doc.querySelector("#parent")!;
 

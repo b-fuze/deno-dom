@@ -5,7 +5,7 @@ Deno.test("Case insensitive attributes", () => {
   const doc = new DOMParser().parseFromString(
     `<div FooBar=baz foobar=qux fOObAR="42"></div>`,
     "text/html",
-  )!;
+  );
   const div = doc.querySelector("div")!;
 
   assertEquals(

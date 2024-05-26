@@ -7,7 +7,7 @@ Deno.test("Element.id", () => {
       <div id=parent />
     `,
     "text/html",
-  )!;
+  );
 
   const parent = doc.querySelector("#parent");
 

@@ -10,7 +10,7 @@ Deno.test("Element.replaceWith ancestor check", () => {
       <div class=b>b</div>
     `,
     "text/html",
-  )!;
+  );
   const divMain = doc.querySelector(".main")!;
   const divA = doc.querySelector(".a")!;
   const divB = doc.querySelector(".b")!;
@@ -31,7 +31,7 @@ Deno.test("Element.append ancestor check", () => {
       <div class=b>b</div>
     `,
     "text/html",
-  )!;
+  );
   const divMain = doc.querySelector(".main")!;
   const divA = doc.querySelector(".a")!;
   const divB = doc.querySelector(".b")!;
@@ -52,7 +52,7 @@ Deno.test("Element.before ancestor check", () => {
       <div class=b>b</div>
     `,
     "text/html",
-  )!;
+  );
   const divMain = doc.querySelector(".main")!;
   const divA = doc.querySelector(".a")!;
   const divB = doc.querySelector(".b")!;
@@ -73,7 +73,7 @@ Deno.test("Element.after ancestor check", () => {
       <div class=b>b</div>
     `,
     "text/html",
-  )!;
+  );
   const divMain = doc.querySelector(".main")!;
   const divA = doc.querySelector(".a")!;
   const divB = doc.querySelector(".b")!;
@@ -94,7 +94,7 @@ Deno.test("Element.append ancestor check", () => {
       <div class=b>b</div>
     `,
     "text/html",
-  )!;
+  );
   const divMain = doc.querySelector(".main")!;
   const divA = doc.querySelector(".a")!;
   const divB = doc.querySelector(".b")!;
