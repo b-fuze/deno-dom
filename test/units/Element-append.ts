@@ -1,5 +1,5 @@
 import { Comment, DOMParser, Node } from "../../deno-dom-wasm.ts";
-import { assertEquals } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assertEquals } from "assert";
 
 Deno.test("Element.append", () => {
   const doc = new DOMParser().parseFromString(
@@ -21,8 +21,8 @@ Deno.test("Element.append", () => {
 
   parent.append(new Comment(), doc.createElement("img"), "beef");
 
-  assertEquals(parent.lastChild.nodeValue, "beef");
-  assertEquals(parent.lastChild.nodeType, Node.TEXT_NODE);
+  assertEquals(parent.lastChild?.nodeValue, "beef");
+  assertEquals(parent.lastChild?.nodeType, Node.TEXT_NODE);
   assertEquals(parent.childNodes.length, 10);
   assertEquals(parent.children.length, 3);
 

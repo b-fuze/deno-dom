@@ -82,15 +82,15 @@ export class DocumentType extends Node {
     this.#systemId = systemId;
   }
 
-  get name() {
+  get name(): string {
     return this.#qualifiedName;
   }
 
-  get publicId() {
+  get publicId(): string {
     return this.#publicId;
   }
 
-  get systemId() {
+  get systemId(): string {
     return this.#systemId;
   }
 
@@ -141,19 +141,19 @@ export class Document extends Node {
 
   // Expose the document's NWAPI for Element's access to
   // querySelector/querySelectorAll
-  get _nwapi() {
+  get _nwapi(): SelectorApi {
     return this.#nwapi || (this.#nwapi = getSelectorEngine()(this));
   }
 
-  get documentURI() {
+  get documentURI(): string {
     return this.#documentURI;
   }
 
-  get title() {
+  get title(): string {
     return this.querySelector("title")?.textContent || "";
   }
 
-  get cookie() {
+  get cookie(): string {
     return ""; // TODO
   }
 
@@ -165,7 +165,7 @@ export class Document extends Node {
     return "visible";
   }
 
-  get hidden() {
+  get hidden(): boolean {
     return false;
   }
 
@@ -261,7 +261,7 @@ export class Document extends Node {
     return fragment;
   }
 
-  importNode(node: Node, deep: boolean = false) {
+  importNode(node: Node, deep: boolean = false): Node {
     const copy = node.cloneNode(deep);
 
     copy._setOwnerDocument(this);
@@ -269,7 +269,7 @@ export class Document extends Node {
     return copy;
   }
 
-  adoptNode(node: Node) {
+  adoptNode(node: Node): Node {
     if (node instanceof Document) {
       throw new DOMException(
         "Adopting a Document node is not supported.",

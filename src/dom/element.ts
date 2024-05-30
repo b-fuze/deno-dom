@@ -68,11 +68,11 @@ export class DOMTokenList {
     this.#setIndices();
   }
 
-  get value() {
+  get value(): string {
     return this.#_value;
   }
 
-  get length() {
+  get length(): number {
     return this.#set.size;
   }
 
@@ -99,7 +99,7 @@ export class DOMTokenList {
 
   item(
     index: number,
-  ) {
+  ): string {
     index = Number(index);
     if (Number.isNaN(index) || index === Infinity) index = 0;
     return this[Math.trunc(index) % 2 ** 32] ?? null;
@@ -107,7 +107,7 @@ export class DOMTokenList {
 
   contains(
     element: string,
-  ) {
+  ): boolean {
     return this.#set.has(element);
   }
 
@@ -153,7 +153,7 @@ export class DOMTokenList {
   replace(
     oldToken: string,
     newToken: string,
-  ) {
+  ): boolean {
     if ([oldToken, newToken].some((v) => DOMTokenList.#invalidToken(v))) {
       throw new DOMException(
         "Failed to execute 'replace' on 'DOMTokenList': The token provided must not be empty.",
@@ -181,7 +181,7 @@ export class DOMTokenList {
   toggle(
     element: string,
     force?: boolean,
-  ) {
+  ): boolean {
     if (force !== undefined) {
       const operation = force ? "add" : "remove";
       this[operation](element);
@@ -207,8 +207,8 @@ export class DOMTokenList {
   }
 }
 
-const setNamedNodeMapOwnerElementSym = Symbol();
-const setAttrValueSym = Symbol();
+const setNamedNodeMapOwnerElementSym = Symbol("setNamedNodeMapOwnerElementSym");
+const setAttrValueSym = Symbol("setAttrValueSym");
 export class Attr extends Node {
   #namedNodeMap: NamedNodeMap | null = null;
   #name = "";
@@ -272,11 +272,11 @@ export class Attr extends Node {
     );
   }
 
-  get name() {
+  get name(): string {
     return this.#name;
   }
 
-  get localName() {
+  get localName(): string {
     // TODO: When we make namespaces a thing this needs
     // to be updated
     return this.#name;
@@ -298,11 +298,11 @@ export class Attr extends Node {
     }
   }
 
-  get ownerElement() {
+  get ownerElement(): Element | null {
     return this.#ownerElement ?? null;
   }
 
-  get specified() {
+  get specified(): boolean {
     return true;
   }
 
@@ -316,11 +316,11 @@ export interface NamedNodeMap {
   [index: number]: Attr;
 }
 
-const setNamedNodeMapValueSym = Symbol();
-const getNamedNodeMapValueSym = Symbol();
-const getNamedNodeMapAttrNamesSym = Symbol();
-const getNamedNodeMapAttrNodeSym = Symbol();
-const removeNamedNodeMapAttrSym = Symbol();
+const setNamedNodeMapValueSym = Symbol("setNamedNodeMapValueSym");
+const getNamedNodeMapValueSym = Symbol("getNamedNodeMapValueSym");
+const getNamedNodeMapAttrNamesSym = Symbol("getNamedNodeMapAttrNamesSym");
+const getNamedNodeMapAttrNodeSym = Symbol("getNamedNodeMapAttrNodeSym");
+const removeNamedNodeMapAttrSym = Symbol("removeNamedNodeMapAttrSym");
 export class NamedNodeMap {
   static #indexedAttrAccess = function (
     this: NamedNodeMap,
@@ -438,7 +438,7 @@ export class NamedNodeMap {
     }
   }
 
-  get length() {
+  get length(): number {
     return this.#length;
   }
 
@@ -503,7 +503,7 @@ const xmlNameCharRe = new RegExp(`[${XML_NAME_CHAR_RE_SRC}]`, "u");
 
 export class Element extends Node {
   localName: string;
-  attributes = new NamedNodeMap(this, (attribute, value) => {
+  attributes: NamedNodeMap = new NamedNodeMap(this, (attribute, value) => {
     if (value === null) {
       value = "";
     }
@@ -801,7 +801,7 @@ export class Element extends Node {
     }
   }
 
-  toggleAttribute(rawName: string, force?: boolean) {
+  toggleAttribute(rawName: string, force?: boolean): boolean {
     const name = String(rawName?.toLowerCase());
     if (this.hasAttribute(name)) {
       if ((force === undefined) || (force === false)) {

@@ -1,5 +1,5 @@
 import { DOMParser, NodeList } from "../../deno-dom-wasm.ts";
-import { assert } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assert } from "assert";
 
 Deno.test("Comments show in outerHTML", () => {
   const doc = new DOMParser().parseFromString(

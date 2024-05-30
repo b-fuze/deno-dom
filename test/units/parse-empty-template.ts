@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assertStrictEquals } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assertStrictEquals } from "assert";
 
 Deno.test("parse empty template", () => {
   const doc = new DOMParser().parseFromString(

@@ -4,7 +4,7 @@ import {
   NodeList,
   nodesFromString,
 } from "../../deno-dom-wasm.ts";
-import { assert } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assert } from "assert";
 
 Deno.test("Array instanceof Array", () => {
   assert([] instanceof Array);

@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assertThrows } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assertThrows } from "assert";
 
 Deno.test("Element.replaceWith ancestor check", () => {
   const doc = new DOMParser().parseFromString(

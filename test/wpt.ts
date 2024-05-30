@@ -1,4 +1,4 @@
-import { walkSync } from "https://deno.land/std@0.75.0/fs/walk.ts";
+import { walkSync } from "fs";
 import {
   dirname,
   fromFileUrl,

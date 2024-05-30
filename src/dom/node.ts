@@ -28,10 +28,10 @@ export enum NodeType {
  * Throws if any of the nodes are an ancestor
  * of `parentNode`
  */
-export const nodesAndTextNodes = (
+export function nodesAndTextNodes(
   nodes: (Node | unknown)[],
   parentNode: Node,
-) => {
+): Node[] {
   return nodes.flatMap((n) => {
     if (isDocumentFragment(n as Node)) {
       const children = Array.from((n as Node).childNodes);
@@ -53,7 +53,7 @@ export const nodesAndTextNodes = (
       return [node];
     }
   });
-};
+}
 
 export class Node extends EventTarget {
   #nodeValue: string | null = null;
@@ -160,11 +160,11 @@ export class Node extends EventTarget {
     }
   }
 
-  contains(child: Node) {
+  contains(child: Node): boolean {
     return child._ancestors.has(this) || child === this;
   }
 
-  get ownerDocument() {
+  get ownerDocument(): Document | null {
     return this.#ownerDocument;
   }
 
@@ -202,15 +202,15 @@ export class Node extends EventTarget {
     this.appendChild(new Text(content));
   }
 
-  get firstChild() {
+  get firstChild(): Node | null {
     return this.childNodes[0] || null;
   }
 
-  get lastChild() {
+  get lastChild(): Node | null {
     return this.childNodes[this.childNodes.length - 1] || null;
   }
 
-  hasChildNodes() {
+  hasChildNodes(): boolean {
     return Boolean(this.childNodes.length);
   }
 
@@ -258,7 +258,7 @@ export class Node extends EventTarget {
     }
   }
 
-  _appendTo(parentNode: Node) {
+  _appendTo(parentNode: Node): this {
     parentNode._assertNotAncestor(this); // FIXME: Should this really be a method?
     const oldParentNode = this.parentNode;
 
@@ -277,7 +277,7 @@ export class Node extends EventTarget {
     return this;
   }
 
-  removeChild(child: Node) {
+  removeChild(child: Node): Node {
     // Just copy Firefox's error messages
     if (child && typeof child === "object") {
       if (child.parentNode === this) {
@@ -406,7 +406,7 @@ export class Node extends EventTarget {
    * ref: https://dom.spec.whatwg.org/#dom-node-comparedocumentposition
    * MDN: https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition
    */
-  compareDocumentPosition(other: Node) {
+  compareDocumentPosition(other: Node): number {
     if (other === this) {
       return 0;
     }

@@ -6,16 +6,16 @@ Rust, WASM, and obviously, Deno/TypeScript.
 ## Example
 
 ```typescript
-import {
-  DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { DOMParser, Element } from "jsr:@b-fuze/deno-dom";
+
+//   non-JSR wasm url import: https://deno.land/x/deno_dom/deno-dom-wasm.ts
+// non-JSR native url import: https://deno.land/x/deno_dom/deno-dom-native.ts
 
 const doc = new DOMParser().parseFromString(
   `
-  <h1>Hello World!</h1>
-  <p>Hello from <a href="https://deno.land/">Deno!</a></p>
-`,
+    <h1>Hello World!</h1>
+    <p>Hello from <a href="https://deno.land/">Deno!</a></p>
+  `,
   "text/html",
 );
 
@@ -31,8 +31,11 @@ console.log(p.children[0].outerHTML); // "<b>Deno</b>"
 Deno DOM has **two** backends, WASM and native using Deno native plugins. Both
 APIs are **identical**, the difference being only in performance. The WASM
 backend works with all Deno restrictions, but the native backend requires the
-`--unstable --allow-ffi` flags. You can switch between them by importing either
-`deno-dom-wasm.ts` or `deno-dom-native.ts`.
+`--unstable-ffi --allow-ffi --allow-env --allow-read --allow-net=deno.land`
+flags. A shorter version could be `--unstable-ffi -A`, but that allows all
+permissions so you'd have to assess your risk and requirements. You can switch
+between them by importing either `jsr:@b-fuze/deno-dom` for WASM or
+`jsr:@b-fuze/deno-dom/native` for the native binary.
 
 Deno DOM is still under development, but is fairly usable for basic HTML
 manipulation needs.
@@ -42,14 +45,10 @@ manipulation needs.
 Deno suffers an initial startup penalty in Deno DOM WASM due to Top Level Await
 (TLA) preparing the WASM parser. As an alternative to running the initiation on
 startup, you can initialize Deno DOM's parser on-demand yourself when you need
-it by importing from `deno-dom-wasm-noinit.ts`. Example:
+it by importing from `jsr:@b-fuze/deno-dom/wasm-noinit`. Example:
 
 ```typescript
-// Note: -wasm-noinit.ts and not -wasm.ts
-import {
-  DOMParser,
-  initParser,
-} from "https://deno.land/x/deno_dom/deno-dom-wasm-noinit.ts";
+import { DOMParser, initParser } from "jsr:@b-fuze/deno-dom/wasm-noinit";
 
 // ...and when you need Deno DOM make sure you initialize the parser...
 await initParser();
@@ -57,8 +56,8 @@ await initParser();
 // Then you can use Deno DOM as you would normally
 const doc = new DOMParser().parseFromString(
   `
-  <h1>Lorem ipsum dolor...</h1>
-`,
+    <h1>Lorem ipsum dolor...</h1>
+  `,
   "text/html",
 );
 ```
@@ -74,7 +73,7 @@ inconsistencies (that aren't a result of legacy APIs) file an issue.
 - Fast
 - Mirror _most_ supported DOM APIs as closely as possible
 - Provide specific APIs in addition to DOM APIs to make certain operations more
-  efficient, like controlling Shadow DOM (see Open Questions)
+  efficient, like controlling Shadow DOM
 - Use cutting-edge JS features like private class members, optional chaining,
   etc
 

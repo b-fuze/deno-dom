@@ -1,4 +1,4 @@
-import { dlopen } from "https://deno.land/x/plug@1.0.0-rc.3/mod.ts";
+import { dlopen } from "jsr:@denosaurs/plug@1.0.3";
 import { register } from "./src/parser.ts";
 
 const nativeEnv = "DENO_DOM_PLUGIN";

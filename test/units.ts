@@ -1,4 +1,4 @@
-import { dirname, join } from "https://deno.land/std@0.85.0/path/mod.ts";
+import { dirname, join } from "path";
 
 const unitDir = join(dirname(new URL(import.meta.url).pathname), "units");
 const units = Array.from(Deno.readDirSync(unitDir))

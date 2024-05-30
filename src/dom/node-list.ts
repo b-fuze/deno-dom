@@ -13,8 +13,8 @@ const NodeListFakeClass: any = (() => {
   };
 })();
 
-export const nodeListMutatorSym = Symbol();
-const nodeListCachedMutator = Symbol();
+export const nodeListMutatorSym = Symbol("nodeListMutatorSym");
+const nodeListCachedMutator = Symbol("nodeListCachedMutator");
 
 // Array methods that we need for NodeList mutator implementation
 const { push, splice, slice, indexOf, filter } = Array.prototype;

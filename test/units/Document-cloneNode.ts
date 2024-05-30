@@ -1,5 +1,5 @@
 import { Document, DOMParser } from "../../deno-dom-wasm.ts";
-import { assertStrictEquals as assertEquals } from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assertStrictEquals as assertEquals } from "assert";
 
 Deno.test("Document.cloneNode has non-null .body & .head when they exist", () => {
   const doc = new DOMParser().parseFromString(
