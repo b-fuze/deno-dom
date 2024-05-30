@@ -1,3 +1,37 @@
+/**
+ * @module
+ *
+ * This module exposes the Deno DOM API with the native binary backend.
+ * Unlike the WASM backend the native backend requires more permissions
+ * due to the nature of how native bindings work. They include:
+ *
+ * - `--unstable-ffi`
+ * - `--allow-ffi`
+ * - `--allow-env`
+ * - `--allow-read`
+ * - `--allow-net=deno.land`
+ *
+ * @example
+ * ```ts
+ * import { DOMParser, initParser } from "jsr:@b-fuze/deno-dom/native";
+ *
+ * // ...and when you need Deno DOM make sure you initialize the parser...
+ * await initParser();
+ *
+ * // Then you can use Deno DOM as you would normally
+ * const doc = new DOMParser().parseFromString(
+ *   `
+ *     <h1>Hello World!</h1>
+ *     <p>Hello from <a href="https://deno.land/">Deno!</a></p>
+ *   `,
+ *   "text/html",
+ * );
+ *
+ * const p = doc.querySelector("p")!;
+ * console.log(p.textContent); // "Hello from Deno!"
+ * ```
+ */
+
 import { dlopen } from "jsr:@denosaurs/plug@1.0.3";
 import { register } from "./src/parser.ts";
 
