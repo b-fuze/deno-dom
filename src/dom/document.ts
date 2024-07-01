@@ -1,7 +1,7 @@
 import { CTOR_KEY } from "../constructor-lock.ts";
 import { Comment, Node, NodeType, Text } from "./node.ts";
 import { NodeList, nodeListMutatorSym } from "./node-list.ts";
-import { Element } from "./element.ts";
+import { Attr, Element } from "./element.ts";
 import { DocumentFragment } from "./document-fragment.ts";
 import { HTMLTemplateElement } from "./elements/html-template-element.ts";
 import { getSelectorEngine, SelectorApi } from "./selectors/selectors.ts";
@@ -253,6 +253,10 @@ export class Document extends Node {
 
   createComment(data?: string): Comment {
     return new Comment(data);
+  }
+
+  createAttribute(attribute: string): Attr {
+    return new Attr(null, attribute, "", CTOR_KEY);
   }
 
   createDocumentFragment(): DocumentFragment {
