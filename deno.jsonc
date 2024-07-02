@@ -28,6 +28,7 @@
   },
   "imports": {
     "assert": "jsr:@std/assert@0.225.3",
+    "expect": "jsr:@std/expect@0.224.5",
     "fs": "jsr:@std/fs@0.229.1",
     "path": "jsr:@std/path@0.225.1"
   },
