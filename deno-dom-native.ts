@@ -110,14 +110,14 @@ const returnBufSizeLen = new Uint8Array(returnBufSizeLenRaw);
 
 type DocumentParser = (
   srcBuf: Uint8Array,
-  srcLength: number,
+  srcLength: bigint,
   returnBuf: Uint8Array,
 ) => void;
 type FragmentParser = (
   srcBuf: Uint8Array,
-  srcLength: number,
+  srcLength: bigint,
   contextLocalNameBuf: Uint8Array,
-  contextLocalNameLength: number,
+  contextLocalNameLength: bigint,
   returnBuf: Uint8Array,
 ) => void;
 
@@ -131,15 +131,15 @@ function genericParse(
     const encodedContextLocalName = utf8Encoder.encode(contextLocalName);
     (parser as FragmentParser)(
       encodedHtml,
-      encodedHtml.length,
+      BigInt(encodedHtml.length),
       encodedContextLocalName,
-      encodedContextLocalName.length,
+      BigInt(encodedContextLocalName.length),
       returnBufSizeLen,
     );
   } else {
     (parser as DocumentParser)(
       encodedHtml,
-      encodedHtml.length,
+      BigInt(encodedHtml.length),
       returnBufSizeLen,
     );
   }
