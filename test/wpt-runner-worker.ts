@@ -1,3 +1,4 @@
+///<reference lib="deno.worker" />
 type TestSetupEvent = {
   data: {
     backend: "wasm" | "native";
