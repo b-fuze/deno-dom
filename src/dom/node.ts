@@ -631,13 +631,6 @@ export class Text extends CharacterData {
   _shallowClone(): Node {
     return new Text(this.textContent);
   }
-
-  get textContent(): string {
-    return <string> this.nodeValue;
-  }
-  set textContent(value) {
-    this.nodeValue = value;
-  }
 }
 
 export class Comment extends CharacterData {
