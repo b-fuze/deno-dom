@@ -635,6 +635,9 @@ export class Text extends CharacterData {
   get textContent(): string {
     return <string> this.nodeValue;
   }
+  set textContent(value) {
+    this.nodeValue = value;
+  }
 }
 
 export class Comment extends CharacterData {
