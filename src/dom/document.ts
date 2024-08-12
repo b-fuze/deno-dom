@@ -152,7 +152,7 @@ export class Document extends Node {
   get title(): string {
     return this.querySelector("title")?.textContent || "";
   }
-  set title(value) {
+  set title(value: string) {
     let titleElement = this.querySelector("title");
     if (!titleElement) {
       titleElement = this.createElement("title");
