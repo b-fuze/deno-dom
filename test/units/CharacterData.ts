@@ -128,3 +128,14 @@ Deno.test("CharacterData.after/before/remove/replaceWith", () => {
   assertEquals(comment.previousSibling, null);
   assertEquals(comment.nextSibling, null);
 });
+
+Deno.test("CharacterData.textContent", () => {
+  const doc = new DOMParser().parseFromString(
+    `<body>foo</body>`,
+    "text/html",
+  );
+  const text = doc.body.childNodes[0];
+  assertEquals(text.textContent, "foo");
+  text.textContent = "bar";
+  assertEquals(text.textContent, "bar");
+});
