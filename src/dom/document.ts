@@ -152,6 +152,14 @@ export class Document extends Node {
   get title(): string {
     return this.querySelector("title")?.textContent || "";
   }
+  set title(value) {
+    let titleElement = this.querySelector("title");
+    if (!titleElement) {
+      titleElement = this.createElement("title");
+      this.head.appendChild(titleElement);
+    }
+    titleElement.textContent = value;
+  }
 
   get cookie(): string {
     return ""; // TODO
