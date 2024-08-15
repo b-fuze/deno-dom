@@ -311,7 +311,9 @@ export class Document extends Node {
     return this._nwapi.first(selectors, this) as T;
   }
 
-  querySelectorAll<T = Element>(selectors: string): NodeList<T> {
+  querySelectorAll<T extends Element = Element>(
+    selectors: string,
+  ): NodeList<T> {
     const nodeList = new NodeList();
     const mutator = nodeList[nodeListMutatorSym]();
 
@@ -319,7 +321,7 @@ export class Document extends Node {
       mutator.push(match);
     }
 
-    return nodeList;
+    return nodeList as NodeList<T>;
   }
 
   // TODO: DRY!!!

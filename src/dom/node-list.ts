@@ -192,15 +192,15 @@ for (
   NodeListClass.prototype[instanceMethod] = undefined;
 }
 
-export interface NodeList<T = Node> {
+export interface NodeList<T extends Node = Node> {
   new (): NodeList;
-  readonly [index: number]: Node;
+  readonly [index: number]: T;
   readonly length: number;
-  [Symbol.iterator](): Generator<Node>;
+  [Symbol.iterator](): Generator<T>;
 
-  item(index: number): Node;
+  item(index: number): T;
   forEach(
-    cb: (node: Node, index: number, nodeList: Node[]) => void,
+    cb: (node: T, index: number, nodeList: T[]) => void,
     thisArg?: NodeList | undefined,
   ): void;
   [nodeListMutatorSym](): NodeListMutator;
