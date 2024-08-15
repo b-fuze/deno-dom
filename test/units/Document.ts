@@ -22,3 +22,15 @@ Deno.test("Document.title adds missing title element", () => {
   assertEquals(doc.title, "foo");
   assertEquals(doc.querySelector("title")?.textContent, "foo");
 });
+
+Deno.test("Document.title does not add title missing head element", () => {
+  const doc = new DOMParser().parseFromString(
+    `<!DOCTYPE html><html><head></head><body></body></html>`,
+    "text/html",
+  );
+  doc.head.remove();
+  assertEquals(doc.title, "");
+  doc.title = "foo";
+  assertEquals(doc.title, "");
+  assertEquals(doc.querySelector("title"), null);
+});
