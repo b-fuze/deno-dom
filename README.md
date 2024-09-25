@@ -3,6 +3,19 @@
 An implementation of the browser DOM—primarily for SSR—in Deno. Implemented with
 Rust, WASM, and obviously, Deno/TypeScript.
 
+# Table of Contents
+- [Deno DOM](#deno-dom)
+- [Example](#example)
+- [WebAssembly Startup Penalty](#webassembly-startup-penalty)
+- [Documentation](#documentation)
+- [Goals](#goals)
+- [Non-Goals](#non-goals)
+- [Running Tests](#running-tests)
+- [Building Deno DOM Native](#building-deno-dom-native)
+- [Credits](#credits)
+- [Additional Guidelines](#additional-guidelines)
+
+
 ## Example
 
 ```typescript
