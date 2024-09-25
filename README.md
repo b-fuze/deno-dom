@@ -103,7 +103,7 @@ inconsistencies (that aren't a result of legacy APIs) file an issue.
 ## Contribution Guidelines
 - Ensure your changes pass the tests below.
 - To ensure the code follows Deno's formatting guidelines, use the built-in deno fmt command. This will automatically format your TypeScript files to match Deno's code style. Run: ``sh deno fmt``
-- When implementing new features for Deno DOM, ensure that the standard algorithm outlined by the [DOM Living Standard][https://dom.spec.whatwg.org/] is followed. Any deviations from the spec should be documented clearly in the code and pull request descriptions.
+- When implementing new features for Deno DOM, ensure that the standard algorithm outlined by the [DOM Living Standard](https://dom.spec.whatwg.org/) is followed. Any deviations from the spec should be documented clearly in the code and pull request descriptions.
 
 ## Running tests
 
