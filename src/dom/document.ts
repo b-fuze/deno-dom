@@ -7,6 +7,7 @@ import { HTMLTemplateElement } from "./elements/html-template-element.ts";
 import { getSelectorEngine, SelectorApi } from "./selectors/selectors.ts";
 import { getElementsByClassName } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
+import { HTMLInputElement } from "./elements/html-input-element.ts";
 
 export class DOMImplementation {
   constructor(key: typeof CTOR_KEY) {
@@ -233,6 +234,11 @@ export class Document extends Node {
           CTOR_KEY,
           frag,
         );
+        elm._setOwnerDocument(this);
+        return elm;
+      }
+      case "INPUT": {
+        const elm = new HTMLInputElement(null, [], CTOR_KEY);
         elm._setOwnerDocument(this);
         return elm;
       }

@@ -5,6 +5,7 @@ import { DocumentType } from "./dom/document.ts";
 import { DocumentFragment } from "./dom/document-fragment.ts";
 import { HTMLTemplateElement } from "./dom/elements/html-template-element.ts";
 import { Element } from "./dom/element.ts";
+import { HTMLInputElement } from "./dom/elements/html-input-element.ts";
 
 export function nodesFromString(html: string): Node {
   const parsed = JSON.parse(parse(html));
@@ -45,6 +46,13 @@ function nodeFromArray(data: any, parentNode: Node | null): Node {
       data[2],
       CTOR_KEY,
       contentFrag,
+    );
+  }
+  if (data[1] === "input") {
+    return new HTMLInputElement(
+      parentNode,
+      data[2],
+      CTOR_KEY,
     );
   }
 
