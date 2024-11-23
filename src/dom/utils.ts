@@ -1,6 +1,7 @@
 import { Comment, Node, nodesAndTextNodes, NodeType, Text } from "./node.ts";
 import { NodeList } from "./node-list.ts";
 import UtilTypes from "./utils-types.ts";
+import { getLowerCase } from "./string-cache.ts";
 import type { Element } from "./element.ts";
 import type { HTMLTemplateElement } from "./elements/html-template-element.ts";
 import type { DocumentFragment } from "./document-fragment.ts";
@@ -190,15 +191,13 @@ export function getOuterOrInnerHtml(
   return outerHTMLOpeningTag + innerHTML;
 }
 
-// FIXME: This uses the incorrect .attributes implementation, it
-// should probably be changed when .attributes is fixed
 export function getElementAttributesString(
   element: Element,
 ): string {
   let out = "";
 
   for (const attribute of element.getAttributeNames()) {
-    out += ` ${attribute.toLowerCase()}`;
+    out += ` ${getLowerCase(attribute)}`;
 
     // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
     out += `="${

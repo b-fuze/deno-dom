@@ -118,7 +118,7 @@ class NodeListMutatorImpl {
 const NodeListClass: any = (() => {
   // @ts-ignore
   class NodeList<T = Node> extends Array<T> {
-    forEach(
+    override forEach(
       cb: (node: T, index: number, nodeList: T[]) => void,
       thisArg?: unknown,
     ) {
@@ -141,7 +141,7 @@ const NodeListClass: any = (() => {
       }
     }
 
-    toString() {
+    override toString() {
       return "[object NodeList]";
     }
   }

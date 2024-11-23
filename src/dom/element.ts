@@ -13,12 +13,17 @@ import {
   upperCaseCharRe,
 } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
+import { getUpperCase, getLowerCase } from "./string-cache.ts";
 
 export interface DOMTokenList {
   [index: number]: string;
 }
 
 export class DOMTokenList {
+  // Minimum number of classnames/tokens in order to switch from
+  // an array-backed to a set-backed list
+  static #DOM_TOKEN_LIST_MIN_SET_SIZE = 32 as const;
+
   #_value = "";
   get #value() {
     return this.#_value;
@@ -29,7 +34,7 @@ export class DOMTokenList {
     this.#_value = value;
     this.#onChange(value);
   }
-  #set = new Set<string>();
+  #set: string[] | Set<string> = [];
   #onChange: (className: string) => void;
 
   constructor(
@@ -59,12 +64,23 @@ export class DOMTokenList {
     input: string,
   ) {
     this.#value = input;
-    this.#set = new Set(
-      input
-        .trim()
-        .split(/[\t\n\f\r\s]+/g)
-        .filter(Boolean),
-    );
+    this.#set = input
+      .trim()
+      .split(/[\t\n\f\r\s]+/g)
+      .filter(Boolean);
+
+    if (this.#set.length > DOMTokenList.#DOM_TOKEN_LIST_MIN_SET_SIZE) {
+      this.#set = new Set(this.#set);
+    } else {
+      const deduplicatedSet: string[] = [];
+      for (const element of this.#set) {
+        if (!deduplicatedSet.includes(element)) {
+          deduplicatedSet.push(element);
+        }
+      }
+      this.#set = deduplicatedSet;
+    }
+
     this.#setIndices();
   }
 
@@ -73,7 +89,11 @@ export class DOMTokenList {
   }
 
   get length(): number {
-    return this.#set.size;
+    if (this.#set.constructor === Array) {
+      return this.#set.length;
+    } else {
+      return (this.#set as Set<string>).size;
+    }
   }
 
   *entries(): IterableIterator<[number, string]> {
@@ -88,7 +108,8 @@ export class DOMTokenList {
   }
 
   *keys(): IterableIterator<number> {
-    for (let i = 0; i < this.#set.size; i++) {
+    const length = this.length;
+    for (let i = 0; i < length; i++) {
       yield i;
     }
   }
@@ -108,41 +129,73 @@ export class DOMTokenList {
   contains(
     element: string,
   ): boolean {
-    return this.#set.has(element);
+    if (this.#set.constructor === Array) {
+      return this.#set.includes(element);
+    } else {
+      return (this.#set as Set<string>).has(element);
+    }
+  }
+
+  #arrayAdd(element: string) {
+    const array = this.#set as string[];
+    if (!array.includes(element)) {
+      this[array.length] = element;
+      array.push(element);
+    }
+  }
+  #setAdd(element: string) {
+    const set = this.#set as Set<string>;
+    const { size } = set;
+    set.add(element);
+    if (size < set.size) {
+      this[size] = element;
+    }
   }
 
   add(
     ...elements: Array<string>
   ) {
+    const method = (this.#set.constructor === Array ? this.#arrayAdd : this.#setAdd).bind(this);
+
     for (const element of elements) {
       if (DOMTokenList.#invalidToken(element)) {
         throw new DOMException(
           "Failed to execute 'add' on 'DOMTokenList': The token provided must not be empty.",
         );
       }
-      const { size } = this.#set;
-      this.#set.add(element);
-      if (size < this.#set.size) {
-        this[size] = element;
-      }
+
+      method(element);
     }
     this.#updateClassString();
+  }
+
+  #arrayRemove(element: string) {
+    const array = this.#set as string[];
+    const index = array.indexOf(element);
+    if (index >= 0) {
+      array.splice(index, 1);
+    }
+  }
+  #setRemove(element: string) {
+    (this.#set as Set<string>).delete(element);
   }
 
   remove(
     ...elements: Array<string>
   ) {
-    const { size } = this.#set;
+    const method = (this.#set.constructor === Array ? this.#arrayRemove : this.#setRemove).bind(this);
+    const size = this.length;
     for (const element of elements) {
       if (DOMTokenList.#invalidToken(element)) {
         throw new DOMException(
           "Failed to execute 'remove' on 'DOMTokenList': The token provided must not be empty.",
         );
       }
-      this.#set.delete(element);
+      method(element);
     }
-    if (size !== this.#set.size) {
-      for (let i = this.#set.size; i < size; i++) {
+    const newSize = this.length;
+    if (size !== newSize) {
+      for (let i = newSize; i < size; i++) {
         delete this[i];
       }
       this.#setIndices();
@@ -154,20 +207,22 @@ export class DOMTokenList {
     oldToken: string,
     newToken: string,
   ): boolean {
+    const removeMethod = (this.#set.constructor === Array ? this.#arrayRemove : this.#setRemove).bind(this);
+    const addMethod = (this.#set.constructor === Array ? this.#arrayAdd : this.#setAdd).bind(this);
     if ([oldToken, newToken].some((v) => DOMTokenList.#invalidToken(v))) {
       throw new DOMException(
         "Failed to execute 'replace' on 'DOMTokenList': The token provided must not be empty.",
       );
     }
-    if (!this.#set.has(oldToken)) {
+    if (!this.contains(oldToken)) {
       return false;
     }
 
-    if (this.#set.has(newToken)) {
+    if (this.contains(newToken)) {
       this.remove(oldToken);
     } else {
-      this.#set.delete(oldToken);
-      this.#set.add(newToken);
+      removeMethod(oldToken);
+      addMethod(newToken);
       this.#setIndices();
       this.#updateClassString();
     }
@@ -204,8 +259,89 @@ export class DOMTokenList {
 
   #updateClassString() {
     this.#value = Array.from(this.#set).join(" ");
+
+    if (this.#set.constructor === Array && this.#set.length > DOMTokenList.#DOM_TOKEN_LIST_MIN_SET_SIZE) {
+      throw new Error("how: " + this.#set.length + " " + this.#set.join(","));
+      this.#set = new Set(this.#set);
+    }
   }
 }
+
+const initializeClassListSym = Symbol("initializeClassListSym");
+const domTokenListCurrentElementSym = Symbol("domTokenListCurrentElementSym");
+class UinitializedDOMTokenList {
+  // This will always be populated with the current element
+  // being queried
+
+  [domTokenListCurrentElementSym]: Element;
+  constructor(
+    currentElement: Element,
+  ) {
+    this[domTokenListCurrentElementSym] = currentElement;
+  }
+
+  set value(input: string) {
+    if (input?.trim?.() !== "") {
+      this[domTokenListCurrentElementSym][initializeClassListSym]();
+      this[domTokenListCurrentElementSym].classList.value = input;
+    }
+  }
+
+  get value(): string {
+    return "";
+  }
+
+  get length(): number {
+    return 0;
+  }
+
+  *entries(): IterableIterator<[number, string]> {}
+  *values(): IterableIterator<string> {}
+  *keys(): IterableIterator<number> {}
+
+  *[Symbol.iterator](): IterableIterator<string> {
+    yield* this.values();
+  }
+
+  item(_index: number): string | null {
+    return null;
+  }
+
+  contains(_element: string): boolean {
+    return false;
+  }
+
+  add(...elements: string[]) {
+    this[domTokenListCurrentElementSym][initializeClassListSym]();
+    this[domTokenListCurrentElementSym].classList.add(...elements);
+  }
+
+  remove(..._elements: string[]) {}
+  replace(_oldToken: string, _newToken: string) {
+    return false;
+  }
+
+  supports(): never {
+    throw new Error("Not implemented");
+  }
+
+  toggle(
+    element: string,
+    force?: boolean,
+  ): boolean {
+    if (force === false) {
+      return false;
+    }
+
+    this[domTokenListCurrentElementSym][initializeClassListSym]();
+    this[domTokenListCurrentElementSym].classList.add(element);
+    return true;
+  }
+
+  forEach(
+    _callback: (value: string, index: number, list: DOMTokenList) => void,
+  ) {}
+};
 
 const setNamedNodeMapOwnerElementSym = Symbol("setNamedNodeMapOwnerElementSym");
 const setAttrValueSym = Symbol("setAttrValueSym");
@@ -321,6 +457,7 @@ const getNamedNodeMapValueSym = Symbol("getNamedNodeMapValueSym");
 const getNamedNodeMapAttrNamesSym = Symbol("getNamedNodeMapAttrNamesSym");
 const getNamedNodeMapAttrNodeSym = Symbol("getNamedNodeMapAttrNodeSym");
 const removeNamedNodeMapAttrSym = Symbol("removeNamedNodeMapAttrSym");
+const getOwnerElementIdClassNameAttrOrderingSym = Symbol("getOwnerElementIdClassNameAttrOrderingSym");
 export class NamedNodeMap {
   static #indexedAttrAccess = function (
     this: NamedNodeMap,
@@ -337,11 +474,11 @@ export class NamedNodeMap {
       ?.slice(1); // Remove "a" for safeAttrName
     return this[getNamedNodeMapAttrNodeSym](attribute);
   };
-  #onAttrNodeChange: (attr: string, value: string | null) => void;
+  #onAttrNodeChange: (attr: string, value: string | null, isRemoved: boolean) => void;
 
   constructor(
     ownerElement: Element,
-    onAttrNodeChange: (attr: string, value: string | null) => void,
+    onAttrNodeChange: (attr: string, value: string | null, isRemoved: boolean) => void,
     key: typeof CTOR_KEY,
   ) {
     if (key !== CTOR_KEY) {
@@ -349,6 +486,12 @@ export class NamedNodeMap {
     }
     this.#ownerElement = ownerElement;
     this.#onAttrNodeChange = onAttrNodeChange;
+
+    // Retain ordering of any preceding id or class attributes
+    const idClassAttributeOrder = ownerElement[getOwnerElementIdClassNameAttrOrderingSym]();
+    for (const [attr] of idClassAttributeOrder) {
+      this[setNamedNodeMapValueSym](attr, ownerElement.getAttribute(attr) as string);
+    }
   }
 
   #attrNodeCache: Record<string, Attr | undefined> = {};
@@ -409,7 +552,7 @@ export class NamedNodeMap {
     this.#map[safeAttrName] = value;
 
     if (bubble) {
-      this.#onAttrNodeChange(attribute, value);
+      this.#onAttrNodeChange(attribute, value, false);
     }
   }
 
@@ -422,7 +565,7 @@ export class NamedNodeMap {
     if (this.#map[safeAttrName] !== undefined) {
       this.#length--;
       this.#map[safeAttrName] = undefined;
-      this.#onAttrNodeChange(attribute, null);
+      this.#onAttrNodeChange(attribute, null, true);
 
       const attrNode = this.#attrNodeCache[safeAttrName];
       if (attrNode) {
@@ -502,35 +645,81 @@ const xmlNamestartCharRe = new RegExp(`[${XML_NAMESTART_CHAR_RE_SRC}]`, "u");
 const xmlNameCharRe = new RegExp(`[${XML_NAME_CHAR_RE_SRC}]`, "u");
 
 export class Element extends Node {
-  localName: string;
-  attributes: NamedNodeMap = new NamedNodeMap(this, (attribute, value) => {
-    if (value === null) {
-      value = "";
+  #namedNodeMap: NamedNodeMap | null = null;
+  get attributes(): NamedNodeMap {
+    if (!this.#namedNodeMap) {
+      this.#namedNodeMap = new NamedNodeMap(this, (attribute, value, isRemoved) => {
+        if (value === null) {
+          value = "";
+        }
+
+        switch (attribute) {
+          case "class":
+            if (isRemoved) {
+              this.#hasClassNameAttribute = -1;
+            } else if (this.#hasClassNameAttribute === -1) {
+              this.#hasClassNameAttribute = this.#hasIdAttribute + 1;
+            }
+            // This must happen after the attribute is marked removed
+            this.#classList.value = value;
+          break;
+          case "id":
+            if (isRemoved) {
+              this.#hasIdAttribute = -1;
+            } else if (this.#hasIdAttribute === -1) {
+              this.#hasIdAttribute = this.#hasClassNameAttribute + 1;
+            }
+            this.#currentId = value;
+          break;
+        }
+      }, CTOR_KEY)
     }
 
-    switch (attribute) {
-      case "class":
-        this.#classList.value = value;
-        break;
-      case "id":
-        this.#currentId = value;
-        break;
-    }
-  }, CTOR_KEY);
+    return this.#namedNodeMap;
+  }
 
   #datasetProxy: Record<string, string | undefined> | null = null;
   #currentId = "";
-  #classList = new DOMTokenList(
-    (className) => {
-      if (this.hasAttribute("class") || className !== "") {
-        this.attributes[setNamedNodeMapValueSym]("class", className);
-      }
-    },
-    CTOR_KEY,
-  );
+  #currentClassName = "";
+  #hasIdAttribute = -1;
+  #hasClassNameAttribute = -1;
+
+  /**
+   * Used when a NamedNodeMap is initialized so that it can persist the id and
+   * class attributes with the correct ordering
+   */
+  [getOwnerElementIdClassNameAttrOrderingSym](): Array<[string, number]> {
+    const unordered: Array<[string, number]> = [
+      ["id", this.#hasIdAttribute],
+      ["class", this.#hasClassNameAttribute],
+    ];
+    return unordered
+      .filter(([_attr, order]) => Boolean(~order))
+      .sort(([_a, orderA], [_b, orderB]) => orderA - orderB);
+  }
+
+  // Only initialize a classList when we need one
+  #classListInstance: DOMTokenList | null = null;
+  #uninitializedClassListInstance: UinitializedDOMTokenList | null = new UinitializedDOMTokenList(this);
+  get #classList(): DOMTokenList {
+    return this.#classListInstance || this.#uninitializedClassListInstance as unknown as DOMTokenList;
+  }
+
+  [initializeClassListSym]() {
+    this.#uninitializedClassListInstance = null;
+    this.#classListInstance = new DOMTokenList(
+      (className) => {
+        this.#currentClassName = className;
+        if (this.#namedNodeMap && (this.hasAttribute("class") || className !== "")) {
+          this.attributes[setNamedNodeMapValueSym]("class", className);
+        }
+      },
+      CTOR_KEY,
+    );
+  }
 
   constructor(
-    public tagName: string,
+    tagName: string,
     parentNode: Node | null,
     attributes: [string, string][],
     key: typeof CTOR_KEY,
@@ -544,22 +733,20 @@ export class Element extends Node {
 
     for (const attr of attributes) {
       this.setAttribute(attr[0], attr[1]);
-
-      switch (attr[0]) {
-        case "class":
-          this.#classList.value = attr[1];
-          break;
-        case "id":
-          this.#currentId = attr[1];
-          break;
-      }
     }
 
-    this.tagName = this.nodeName = tagName.toUpperCase();
-    this.localName = tagName.toLowerCase();
+    this.nodeName = getUpperCase(tagName);
   }
 
-  _shallowClone(): Node {
+  get tagName(): string {
+    return this.nodeName;
+  }
+
+  get localName(): string {
+    return getLowerCase(this.tagName);
+  }
+
+  override _shallowClone(): Node {
     // FIXME: This attribute copying needs to also be fixed in other
     // elements that override _shallowClone like <template>
     const attributes: [string, string][] = [];
@@ -574,11 +761,10 @@ export class Element extends Node {
   }
 
   get className(): string {
-    return this.getAttribute("class") ?? "";
+    return this.#currentClassName;
   }
 
   set className(className: string) {
-    this.setAttribute("class", className);
     this.#classList.value = className;
   }
 
@@ -672,7 +858,7 @@ export class Element extends Node {
   }
 
   set id(id: string) {
-    this.setAttribute("id", this.#currentId = id);
+    this.setAttribute("id", id);
   }
 
   get dataset(): Record<string, string | undefined> {
@@ -773,36 +959,93 @@ export class Element extends Node {
   }
 
   getAttributeNames(): string[] {
+    if (!this.#namedNodeMap) {
+      const attributes = [];
+      ~this.#hasIdAttribute && attributes.push("id");
+      ~this.#hasClassNameAttribute && attributes.push("class");
+      return attributes;
+    }
+
     return this.attributes[getNamedNodeMapAttrNamesSym]();
   }
 
-  getAttribute(name: string): string | null {
-    return this.attributes[getNamedNodeMapValueSym](name.toLowerCase()) ?? null;
+  getAttribute(rawName: string): string | null {
+    const name = getLowerCase(String(rawName));
+
+    switch (name) {
+      case "id": {
+        if (~this.#hasIdAttribute) {
+          return this.#currentId;
+        } else {
+          return null;
+        }
+      }
+      case "class": {
+        if (~this.#hasClassNameAttribute) {
+          return this.#currentClassName;
+        } else {
+          return null;
+        }
+      }
+    }
+
+    if (!this.#namedNodeMap) {
+      return null;
+    }
+
+    return this.attributes[getNamedNodeMapValueSym](name) ?? null;
   }
 
   setAttribute(rawName: string, value: any) {
-    const name = String(rawName?.toLowerCase());
+    const name = getLowerCase(String(rawName));
     const strValue = String(value);
-    this.attributes[setNamedNodeMapValueSym](name, strValue);
+    let isNormalAttribute = false;
 
-    if (name === "id") {
-      this.#currentId = strValue;
-    } else if (name === "class") {
-      this.#classList.value = strValue;
+    switch (name) {
+      case "id": {
+        this.#currentId = strValue;
+        this.#hasIdAttribute = this.#hasClassNameAttribute + 1;
+        break;
+      }
+      case "class": {
+        this.#classList.value = strValue;
+        this.#hasClassNameAttribute = this.#hasIdAttribute + 1;
+        break;
+      }
+      default: {
+        isNormalAttribute = true;
+      }
+    }
+
+    if (this.#namedNodeMap || isNormalAttribute) {
+      this.attributes[setNamedNodeMapValueSym](name, strValue);
     }
   }
 
   removeAttribute(rawName: string) {
-    const name = String(rawName?.toLowerCase());
-    this.attributes[removeNamedNodeMapAttrSym](name);
-
-    if (name === "class") {
-      this.#classList.value = "";
+    const name = getLowerCase(String(rawName));
+    switch (name) {
+      case "id": {
+        this.#currentId = "";
+        this.#hasIdAttribute = -1;
+        break;
+      }
+      case "class": {
+        this.#classList.value = "";
+        this.#hasClassNameAttribute = -1;
+        break;
+      }
     }
+
+    if (!this.#namedNodeMap) {
+      return;
+    }
+
+    this.attributes[removeNamedNodeMapAttrSym](name);
   }
 
   toggleAttribute(rawName: string, force?: boolean): boolean {
-    const name = String(rawName?.toLowerCase());
+    const name = getLowerCase(String(rawName));
     if (this.hasAttribute(name)) {
       if ((force === undefined) || (force === false)) {
         this.removeAttribute(name);
@@ -817,17 +1060,43 @@ export class Element extends Node {
     return false;
   }
 
-  hasAttribute(name: string): boolean {
-    return this.attributes[getNamedNodeMapValueSym](
-      String(name?.toLowerCase()),
-    ) !== undefined;
+  hasAttribute(rawName: string): boolean {
+    const name = getLowerCase(String(rawName));
+
+    switch (name) {
+      case "id": {
+        return Boolean(~this.#hasIdAttribute);
+      }
+      case "class": {
+        return Boolean(~this.#hasClassNameAttribute);
+      }
+    }
+
+    if (!this.#namedNodeMap) {
+      return false;
+    }
+
+    return this.attributes[getNamedNodeMapValueSym](name) !== undefined;
   }
 
-  hasAttributeNS(_namespace: string, name: string): boolean {
+  hasAttributeNS(_namespace: string, rawName: string): boolean {
+    const name = getLowerCase(String(rawName));
+
+    switch (name) {
+      case "id": {
+        return Boolean(~this.#hasIdAttribute);
+      }
+      case "class": {
+        return Boolean(~this.#hasClassNameAttribute);
+      }
+    }
+
+    if (!this.#namedNodeMap) {
+      return false;
+    }
+
     // TODO: Use namespace
-    return this.attributes[getNamedNodeMapValueSym](
-      String(name?.toLowerCase()),
-    ) !== undefined;
+    return this.attributes[getNamedNodeMapValueSym](name) !== undefined;
   }
 
   replaceWith(...nodes: (Node | string)[]) {
@@ -942,6 +1211,10 @@ export class Element extends Node {
 
   // TODO: DRY!!!
   getElementById(id: string): Element | null {
+    if (!this._hasInitializedChildNodes()) {
+      return null;
+    }
+
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
         if ((<Element> child).id === id) {
@@ -959,16 +1232,20 @@ export class Element extends Node {
   }
 
   getElementsByTagName(tagName: string): Element[] {
-    const fixCaseTagName = tagName.toUpperCase();
+    const fixCaseTagName = getUpperCase(tagName);
 
     if (fixCaseTagName === "*") {
       return <Element[]> this._getElementsByTagNameWildcard([]);
     } else {
-      return <Element[]> this._getElementsByTagName(tagName.toUpperCase(), []);
+      return <Element[]> this._getElementsByTagName(fixCaseTagName, []);
     }
   }
 
   _getElementsByTagNameWildcard(search: Node[]): Node[] {
+    if (!this._hasInitializedChildNodes()) {
+      return search;
+    }
+
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
         search.push(child);
@@ -980,6 +1257,10 @@ export class Element extends Node {
   }
 
   _getElementsByTagName(tagName: string, search: Node[]): Node[] {
+    if (!this._hasInitializedChildNodes()) {
+      return search;
+    }
+
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
         if ((<Element> child).tagName === tagName) {
