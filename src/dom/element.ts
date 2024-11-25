@@ -207,8 +207,9 @@ export class DOMTokenList {
     oldToken: string,
     newToken: string,
   ): boolean {
-    const removeMethod = (this.#set.constructor === Array ? this.#arrayRemove : this.#setRemove).bind(this);
-    const addMethod = (this.#set.constructor === Array ? this.#arrayAdd : this.#setAdd).bind(this);
+    const isArrayBacked = this.#set.constructor === Array;
+    const removeMethod = (isArrayBacked ? this.#arrayRemove : this.#setRemove).bind(this);
+    const addMethod = (isArrayBacked ? this.#arrayAdd : this.#setAdd).bind(this);
     if ([oldToken, newToken].some((v) => DOMTokenList.#invalidToken(v))) {
       throw new DOMException(
         "Failed to execute 'replace' on 'DOMTokenList': The token provided must not be empty.",
@@ -261,7 +262,6 @@ export class DOMTokenList {
     this.#value = Array.from(this.#set).join(" ");
 
     if (this.#set.constructor === Array && this.#set.length > DOMTokenList.#DOM_TOKEN_LIST_MIN_SET_SIZE) {
-      throw new Error("how: " + this.#set.length + " " + this.#set.join(","));
       this.#set = new Set(this.#set);
     }
   }
@@ -269,7 +269,13 @@ export class DOMTokenList {
 
 const initializeClassListSym = Symbol("initializeClassListSym");
 const domTokenListCurrentElementSym = Symbol("domTokenListCurrentElementSym");
-class UinitializedDOMTokenList {
+/**
+ * The purpose of this uninitialized DOMTokenList is to consume less memory
+ * than the actual DOMTokenList class. By measurements of Deno v2.1.0 (V8 13.0.245.12-rusty)
+ * this class consumes 48 bytes while the smallest DOMTokenList consumes 488
+ * bytes
+ */
+class UninitializedDOMTokenList {
   // This will always be populated with the current element
   // being queried
 
@@ -280,35 +286,57 @@ class UinitializedDOMTokenList {
     this[domTokenListCurrentElementSym] = currentElement;
   }
 
-  set value(input: string) {
-    if (input?.trim?.() !== "") {
-      this[domTokenListCurrentElementSym][initializeClassListSym]();
-      this[domTokenListCurrentElementSym].classList.value = input;
+  #getInitialized(): DOMTokenList | null {
+    const currentClassList = this[domTokenListCurrentElementSym].classList;
+    if (currentClassList === this as unknown as DOMTokenList) {
+      return null;
     }
+
+    return currentClassList;
+  }
+
+  set value(input: string) {
+    this[domTokenListCurrentElementSym][initializeClassListSym]();
+    this[domTokenListCurrentElementSym].classList.value = String(input);
   }
 
   get value(): string {
-    return "";
+    return this.#getInitialized()?.value ?? "";
   }
 
   get length(): number {
-    return 0;
+    return this.#getInitialized()?.length ?? 0;
   }
 
-  *entries(): IterableIterator<[number, string]> {}
-  *values(): IterableIterator<string> {}
-  *keys(): IterableIterator<number> {}
+  *entries(): IterableIterator<[number, string]> {
+    const initialized = this.#getInitialized();
+    if (initialized) {
+      yield* initialized.entries();
+    }
+  }
+  *values(): IterableIterator<string> {
+    const initialized = this.#getInitialized();
+    if (initialized) {
+      yield* initialized.values();
+    }
+  }
+  *keys(): IterableIterator<number> {
+    const initialized = this.#getInitialized();
+    if (initialized) {
+      yield* initialized.keys();
+    }
+  }
 
   *[Symbol.iterator](): IterableIterator<string> {
     yield* this.values();
   }
 
-  item(_index: number): string | null {
-    return null;
+  item(index: number): string | null {
+    return this.#getInitialized()?.item(index) ?? null;
   }
 
-  contains(_element: string): boolean {
-    return false;
+  contains(element: string): boolean {
+    return this.#getInitialized()?.contains(element) ?? false;
   }
 
   add(...elements: string[]) {
@@ -316,9 +344,11 @@ class UinitializedDOMTokenList {
     this[domTokenListCurrentElementSym].classList.add(...elements);
   }
 
-  remove(..._elements: string[]) {}
-  replace(_oldToken: string, _newToken: string) {
-    return false;
+  remove(...elements: string[]) {
+    this.#getInitialized()?.remove(...elements);
+  }
+  replace(oldToken: string, newToken: string) {
+    return this.#getInitialized()?.replace(oldToken, newToken) ?? false;
   }
 
   supports(): never {
@@ -330,7 +360,7 @@ class UinitializedDOMTokenList {
     force?: boolean,
   ): boolean {
     if (force === false) {
-      return false;
+      return this.#getInitialized()?.toggle(element, force) ?? false;
     }
 
     this[domTokenListCurrentElementSym][initializeClassListSym]();
@@ -339,9 +369,11 @@ class UinitializedDOMTokenList {
   }
 
   forEach(
-    _callback: (value: string, index: number, list: DOMTokenList) => void,
-  ) {}
-};
+    callback: (value: string, index: number, list: DOMTokenList) => void,
+  ) {
+    this.#getInitialized()?.forEach(callback);
+  }
+}
 
 const setNamedNodeMapOwnerElementSym = Symbol("setNamedNodeMapOwnerElementSym");
 const setAttrValueSym = Symbol("setAttrValueSym");
@@ -474,11 +506,11 @@ export class NamedNodeMap {
       ?.slice(1); // Remove "a" for safeAttrName
     return this[getNamedNodeMapAttrNodeSym](attribute);
   };
-  #onAttrNodeChange: (attr: string, value: string | null, isRemoved: boolean) => void;
+  #onAttrNodeChange: (attr: string, value: string | null) => void;
 
   constructor(
     ownerElement: Element,
-    onAttrNodeChange: (attr: string, value: string | null, isRemoved: boolean) => void,
+    onAttrNodeChange: (attr: string, value: string | null) => void,
     key: typeof CTOR_KEY,
   ) {
     if (key !== CTOR_KEY) {
@@ -552,7 +584,7 @@ export class NamedNodeMap {
     this.#map[safeAttrName] = value;
 
     if (bubble) {
-      this.#onAttrNodeChange(attribute, value, false);
+      this.#onAttrNodeChange(attribute, value);
     }
   }
 
@@ -565,7 +597,7 @@ export class NamedNodeMap {
     if (this.#map[safeAttrName] !== undefined) {
       this.#length--;
       this.#map[safeAttrName] = undefined;
-      this.#onAttrNodeChange(attribute, null, true);
+      this.#onAttrNodeChange(attribute, null);
 
       const attrNode = this.#attrNodeCache[safeAttrName];
       if (attrNode) {
@@ -648,7 +680,8 @@ export class Element extends Node {
   #namedNodeMap: NamedNodeMap | null = null;
   get attributes(): NamedNodeMap {
     if (!this.#namedNodeMap) {
-      this.#namedNodeMap = new NamedNodeMap(this, (attribute, value, isRemoved) => {
+      this.#namedNodeMap = new NamedNodeMap(this, (attribute, value) => {
+        const isRemoved = value === null;
         if (value === null) {
           value = "";
         }
@@ -661,6 +694,7 @@ export class Element extends Node {
               this.#hasClassNameAttribute = this.#hasIdAttribute + 1;
             }
             // This must happen after the attribute is marked removed
+            this.#currentClassName = value;
             this.#classList.value = value;
           break;
           case "id":
@@ -699,19 +733,26 @@ export class Element extends Node {
   }
 
   // Only initialize a classList when we need one
-  #classListInstance: DOMTokenList | null = null;
-  #uninitializedClassListInstance: UinitializedDOMTokenList | null = new UinitializedDOMTokenList(this);
+  #classListInstance: DOMTokenList = new UninitializedDOMTokenList(this) as unknown as DOMTokenList;
   get #classList(): DOMTokenList {
-    return this.#classListInstance || this.#uninitializedClassListInstance as unknown as DOMTokenList;
+    return this.#classListInstance;
   }
 
   [initializeClassListSym]() {
-    this.#uninitializedClassListInstance = null;
+    if (this.#classListInstance.constructor === DOMTokenList) {
+      return;
+    }
+
     this.#classListInstance = new DOMTokenList(
       (className) => {
-        this.#currentClassName = className;
-        if (this.#namedNodeMap && (this.hasAttribute("class") || className !== "")) {
-          this.attributes[setNamedNodeMapValueSym]("class", className);
+        if (this.#currentClassName !== className) {
+          this.#currentClassName = className;
+          if (this.#hasClassNameAttribute === -1) {
+            this.#hasClassNameAttribute = this.#hasIdAttribute + 1;
+          }
+          if (this.#namedNodeMap && (this.hasAttribute("class") || className !== "")) {
+            this.attributes[setNamedNodeMapValueSym]("class", className);
+          }
         }
       },
       CTOR_KEY,
