@@ -38,7 +38,7 @@ export function nodesAndTextNodes(
       moveDocumentFragmentChildren(n as DocumentFragment, parentNode);
       return children;
     } else {
-      const node: Node = n instanceof Node ? n : new Text("" + n);
+      const node: Node = n instanceof Node ? n : new Text(String(n));
 
       // Make sure the node isn't an ancestor of parentNode
       if (n === node && parentNode) {
@@ -59,7 +59,6 @@ export class Node extends EventTarget {
   #nodeValue: string | null = null;
   public parentNode: Node | null = null;
   #ownerDocument: Document | null = null;
-  private _ancestors: Set<Node> | null = null;
 
   get parentElement(): Element | null {
     if (this.parentNode?.nodeType === NodeType.ELEMENT_NODE) {
@@ -130,16 +129,6 @@ export class Node extends EventTarget {
         if (!sameParent) {
           this._setOwnerDocument(newParent.#ownerDocument);
         }
-
-        // Add parent chain to ancestors
-        if (this.nodeType !== NodeType.TEXT_NODE) {
-          // this._ancestors = new Set(newParent._ancestors);
-          // this._ancestors.add(newParent);
-        }
-      } else {
-        if (this._ancestors) {
-          this._ancestors.clear();
-        }
       }
 
       // Update ancestors for child nodes
@@ -171,17 +160,16 @@ export class Node extends EventTarget {
   }
 
   contains(child: Node): boolean {
-    return false;
-    // if (!child._ancestors) {
-    //   if (child.parentNode) {
-    //     child._ancestors = new Set(child.parentNode._ancestors);
-    //     child._ancestors.add(child.parentNode);
-    //   } else {
-    //     child._ancestors = new Set();
-    //   }
-    // }
+    let node: Node | null = child;
+    while (node) {
+      if (node === this) {
+        return true;
+      }
 
-    // return child._ancestors.has(this) || child === this;
+      node = node.parentNode;
+    }
+
+    return false;
   }
 
   get ownerDocument(): Document | null {
