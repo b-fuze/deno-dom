@@ -35,6 +35,7 @@
     "exclude": [
       "./wpt",
       "./bench/node_modules",
+      "./bench/c.html",
       "./src/dom/selectors/nwsapi.js",
       "./src/dom/selectors/sizzle.js",
       "./target",

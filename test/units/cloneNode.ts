@@ -33,9 +33,18 @@ Deno.test("cloneNode works with uninitialized NamedNodeMap", () => {
   const div2 = doc.querySelector("#baz")!;
   const div3 = doc.querySelector("#fizz")!;
 
-  assertEquals(div1.getAttributeNames(), (div1.cloneNode() as Element).getAttributeNames());
-  assertEquals(div2.getAttributeNames(), (div2.cloneNode() as Element).getAttributeNames());
-  assertEquals(div3.getAttributeNames(), (div3.cloneNode() as Element).getAttributeNames());
+  assertEquals(
+    div1.getAttributeNames(),
+    (div1.cloneNode() as Element).getAttributeNames(),
+  );
+  assertEquals(
+    div2.getAttributeNames(),
+    (div2.cloneNode() as Element).getAttributeNames(),
+  );
+  assertEquals(
+    div3.getAttributeNames(),
+    (div3.cloneNode() as Element).getAttributeNames(),
+  );
 });
 
 function checkClone(node: Node, clone: Node) {

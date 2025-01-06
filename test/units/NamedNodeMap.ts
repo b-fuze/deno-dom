@@ -269,7 +269,11 @@ Deno.test("Uninitialized NamedNodeMap preserves ID and className attribute order
   assertDeepEquals(div3.getAttributeNames(), ["id"]);
   assertDeepEquals(div4.getAttributeNames(), ["class"]);
   assertDeepEquals(div5.getAttributeNames(), ["data-others", "class", "id"]);
-  assertDeepEquals(div6.getAttributeNames(), ["id", "data-more-others", "class"]);
+  assertDeepEquals(div6.getAttributeNames(), [
+    "id",
+    "data-more-others",
+    "class",
+  ]);
 
   // Test that ordering is undisturbed when setting id/class a second time
   div1.setAttribute("id", "div1-id");

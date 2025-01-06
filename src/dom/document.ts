@@ -400,7 +400,11 @@ export class Document extends Node {
   }
 
   getElementsByClassName(className: string): Element[] {
-    return getElementsByClassName(this, className.trim().split(/\s+/), []) as Element[];
+    return getElementsByClassName(
+      this,
+      className.trim().split(/\s+/),
+      [],
+    ) as Element[];
   }
 
   hasFocus(): boolean {

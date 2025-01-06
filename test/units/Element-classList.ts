@@ -96,7 +96,10 @@ Deno.test("Element.classList.length", () => {
 });
 
 Deno.test("Element.classList.add", () => {
-  const doc = new DOMParser().parseFromString("<div></div><main></main>", "text/html");
+  const doc = new DOMParser().parseFromString(
+    "<div></div><main></main>",
+    "text/html",
+  );
   const div = doc.querySelector("div")!;
   div.classList.add("a");
   div.classList.add("b", "c");

@@ -3,17 +3,17 @@ name: ci
 on:
   push:
     paths:
-      - 'Cargo.toml'
-      - 'html-parser/core/**'
-      - 'html-parser/plugin/**'
-      - '.github/workflows/**'
+      - "Cargo.toml"
+      - "html-parser/core/**"
+      - "html-parser/plugin/**"
+      - ".github/workflows/**"
   pull_request:
     branches-ignore: [master]
     paths:
-      - 'Cargo.toml'
-      - 'html-parser/core/**'
-      - 'html-parser/plugin/**'
-      - '.github/workflows/**'
+      - "Cargo.toml"
+      - "html-parser/core/**"
+      - "html-parser/plugin/**"
+      - ".github/workflows/**"
 
 jobs:
   build:
@@ -36,7 +36,7 @@ jobs:
       - name: Install rust
         uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: '1.60.0'
+          rust-version: "1.60.0"
 
       - name: Log versions
         run: |
@@ -143,7 +143,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 'release draft'
+          tag_name: "release draft"
           draft: true
           files: |
             target/release/libplugin.dylib

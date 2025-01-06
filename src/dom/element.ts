@@ -13,7 +13,7 @@ import {
   upperCaseCharRe,
 } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
-import { getUpperCase, getLowerCase } from "./string-cache.ts";
+import { getLowerCase, getUpperCase } from "./string-cache.ts";
 
 export interface DOMTokenList {
   [index: number]: string;
@@ -155,7 +155,10 @@ export class DOMTokenList {
   add(
     ...elements: Array<string>
   ) {
-    const method = (this.#set.constructor === Array ? this.#arrayAdd : this.#setAdd).bind(this);
+    const method =
+      (this.#set.constructor === Array ? this.#arrayAdd : this.#setAdd).bind(
+        this,
+      );
 
     for (const element of elements) {
       if (DOMTokenList.#invalidToken(element)) {
@@ -183,7 +186,9 @@ export class DOMTokenList {
   remove(
     ...elements: Array<string>
   ) {
-    const method = (this.#set.constructor === Array ? this.#arrayRemove : this.#setRemove).bind(this);
+    const method =
+      (this.#set.constructor === Array ? this.#arrayRemove : this.#setRemove)
+        .bind(this);
     const size = this.length;
     for (const element of elements) {
       if (DOMTokenList.#invalidToken(element)) {
@@ -208,8 +213,11 @@ export class DOMTokenList {
     newToken: string,
   ): boolean {
     const isArrayBacked = this.#set.constructor === Array;
-    const removeMethod = (isArrayBacked ? this.#arrayRemove : this.#setRemove).bind(this);
-    const addMethod = (isArrayBacked ? this.#arrayAdd : this.#setAdd).bind(this);
+    const removeMethod = (isArrayBacked ? this.#arrayRemove : this.#setRemove)
+      .bind(this);
+    const addMethod = (isArrayBacked ? this.#arrayAdd : this.#setAdd).bind(
+      this,
+    );
     if ([oldToken, newToken].some((v) => DOMTokenList.#invalidToken(v))) {
       throw new DOMException(
         "Failed to execute 'replace' on 'DOMTokenList': The token provided must not be empty.",
@@ -261,7 +269,10 @@ export class DOMTokenList {
   #updateClassString() {
     this.#value = Array.from(this.#set).join(" ");
 
-    if (this.#set.constructor === Array && this.#set.length > DOMTokenList.#DOM_TOKEN_LIST_MIN_SET_SIZE) {
+    if (
+      this.#set.constructor === Array &&
+      this.#set.length > DOMTokenList.#DOM_TOKEN_LIST_MIN_SET_SIZE
+    ) {
       this.#set = new Set(this.#set);
     }
   }
@@ -520,7 +531,10 @@ export class NamedNodeMap {
 
     // Retain ordering of any preceding id or class attributes
     for (const attr of ownerElement.getAttributeNames()) {
-      this[setNamedNodeMapValueSym](attr, ownerElement.getAttribute(attr) as string);
+      this[setNamedNodeMapValueSym](
+        attr,
+        ownerElement.getAttribute(attr) as string,
+      );
     }
   }
 
@@ -706,7 +720,7 @@ export class Element extends Node {
             break;
           }
         }
-      }, CTOR_KEY)
+      }, CTOR_KEY);
     }
 
     return this.#namedNodeMap;
@@ -719,7 +733,9 @@ export class Element extends Node {
   #hasClassNameAttribute = -1;
 
   // Only initialize a classList when we need one
-  #classListInstance: DOMTokenList = new UninitializedDOMTokenList(this) as unknown as DOMTokenList;
+  #classListInstance: DOMTokenList = new UninitializedDOMTokenList(
+    this,
+  ) as unknown as DOMTokenList;
   get #classList(): DOMTokenList {
     return this.#classListInstance;
   }
@@ -736,7 +752,10 @@ export class Element extends Node {
           if (this.#hasClassNameAttribute === -1) {
             this.#hasClassNameAttribute = this.#hasIdAttribute + 1;
           }
-          if (this.#namedNodeMap && (this.hasAttribute("class") || className !== "")) {
+          if (
+            this.#namedNodeMap &&
+            (this.hasAttribute("class") || className !== "")
+          ) {
             this.attributes[setNamedNodeMapValueSym]("class", className);
           }
         }
@@ -991,7 +1010,9 @@ export class Element extends Node {
 
       // We preserve the order of the "id" and "class" attributes when
       // returning the list of names with an uninitialized NamedNodeMap
-      const startWithClassAttr = Number(this.#hasIdAttribute > this.#hasClassNameAttribute);
+      const startWithClassAttr = Number(
+        this.#hasIdAttribute > this.#hasClassNameAttribute,
+      );
       for (let i = 0; i < 2; i++) {
         const attributeIdx = (i + startWithClassAttr) % 2;
         switch (attributeIdx) {
@@ -1332,7 +1353,11 @@ export class Element extends Node {
       return [];
     }
 
-    return getElementsByClassName(this, className.trim().split(/\s+/), []) as Element[];
+    return getElementsByClassName(
+      this,
+      className.trim().split(/\s+/),
+      [],
+    ) as Element[];
   }
 
   getElementsByTagNameNS(_namespace: string, localName: string): Element[] {
