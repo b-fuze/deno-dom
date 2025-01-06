@@ -159,11 +159,17 @@ export function getOuterOrInnerHtml(
             case "iframe":
             case "noembed":
             case "noframes":
-            case "plaintext":
+            case "plaintext": {
               innerHTML += (child as Text).data;
               break;
+            }
 
-            default:
+            case "noscript": {
+              innerHTML += (child as Text).data;
+              break;
+            }
+
+            default: {
               // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
               innerHTML += (child as Text).data
                 .replace(/&/g, "&amp;")
@@ -171,6 +177,7 @@ export function getOuterOrInnerHtml(
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;");
               break;
+            }
           }
           break;
       }

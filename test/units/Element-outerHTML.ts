@@ -176,3 +176,24 @@ Deno.test("Element.outerHTML can be set to replace element", () => {
     doc.documentElement!.outerHTML = "<div>not new document element</div>";
   });
 });
+
+Deno.test.only(
+  "setting Element.innerHTML should not escape <noscript> contents",
+  () => {
+    const doc = new DOMParser().parseFromString(
+      `
+      <div></div>
+    `,
+      "text/html",
+    )!;
+
+    const div = doc.querySelector("div")!;
+    div.innerHTML = `<noscript><div id="fizz">foo & bar</div></noscript>`;
+    const noscript = doc.querySelector("noscript")!;
+
+    assertEquals(
+      noscript.outerHTML,
+      `<noscript><div id="fizz">foo & bar</div></noscript>`,
+    );
+  },
+);
