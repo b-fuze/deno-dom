@@ -177,7 +177,7 @@ Deno.test("Element.outerHTML can be set to replace element", () => {
   });
 });
 
-Deno.test.only(
+Deno.test(
   "setting Element.innerHTML should not escape <noscript> contents",
   () => {
     const doc = new DOMParser().parseFromString(
