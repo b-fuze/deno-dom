@@ -1,6 +1,7 @@
 import { Comment, Node, nodesAndTextNodes, NodeType, Text } from "./node.ts";
 import { NodeList } from "./node-list.ts";
 import UtilTypes from "./utils-types.ts";
+import { getLowerCase } from "./string-cache.ts";
 import type { Element } from "./element.ts";
 import type { HTMLTemplateElement } from "./elements/html-template-element.ts";
 import type { DocumentFragment } from "./document-fragment.ts";
@@ -42,26 +43,25 @@ export function getDatasetJavascriptName(name: string): string {
 
 export function getElementsByClassName(
   element: any,
-  className: string,
+  classNames: string[],
   search: Node[],
 ): Node[] {
   for (const child of element.childNodes) {
     if (child.nodeType === NodeType.ELEMENT_NODE) {
-      const classList = className.trim().split(/\s+/);
       let matchesCount = 0;
 
-      for (const singleClassName of classList) {
-        if ((<Element> child).classList.contains(singleClassName)) {
+      for (const singleClassName of classNames) {
+        if ((child as Element).classList.contains(singleClassName)) {
           matchesCount++;
         }
       }
 
       // ensure that all class names are present
-      if (matchesCount === classList.length) {
+      if (matchesCount === classNames.length) {
         search.push(child);
       }
 
-      getElementsByClassName(<Element> child, className, search);
+      getElementsByClassName(child as Element, classNames, search);
     }
   }
 
@@ -190,15 +190,14 @@ export function getOuterOrInnerHtml(
   return outerHTMLOpeningTag + innerHTML;
 }
 
-// FIXME: This uses the incorrect .attributes implementation, it
-// should probably be changed when .attributes is fixed
 export function getElementAttributesString(
   element: Element,
 ): string {
   let out = "";
 
   for (const attribute of element.getAttributeNames()) {
-    out += ` ${attribute.toLowerCase()}`;
+    // attribute names should already all be lower-case
+    out += ` ${attribute}`;
 
     // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
     out += `="${

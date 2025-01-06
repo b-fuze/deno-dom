@@ -8,10 +8,12 @@ import {
 
 Deno.test("Element.classList.value", () => {
   const doc = new DOMParser().parseFromString(
-    "<div class='a b'></div>",
+    "<div class='a b'></div><main></main>",
     "text/html",
   );
   const div = doc.querySelector("div")!;
+  const main = doc.querySelector("main")!;
+  main.classList.value = "a b";
   assertStrictEquals(
     div.classList.value,
     "a b",
@@ -53,6 +55,11 @@ Deno.test("Element.classList.value", () => {
     "c d e",
     `div.classList.value should be "c d e", got "${div.classList.value}"`,
   );
+  assertStrictEquals(
+    main.getAttribute("class"),
+    "a b",
+    "main.classList.value = ... should set the 'class' attribute",
+  );
 });
 
 Deno.test("Element.classList.length", () => {
@@ -89,7 +96,10 @@ Deno.test("Element.classList.length", () => {
 });
 
 Deno.test("Element.classList.add", () => {
-  const doc = new DOMParser().parseFromString("<div></div>", "text/html");
+  const doc = new DOMParser().parseFromString(
+    "<div></div><main></main>",
+    "text/html",
+  );
   const div = doc.querySelector("div")!;
   div.classList.add("a");
   div.classList.add("b", "c");
@@ -116,6 +126,11 @@ Deno.test("Element.classList.add", () => {
     DOMException,
     "The token provided must not be empty",
     "DOMTokenList.add() shouldn't accept an empty string.",
+  );
+  assertStrictEquals(
+    div.getAttribute("class"),
+    "a b c",
+    "div.classList.add(...) should set the 'class' attribute",
   );
 });
 

@@ -56,13 +56,13 @@ function nodeFromArray(data: any, parentNode: Node | null): Node {
     switch (child[0]) {
       case NodeType.TEXT_NODE:
         childNode = new Text(child[1]);
-        childNode.parentNode = childNode.parentElement = <Element> elm;
+        childNode.parentNode = <Element> elm;
         childNodes.push(childNode);
         break;
 
       case NodeType.COMMENT_NODE:
         childNode = new Comment(child[1]);
-        childNode.parentNode = childNode.parentElement = <Element> elm;
+        childNode.parentNode = <Element> elm;
         childNodes.push(childNode);
         break;
 
@@ -73,7 +73,7 @@ function nodeFromArray(data: any, parentNode: Node | null): Node {
 
       case NodeType.DOCUMENT_TYPE_NODE:
         childNode = new DocumentType(child[1], child[2], child[3], CTOR_KEY);
-        childNode.parentNode = childNode.parentElement = <Element> elm;
+        childNode.parentNode = <Element> elm;
         childNodes.push(childNode);
         break;
     }

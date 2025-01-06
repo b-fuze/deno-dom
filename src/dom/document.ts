@@ -7,6 +7,7 @@ import { HTMLTemplateElement } from "./elements/html-template-element.ts";
 import { getSelectorEngine, SelectorApi } from "./selectors/selectors.ts";
 import { getElementsByClassName } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
+import { getUpperCase } from "./string-cache.ts";
 
 export class DOMImplementation {
   constructor(key: typeof CTOR_KEY) {
@@ -94,7 +95,7 @@ export class DocumentType extends Node {
     return this.#systemId;
   }
 
-  _shallowClone(): Node {
+  override _shallowClone(): Node {
     return new DocumentType(
       this.#qualifiedName,
       this.#publicId,
@@ -119,9 +120,7 @@ export class Document extends Node {
   public body: Element = <Element> <unknown> null;
   public implementation: DOMImplementation;
 
-  #lockState = false;
   #documentURI = "about:blank"; // TODO
-  #title = "";
   #nwapi: SelectorApi | null = null;
 
   constructor() {
@@ -135,7 +134,7 @@ export class Document extends Node {
     this.implementation = new DOMImplementation(CTOR_KEY);
   }
 
-  _shallowClone(): Node {
+  override _shallowClone(): Node {
     return new Document();
   }
 
@@ -215,14 +214,14 @@ export class Document extends Node {
     return count;
   }
 
-  appendChild(child: Node): Node {
+  override appendChild(child: Node): Node {
     super.appendChild(child);
     child._setOwnerDocument(this);
     return child;
   }
 
   createElement(tagName: string, options?: ElementCreationOptions): Element {
-    tagName = tagName.toUpperCase();
+    tagName = getUpperCase(tagName);
 
     switch (tagName) {
       case "TEMPLATE": {
@@ -299,7 +298,7 @@ export class Document extends Node {
   // but that would be a breaking change since `.body`
   // and `.head` would need to be typed as `Element | null`.
   // Currently they're typed as `Element` which is incorrect...
-  cloneNode(deep?: boolean): Document {
+  override cloneNode(deep?: boolean): Document {
     const doc = super.cloneNode(deep) as Document;
 
     for (const child of doc.documentElement?.childNodes || []) {
@@ -338,6 +337,10 @@ export class Document extends Node {
 
   // TODO: DRY!!!
   getElementById(id: string): Element | null {
+    if (!this._hasInitializedChildNodes()) {
+      return null;
+    }
+
     for (const child of this.childNodes) {
       if (child.nodeType === NodeType.ELEMENT_NODE) {
         if ((<Element> child).id === id) {
@@ -363,7 +366,7 @@ export class Document extends Node {
         )
         : [];
     } else {
-      return <Element[]> this._getElementsByTagName(tagName.toUpperCase(), []);
+      return <Element[]> this._getElementsByTagName(getUpperCase(tagName), []);
     }
   }
 
@@ -397,7 +400,11 @@ export class Document extends Node {
   }
 
   getElementsByClassName(className: string): Element[] {
-    return <Element[]> getElementsByClassName(this, className, []);
+    return getElementsByClassName(
+      this,
+      className.trim().split(/\s+/),
+      [],
+    ) as Element[];
   }
 
   hasFocus(): boolean {
@@ -413,7 +420,7 @@ export class HTMLDocument extends Document {
     super();
   }
 
-  _shallowClone(): Node {
+  override _shallowClone(): Node {
     return new HTMLDocument(CTOR_KEY);
   }
 }

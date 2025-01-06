@@ -38,7 +38,7 @@ export function nodesAndTextNodes(
       moveDocumentFragmentChildren(n as DocumentFragment, parentNode);
       return children;
     } else {
-      const node: Node = n instanceof Node ? n : new Text("" + n);
+      const node: Node = n instanceof Node ? n : new Text(String(n));
 
       // Make sure the node isn't an ancestor of parentNode
       if (n === node && parentNode) {
@@ -57,12 +57,16 @@ export function nodesAndTextNodes(
 
 export class Node extends EventTarget {
   #nodeValue: string | null = null;
-  public childNodes: NodeList;
   public parentNode: Node | null = null;
-  public parentElement: Element | null;
-  #childNodesMutator: NodeListMutator;
   #ownerDocument: Document | null = null;
-  private _ancestors = new Set<Node>();
+
+  get parentElement(): Element | null {
+    if (this.parentNode?.nodeType === NodeType.ELEMENT_NODE) {
+      return this.parentNode as Element;
+    }
+
+    return null;
+  }
 
   // Instance constants defined after Node
   // class body below to avoid clutter
@@ -91,17 +95,23 @@ export class Node extends EventTarget {
     super();
 
     this.#nodeValue = null;
-    this.childNodes = new NodeList();
-    this.#childNodesMutator = this.childNodes[nodeListMutatorSym]();
-    this.parentElement = <Element> parentNode;
 
     if (parentNode) {
       parentNode.appendChild(this);
     }
   }
 
+  #childNodes: NodeList | null = null;
+  get childNodes(): NodeList {
+    return this.#childNodes || (this.#childNodes = new NodeList());
+  }
+
   _getChildNodesMutator(): NodeListMutator {
-    return this.#childNodesMutator;
+    return this.childNodes[nodeListMutatorSym]();
+  }
+
+  _hasInitializedChildNodes(): boolean {
+    return Boolean(this.#childNodes);
   }
 
   /**
@@ -117,28 +127,15 @@ export class Node extends EventTarget {
 
       if (newParent) {
         if (!sameParent) {
-          // If this a document node or another non-element node
-          // then parentElement should be set to null
-          if (newParent.nodeType === NodeType.ELEMENT_NODE) {
-            this.parentElement = newParent as unknown as Element;
-          } else {
-            this.parentElement = null;
-          }
-
           this._setOwnerDocument(newParent.#ownerDocument);
         }
-
-        // Add parent chain to ancestors
-        this._ancestors = new Set(newParent._ancestors);
-        this._ancestors.add(newParent);
-      } else {
-        this.parentElement = null;
-        this._ancestors.clear();
       }
 
       // Update ancestors for child nodes
-      for (const child of this.childNodes) {
-        child._setParent(this, shouldUpdateParentAndAncestors);
+      if (this._hasInitializedChildNodes()) {
+        for (const child of this.childNodes) {
+          child._setParent(this, shouldUpdateParentAndAncestors);
+        }
       }
     }
   }
@@ -154,14 +151,25 @@ export class Node extends EventTarget {
     if (this.#ownerDocument !== document) {
       this.#ownerDocument = document;
 
-      for (const child of this.childNodes) {
-        child._setOwnerDocument(document);
+      if (this._hasInitializedChildNodes()) {
+        for (const child of this.childNodes) {
+          child._setOwnerDocument(document);
+        }
       }
     }
   }
 
   contains(child: Node): boolean {
-    return child._ancestors.has(this) || child === this;
+    let node: Node | null = child;
+    while (node) {
+      if (node === this) {
+        return true;
+      }
+
+      node = node.parentNode;
+    }
+
+    return false;
   }
 
   get ownerDocument(): Document | null {
@@ -203,15 +211,23 @@ export class Node extends EventTarget {
   }
 
   get firstChild(): Node | null {
+    if (!this._hasInitializedChildNodes()) {
+      return null;
+    }
+
     return this.childNodes[0] || null;
   }
 
   get lastChild(): Node | null {
+    if (!this._hasInitializedChildNodes()) {
+      return null;
+    }
+
     return this.childNodes[this.childNodes.length - 1] || null;
   }
 
   hasChildNodes(): boolean {
-    return Boolean(this.childNodes.length);
+    return this._hasInitializedChildNodes() && Boolean(this.childNodes.length);
   }
 
   cloneNode(deep = false): Node {
@@ -219,7 +235,7 @@ export class Node extends EventTarget {
 
     copy._setOwnerDocument(this.ownerDocument);
 
-    if (deep) {
+    if (deep && this._hasInitializedChildNodes()) {
       for (const child of this.childNodes) {
         copy.appendChild(child.cloneNode(true));
       }
@@ -563,11 +579,11 @@ export class CharacterData extends Node {
     this.#nodeValue = data;
   }
 
-  get nodeValue(): string {
+  override get nodeValue(): string {
     return this.#nodeValue;
   }
 
-  set nodeValue(value: any) {
+  override set nodeValue(value: any) {
     this.#nodeValue = String(value ?? "");
   }
 
@@ -579,11 +595,11 @@ export class CharacterData extends Node {
     this.nodeValue = value;
   }
 
-  get textContent(): string {
+  override get textContent(): string {
     return this.#nodeValue;
   }
 
-  set textContent(value: any) {
+  override set textContent(value: any) {
     this.nodeValue = value;
   }
 
@@ -628,7 +644,7 @@ export class Text extends CharacterData {
     );
   }
 
-  _shallowClone(): Node {
+  override _shallowClone(): Node {
     return new Text(this.textContent);
   }
 }
@@ -646,11 +662,11 @@ export class Comment extends CharacterData {
     );
   }
 
-  _shallowClone(): Node {
+  override _shallowClone(): Node {
     return new Comment(this.textContent);
   }
 
-  get textContent(): string {
+  override get textContent(): string {
     return <string> this.nodeValue;
   }
 }

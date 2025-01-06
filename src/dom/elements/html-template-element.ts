@@ -71,12 +71,12 @@ export class HTMLTemplateElement extends Element {
     return newNode;
   }
 
-  get innerHTML(): string {
+  override get innerHTML(): string {
     return getOuterOrInnerHtml(this, false);
   }
 
   // Replace children in the `.content`
-  set innerHTML(html: string) {
+  override set innerHTML(html: string) {
     const content = this.content;
 
     // Remove all children
@@ -99,7 +99,7 @@ export class HTMLTemplateElement extends Element {
     }
   }
 
-  get outerHTML(): string {
+  override get outerHTML(): string {
     return `<template${
       getElementAttributesString(this)
     }>${this.innerHTML}</template>`;

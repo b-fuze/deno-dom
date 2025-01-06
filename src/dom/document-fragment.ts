@@ -137,7 +137,7 @@ function documentFragmentGetElementsByClassName(
   this: DocumentFragment,
   className: string,
 ) {
-  return getElementsByClassName(this, className, []);
+  return getElementsByClassName(this, className.trim().split(/\s+/), []);
 }
 
 function documentFragmentGetElementsByTagNameWildcard(

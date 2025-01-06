@@ -20,7 +20,7 @@ export const HTMLCollectionMutatorSym = Symbol("HTMLCollectionMutatorSym");
 const HTMLCollectionClass: any = (() => {
   // @ts-ignore
   class HTMLCollection extends Array<Element> {
-    forEach(
+    override forEach(
       cb: (node: Element, index: number, nodeList: Element[]) => void,
       thisArg?: unknown,
     ) {
@@ -41,7 +41,7 @@ const HTMLCollectionClass: any = (() => {
       };
     }
 
-    toString() {
+    override toString() {
       return "[object HTMLCollection]";
     }
   }

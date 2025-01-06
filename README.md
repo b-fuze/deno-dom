@@ -139,6 +139,37 @@ To use the new binary you need to set the **`DENO_DOM_PLUGIN`** env var to the
 path of the binary produced in the previous step. **Don't forget** to run Deno
 with `--allow-env`.
 
+## Inconsistencies with standard APIs
+
+### Differences in `DOMTokenList`/`Element.classList`
+
+To optimize memory usage, Deno DOM doesn't allocate `DOMTokenList`s
+(`Element.classList`) on `Element` creation, it instead creates an
+`UninitializedDOMTokenList` object. This can cause a subtle deviation from
+standard APIs:
+
+```typescript
+const div = doc.createElement("div");
+
+// Retrieve the uninitialized DOMTokenList
+const { classList } = div;
+
+// Initialize the DOMTokenList by adding a few classes
+classList.add("foo");
+classList.add("bar");
+
+// Inconsistency: the uninitialized classList/DOMTokenList
+// is now a different object from the initialized one
+
+classList !== div.classList;
+
+// However, the uninitialized DOMTokenList object still
+// works as the initialized DOMTokenList object:
+
+classList.add("fizz");
+div.classList.contains("fizz") === true;
+```
+
 # Credits
 
 - html5ever developers for the HTML parser
