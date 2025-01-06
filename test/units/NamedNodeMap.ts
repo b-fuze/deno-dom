@@ -243,3 +243,60 @@ Deno.test("NamedNodeMap stores unsafe Javascript property names", () => {
   assertEquals(div.getAttribute("constructor"), "fizz");
   assertEquals(div.getAttribute("__proto__"), "qux");
 });
+
+Deno.test("Uninitialized NamedNodeMap preserves ID and className attribute ordering", () => {
+  const doc = new DOMParser().parseFromString(
+    `
+      <div id=foo class=bar></div>
+      <div class=baz id=fizz></div>
+      <div id=only></div>
+      <div class=only></div>
+      <div data-others class=some-class id=some-id></div>
+      <div id=some-other-id data-more-others class=some-other-class></div>
+    `,
+    "text/html",
+  );
+
+  const div1 = doc.querySelector("#foo")!;
+  const div2 = doc.querySelector("#fizz")!;
+  const div3 = doc.querySelector("#only")!;
+  const div4 = doc.querySelector(".only")!;
+  const div5 = doc.querySelector("[data-others]")!;
+  const div6 = doc.querySelector("[data-more-others]")!;
+
+  assertDeepEquals(div1.getAttributeNames(), ["id", "class"]);
+  assertDeepEquals(div2.getAttributeNames(), ["class", "id"]);
+  assertDeepEquals(div3.getAttributeNames(), ["id"]);
+  assertDeepEquals(div4.getAttributeNames(), ["class"]);
+  assertDeepEquals(div5.getAttributeNames(), ["data-others", "class", "id"]);
+  assertDeepEquals(div6.getAttributeNames(), ["id", "data-more-others", "class"]);
+
+  // Test that ordering is undisturbed when setting id/class a second time
+  div1.setAttribute("id", "div1-id");
+  div2.setAttribute("class", "div2-class");
+
+  assertDeepEquals(div1.getAttributeNames(), ["id", "class"]);
+  assertDeepEquals(div2.getAttributeNames(), ["class", "id"]);
+
+  // Test that ordering is altered when removing and re-adding
+  div1.removeAttribute("id");
+  div2.removeAttribute("class");
+
+  assertDeepEquals(div1.getAttributeNames(), ["class"]);
+  assertDeepEquals(div2.getAttributeNames(), ["id"]);
+
+  div1.setAttribute("id", "foo");
+  div2.setAttribute("class", "baz");
+
+  assertDeepEquals(div1.getAttributeNames(), ["class", "id"]);
+  assertDeepEquals(div2.getAttributeNames(), ["id", "class"]);
+
+  // Test attribute ordering is preserved after NamedNodeMap initialization
+  div1.setAttribute("data-fizz", "");
+  div2.removeAttribute("id");
+  div2.setAttribute("data-foo", "");
+  div2.setAttribute("id", "new-id");
+
+  assertDeepEquals(div1.getAttributeNames(), ["class", "id", "data-fizz"]);
+  assertDeepEquals(div2.getAttributeNames(), ["class", "data-foo", "id"]);
+});

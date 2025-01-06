@@ -43,26 +43,25 @@ export function getDatasetJavascriptName(name: string): string {
 
 export function getElementsByClassName(
   element: any,
-  className: string,
+  classNames: string[],
   search: Node[],
 ): Node[] {
   for (const child of element.childNodes) {
     if (child.nodeType === NodeType.ELEMENT_NODE) {
-      const classList = className.trim().split(/\s+/);
       let matchesCount = 0;
 
-      for (const singleClassName of classList) {
-        if ((<Element> child).classList.contains(singleClassName)) {
+      for (const singleClassName of classNames) {
+        if ((child as Element).classList.contains(singleClassName)) {
           matchesCount++;
         }
       }
 
       // ensure that all class names are present
-      if (matchesCount === classList.length) {
+      if (matchesCount === classNames.length) {
         search.push(child);
       }
 
-      getElementsByClassName(<Element> child, className, search);
+      getElementsByClassName(child as Element, classNames, search);
     }
   }
 
@@ -197,7 +196,8 @@ export function getElementAttributesString(
   let out = "";
 
   for (const attribute of element.getAttributeNames()) {
-    out += ` ${getLowerCase(attribute)}`;
+    // attribute names should already all be lower-case
+    out += ` ${attribute}`;
 
     // escaping: https://html.spec.whatwg.org/multipage/parsing.html#escapingString
     out += `="${

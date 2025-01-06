@@ -120,9 +120,7 @@ export class Document extends Node {
   public body: Element = <Element> <unknown> null;
   public implementation: DOMImplementation;
 
-  // #lockState = false;
   #documentURI = "about:blank"; // TODO
-  #title = "";
   #nwapi: SelectorApi | null = null;
 
   constructor() {
@@ -402,7 +400,7 @@ export class Document extends Node {
   }
 
   getElementsByClassName(className: string): Element[] {
-    return <Element[]> getElementsByClassName(this, className, []);
+    return getElementsByClassName(this, className.trim().split(/\s+/), []) as Element[];
   }
 
   hasFocus(): boolean {

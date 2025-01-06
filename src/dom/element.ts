@@ -489,7 +489,6 @@ const getNamedNodeMapValueSym = Symbol("getNamedNodeMapValueSym");
 const getNamedNodeMapAttrNamesSym = Symbol("getNamedNodeMapAttrNamesSym");
 const getNamedNodeMapAttrNodeSym = Symbol("getNamedNodeMapAttrNodeSym");
 const removeNamedNodeMapAttrSym = Symbol("removeNamedNodeMapAttrSym");
-const getOwnerElementIdClassNameAttrOrderingSym = Symbol("getOwnerElementIdClassNameAttrOrderingSym");
 export class NamedNodeMap {
   static #indexedAttrAccess = function (
     this: NamedNodeMap,
@@ -520,8 +519,7 @@ export class NamedNodeMap {
     this.#onAttrNodeChange = onAttrNodeChange;
 
     // Retain ordering of any preceding id or class attributes
-    const idClassAttributeOrder = ownerElement[getOwnerElementIdClassNameAttrOrderingSym]();
-    for (const [attr] of idClassAttributeOrder) {
+    for (const attr of ownerElement.getAttributeNames()) {
       this[setNamedNodeMapValueSym](attr, ownerElement.getAttribute(attr) as string);
     }
   }
@@ -687,7 +685,7 @@ export class Element extends Node {
         }
 
         switch (attribute) {
-          case "class":
+          case "class": {
             if (isRemoved) {
               this.#hasClassNameAttribute = -1;
             } else if (this.#hasClassNameAttribute === -1) {
@@ -696,15 +694,17 @@ export class Element extends Node {
             // This must happen after the attribute is marked removed
             this.#currentClassName = value;
             this.#classList.value = value;
-          break;
-          case "id":
+            break;
+          }
+          case "id": {
             if (isRemoved) {
               this.#hasIdAttribute = -1;
             } else if (this.#hasIdAttribute === -1) {
               this.#hasIdAttribute = this.#hasClassNameAttribute + 1;
             }
             this.#currentId = value;
-          break;
+            break;
+          }
         }
       }, CTOR_KEY)
     }
@@ -717,20 +717,6 @@ export class Element extends Node {
   #currentClassName = "";
   #hasIdAttribute = -1;
   #hasClassNameAttribute = -1;
-
-  /**
-   * Used when a NamedNodeMap is initialized so that it can persist the id and
-   * class attributes with the correct ordering
-   */
-  [getOwnerElementIdClassNameAttrOrderingSym](): Array<[string, number]> {
-    const unordered: Array<[string, number]> = [
-      ["id", this.#hasIdAttribute],
-      ["class", this.#hasClassNameAttribute],
-    ];
-    return unordered
-      .filter(([_attr, order]) => Boolean(~order))
-      .sort(([_a, orderA], [_b, orderB]) => orderA - orderB);
-  }
 
   // Only initialize a classList when we need one
   #classListInstance: DOMTokenList = new UninitializedDOMTokenList(this) as unknown as DOMTokenList;
@@ -1002,8 +988,26 @@ export class Element extends Node {
   getAttributeNames(): string[] {
     if (!this.#namedNodeMap) {
       const attributes = [];
-      ~this.#hasIdAttribute && attributes.push("id");
-      ~this.#hasClassNameAttribute && attributes.push("class");
+
+      // We preserve the order of the "id" and "class" attributes when
+      // returning the list of names with an uninitialized NamedNodeMap
+      const startWithClassAttr = Number(this.#hasIdAttribute > this.#hasClassNameAttribute);
+      for (let i = 0; i < 2; i++) {
+        const attributeIdx = (i + startWithClassAttr) % 2;
+        switch (attributeIdx) {
+          // "id" attribute
+          case 0: {
+            ~this.#hasIdAttribute && attributes.push("id");
+            break;
+          }
+          // "class" attribute
+          case 1: {
+            ~this.#hasClassNameAttribute && attributes.push("class");
+            break;
+          }
+        }
+      }
+
       return attributes;
     }
 
@@ -1045,12 +1049,16 @@ export class Element extends Node {
     switch (name) {
       case "id": {
         this.#currentId = strValue;
-        this.#hasIdAttribute = this.#hasClassNameAttribute + 1;
+        if (this.#hasIdAttribute === -1) {
+          this.#hasIdAttribute = this.#hasClassNameAttribute + 1;
+        }
         break;
       }
       case "class": {
         this.#classList.value = strValue;
-        this.#hasClassNameAttribute = this.#hasIdAttribute + 1;
+        if (this.#hasClassNameAttribute === -1) {
+          this.#hasClassNameAttribute = this.#hasIdAttribute + 1;
+        }
         break;
       }
       default: {
@@ -1273,6 +1281,10 @@ export class Element extends Node {
   }
 
   getElementsByTagName(tagName: string): Element[] {
+    if (!this._hasInitializedChildNodes()) {
+      return [];
+    }
+
     const fixCaseTagName = getUpperCase(tagName);
 
     if (fixCaseTagName === "*") {
@@ -1316,10 +1328,18 @@ export class Element extends Node {
   }
 
   getElementsByClassName(className: string): Element[] {
-    return <Element[]> getElementsByClassName(this, className, []);
+    if (!this._hasInitializedChildNodes()) {
+      return [];
+    }
+
+    return getElementsByClassName(this, className.trim().split(/\s+/), []) as Element[];
   }
 
   getElementsByTagNameNS(_namespace: string, localName: string): Element[] {
+    if (!this._hasInitializedChildNodes()) {
+      return [];
+    }
+
     // TODO: Use namespace
     return this.getElementsByTagName(localName);
   }
