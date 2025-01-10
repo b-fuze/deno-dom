@@ -245,7 +245,7 @@ export class Node extends EventTarget {
   }
 
   _shallowClone(): Node {
-    throw new Error("Illegal invocation");
+    throw new Error(`Illegal invocation: \`${Object.getPrototypeOf(this).constructor.name}._shallowClone\` is an abstract method.`);
   }
 
   _remove(skipSetParent = false) {
