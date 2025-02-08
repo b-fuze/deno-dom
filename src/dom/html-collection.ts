@@ -7,7 +7,7 @@ const HTMLCollectionFakeClass: any = (() => {
     }
 
     static [Symbol.hasInstance](value: any) {
-      return value.constructor === HTMLCollectionClass;
+      return value?.constructor === HTMLCollectionClass;
     }
   };
 })();

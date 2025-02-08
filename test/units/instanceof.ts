@@ -1,6 +1,6 @@
 import {
-  DOMParser,
   Element,
+  HTMLCollection,
   NodeList,
   nodesFromString,
 } from "../../deno-dom-wasm.ts";
@@ -25,6 +25,16 @@ Deno.test("HTMLCollection not instanceof Array", () => {
   );
   assert(!((nodes as Element).children instanceof Array));
   assert(!Array.isArray((nodes as Element).children));
+});
+
+Deno.test("Nullish not instanceof NodeList", () => {
+  assert(!(null as any instanceof NodeList));
+  assert(!(undefined as any instanceof NodeList));
+});
+
+Deno.test("Nullish not instanceof HTMLCollection", () => {
+  assert(!(null as any instanceof HTMLCollection));
+  assert(!(undefined as any instanceof HTMLCollection));
 });
 
 Deno.test("Subclass instanceof Array", () => {

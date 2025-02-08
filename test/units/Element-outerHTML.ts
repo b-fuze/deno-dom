@@ -182,8 +182,8 @@ Deno.test(
   () => {
     const doc = new DOMParser().parseFromString(
       `
-      <div></div>
-    `,
+        <div></div>
+      `,
       "text/html",
     )!;
 

@@ -8,7 +8,7 @@ const NodeListFakeClass: any = (() => {
     }
 
     static [Symbol.hasInstance](value: any) {
-      return value.constructor === NodeListClass;
+      return value?.constructor === NodeListClass;
     }
   };
 })();
@@ -206,7 +206,9 @@ export interface NodeList<T extends Node = Node> {
   [nodeListMutatorSym](): NodeListMutator;
 }
 
-export type NodeListPublic = Omit<NodeList, typeof nodeListMutatorSym>;
+export type NodeListPublic = Omit<NodeList, typeof nodeListMutatorSym> & {
+  [Symbol.hasInstance](value: any): boolean;
+};
 export interface NodeListMutator {
   push(...nodes: Node[]): number;
   splice(start: number, deleteCount?: number, ...items: Node[]): Node[];
