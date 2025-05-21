@@ -27,9 +27,9 @@
     "type-check": "deno check ./deno-dom-wasm.ts ./deno-dom-wasm-noinit.ts ./deno-dom-native.ts ./native.test.ts ./wasm.test.ts ./test/units/*.ts"
   },
   "imports": {
-    "assert": "jsr:@std/assert@0.225.3",
-    "fs": "jsr:@std/fs@0.229.1",
-    "path": "jsr:@std/path@0.225.1"
+    "assert": "jsr:@std/assert@^1",
+    "fs": "jsr:@std/fs@^1",
+    "path": "jsr:@std/path@^1"
   },
   "fmt": {
     "exclude": [
