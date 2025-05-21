@@ -32,7 +32,7 @@
  * ```
  */
 
-import { dlopen } from "jsr:@denosaurs/plug@1.0.3";
+import { dlopen } from "jsr:@denosaurs/plug@1.1.0";
 import { register } from "./src/parser.ts";
 
 const nativeEnv = "DENO_DOM_PLUGIN";
@@ -86,11 +86,13 @@ if (denoNativePluginPath) {
   }
 
   // Download the plugin
-  dylib = await dlopen({
-    name,
-    url:
-      "https://github.com/b-fuze/deno-dom/releases/download/v0.1.41-alpha-artifacts/",
-  }, symbols);
+  dylib = await dlopen(
+    {
+      name,
+      url: "https://github.com/b-fuze/deno-dom/releases/download/v0.1.41-alpha-artifacts/",
+    },
+    symbols,
+  );
 }
 
 const utf8Encoder = new TextEncoder();
