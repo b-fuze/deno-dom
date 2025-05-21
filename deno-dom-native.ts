@@ -86,13 +86,11 @@ if (denoNativePluginPath) {
   }
 
   // Download the plugin
-  dylib = await dlopen(
-    {
-      name,
-      url: "https://github.com/b-fuze/deno-dom/releases/download/v0.1.41-alpha-artifacts/",
-    },
-    symbols,
-  );
+  dylib = await dlopen({
+    name,
+    url:
+      "https://github.com/b-fuze/deno-dom/releases/download/v0.1.41-alpha-artifacts/",
+  }, symbols);
 }
 
 const utf8Encoder = new TextEncoder();
