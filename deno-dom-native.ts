@@ -32,7 +32,7 @@
  * ```
  */
 
-import { dlopen } from "jsr:@denosaurs/plug@1.0.3";
+import { dlopen } from "jsr:@denosaurs/plug@1.1.0";
 import { register } from "./src/parser.ts";
 
 const nativeEnv = "DENO_DOM_PLUGIN";
