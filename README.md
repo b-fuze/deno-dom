@@ -42,25 +42,9 @@ manipulation needs.
 
 ### WebAssembly Startup Penalty
 
-Deno suffers an initial startup penalty in Deno DOM WASM due to Top Level Await
-(TLA) preparing the WASM parser. As an alternative to running the initiation on
-startup, you can initialize Deno DOM's parser on-demand yourself when you need
-it by importing from `jsr:@b-fuze/deno-dom/wasm-noinit`. Example:
-
-```typescript
-import { DOMParser, initParser } from "jsr:@b-fuze/deno-dom/wasm-noinit";
-
-// ...and when you need Deno DOM make sure you initialize the parser...
-await initParser();
-
-// Then you can use Deno DOM as you would normally
-const doc = new DOMParser().parseFromString(
-  `
-    <h1>Lorem ipsum dolor...</h1>
-  `,
-  "text/html",
-);
-```
+Since v2.1 Deno has resolved this issue, so the API exposing this functionality
+is now **deprecated**. The function provided through `jsr:@b-fuze/deno-dom/wasm-noinit`
+(`initParser()`) has been made a **no-op**.
 
 ## Documentation
 
