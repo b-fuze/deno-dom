@@ -15,6 +15,7 @@
       "Cargo.*",
       "build/deno-wasm/deno-wasm.js",
       "build/deno-wasm/deno-wasm_bg.wasm",
+      "build/deno-wasm/deno-wasm_bg-wasm.js",
       "build/deno-wasm/env.js",
       "build/deno-wasm/wbg.js",
       "src",

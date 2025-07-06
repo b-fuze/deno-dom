@@ -34,7 +34,11 @@ $(WASM_OUT): $(WASM_SRC) $(CORE_SRC)
 	wasm-pack build --release --target deno --out-dir "$(WASM_OUT_DIR)" --out-name "$(WASM_MOD_NAME)"; \
 	wat_output_fixed=$$(wasm2wat "$(WASM_OUT_DIR)/$(WASM_MOD_NAME)_bg.wasm" | sed 's|(import "__wbindgen_placeholder__"|(import "./wbg.js"|; s|(import "env"|(import "./env.js"|;'); \
 	wat2wasm <(printf %s "$$wat_output_fixed") -o "$(WASM_OUT_DIR)/$(WASM_MOD_NAME)_bg.wasm"; \
-	cp ../{deno-wasm,env,wbg}.js "$(WASM_OUT_DIR)"
+	cp ../{deno-wasm,env,wbg,deno-wasm_bg-wasm}.js "$(WASM_OUT_DIR)"; \
+	: "Build WASM payload for runtimes that don't support native WASM imports"; \
+	WASM_BASE64=$$( base64 -w 0 < "$(WASM_OUT_DIR)/$(WASM_MOD_NAME)_bg.wasm" ); \
+	IFS= read -r -d '' ENTRY_SRC < "$(WASM_OUT_DIR)/deno-wasm_bg-wasm.js"; \
+	printf %s "$${ENTRY_SRC/WASM_BASE64/"$$WASM_BASE64"}" > "$(WASM_OUT_DIR)/deno-wasm_bg-wasm.js";
 
 $(PLUGIN_OUT_FINAL): $(PLUGIN_SRC) $(CORE_SRC)
 	cd "$(PLUGIN_SRC_DIR)"; \
