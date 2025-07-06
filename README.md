@@ -43,8 +43,8 @@ manipulation needs.
 ### WebAssembly Startup Penalty
 
 Since v2.1 Deno has resolved this issue, so the API exposing this functionality
-is now **deprecated**. The function provided through `jsr:@b-fuze/deno-dom/wasm-noinit`
-(`initParser()`) has been made a **no-op**.
+is now **deprecated**. The function provided through
+`jsr:@b-fuze/deno-dom/wasm-noinit` (`initParser()`) has been made a **no-op**.
 
 ## Documentation
 

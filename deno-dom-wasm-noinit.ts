@@ -10,10 +10,7 @@
  * The API specific to this module (`initParser()`) is now a no-op.
  */
 
-import {
-  parse,
-  parse_frag as parseFrag,
-} from "./build/deno-wasm/deno-wasm.js";
+import { parse, parse_frag as parseFrag } from "./build/deno-wasm/deno-wasm.js";
 import { type Parser, register } from "./src/parser.ts";
 
 register(
