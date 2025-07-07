@@ -100,7 +100,11 @@ jobs:
             s|(https?)://security.ubuntu.com/ubuntu|\1://ports.ubuntu.com/ubuntu-ports|;
           ' /etc/apt/sources.list | sudo tee /etc/apt/sources.list.d/sources-arm64.list
           # Mark existing repos as x86_64 only
-          sudo sed -i -E 's/^deb/deb [arch=amd64]/' /etc/apt/sources.list
+          for list in /etc/apt/sources.list /etc/apt/*.list; do
+            if [[ ! $list =~ arm64 ]]; then
+              sudo sed -i -E 's/^deb/deb [arch=amd64]/' "$list"
+            fi
+          done
           sudo dpkg --add-architecture arm64
           sudo bash -c 'apt update; true'
 
@@ -111,6 +115,7 @@ jobs:
           case $ubuntu_version in
             20.04 ) gcc_lib=libgcc-9-dev ;;
             22.04 ) gcc_lib=libgcc-11-dev ;;
+            24.04 ) gcc_lib=libgcc-12-dev ;;
             * )
               echo "Unsupported Ubuntu version" >&2
               exit 1
