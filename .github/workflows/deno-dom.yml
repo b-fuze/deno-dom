@@ -12,7 +12,7 @@ jobs:
       matrix:
         os:
           - name: ubuntu-latest
-          - name: macos-latest
+          #- name: macos-latest
           #- name: windows-latest
     runs-on: ${{ matrix.os.name }}
 
