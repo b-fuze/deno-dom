@@ -94,7 +94,11 @@ jobs:
           rustup target add "$target"
 
           # Add ARM64 Ubuntu repos
-          sed -E '/^deb/!d; s|.+/([^/]+\.txt)?|deb [arch=arm64] http://ports.ubuntu.com/|' /etc/apt/sources.list | sudo tee /etc/apt/sources.list.d/sources-arm64.list
+          sed -E '
+            /^deb/!d;
+            s|.+/([^/]+\.txt)?|deb [arch=arm64] http://ports.ubuntu.com/|;
+            s|(https?)://security.ubuntu.com/ubuntu|\1://ports.ubuntu.com/ubuntu-ports|;
+          ' /etc/apt/sources.list | sudo tee /etc/apt/sources.list.d/sources-arm64.list
           # Mark existing repos as x86_64 only
           sudo sed -i -E 's/^deb/deb [arch=amd64]/' /etc/apt/sources.list
           sudo dpkg --add-architecture arm64
