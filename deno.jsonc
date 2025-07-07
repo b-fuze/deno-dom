@@ -43,7 +43,11 @@
       "./src/dom/selectors/nwsapi.js",
       "./src/dom/selectors/sizzle.js",
       "./target",
-      "./html-parser",
+      "./html-parser/core",
+      "./html-parser/plugin",
+      "./html-parser/cli-test",
+      "./html-parser/wasm/target",
+      "./html-parser/wasm/**/*.rs",
       "./.vim"
     ]
   }
