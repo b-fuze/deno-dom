@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        os: [macOS-latest, windows-latest, ubuntu-latest]
+        os: [macOS-latest, windows-latest, ubuntu-22.04]
 
     env:
       GH_ACTIONS: true
@@ -73,7 +73,7 @@ jobs:
         run: cargo clean && cargo build --release
 
       - name: Build ARM64 Linux
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-22.04'
         env:
           RUST_BACKTRACE: 1
         shell: bash
@@ -97,7 +97,6 @@ jobs:
           sed -E '
             /^deb/!d;
             s|.+/([^/]+\.txt)?|deb [arch=arm64] http://ports.ubuntu.com/|;
-            s|(https?)://security.ubuntu.com/ubuntu|\1://ports.ubuntu.com/ubuntu-ports|;
           ' /etc/apt/sources.list | sudo tee /etc/apt/sources.list.d/sources-arm64.list
           # Mark existing repos as x86_64 only
           for list in /etc/apt/sources.list /etc/apt/*.list; do
@@ -115,7 +114,6 @@ jobs:
           case $ubuntu_version in
             20.04 ) gcc_lib=libgcc-9-dev ;;
             22.04 ) gcc_lib=libgcc-11-dev ;;
-            24.04 ) gcc_lib=libgcc-11-dev ;;
             * )
               echo "Unsupported Ubuntu version" >&2
               exit 1
