@@ -115,7 +115,7 @@ jobs:
           case $ubuntu_version in
             20.04 ) gcc_lib=libgcc-9-dev ;;
             22.04 ) gcc_lib=libgcc-11-dev ;;
-            24.04 ) gcc_lib=libgcc-12-dev ;;
+            24.04 ) gcc_lib=libgcc-11-dev ;;
             * )
               echo "Unsupported Ubuntu version" >&2
               exit 1
