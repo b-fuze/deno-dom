@@ -38,7 +38,8 @@ $(WASM_OUT): $(WASM_SRC) $(CORE_SRC)
 	: "Build WASM payload for runtimes that don't support native WASM imports"; \
 	WASM_BASE64=$$( base64 -w 0 < "$(WASM_OUT_DIR)/$(WASM_MOD_NAME)_bg.wasm" ); \
 	IFS= read -r -d '' ENTRY_SRC < "$(WASM_OUT_DIR)/deno-wasm_bg-wasm.js"; \
-	printf %s "$${ENTRY_SRC/WASM_BASE64/"$$WASM_BASE64"}" > "$(WASM_OUT_DIR)/deno-wasm_bg-wasm.js";
+	printf %s "$${ENTRY_SRC/WASM_BASE64/"$$WASM_BASE64"}" > "$(WASM_OUT_DIR)/deno-wasm_bg-wasm.js"; \
+	rm -f "$(WASM_OUT_DIR)/.gitignore";
 
 $(PLUGIN_OUT_FINAL): $(PLUGIN_SRC) $(CORE_SRC)
 	cd "$(PLUGIN_SRC_DIR)"; \
