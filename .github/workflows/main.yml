@@ -101,7 +101,7 @@ jobs:
           # Mark existing repos as x86_64 only
           for list in /etc/apt/sources.list /etc/apt/*.list; do
             if [[ ! $list =~ arm64 ]]; then
-              sudo sed -i -E 's/^deb/deb [arch=amd64]/' "$list"
+              sudo sed -i -E 's/^deb ([^[])/deb [arch=amd64] \1/' "$list"
             fi
           done
           sudo dpkg --add-architecture arm64
