@@ -21,7 +21,7 @@ export class DOMParser {
 
     const doc = new HTMLDocument(CTOR_KEY);
 
-    const fakeDoc = nodesFromString(source);
+    const fakeDoc = nodesFromString(String(source));
     let htmlNode: Element | null = null;
     let hasDoctype = false;
 
