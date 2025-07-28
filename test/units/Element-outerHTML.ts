@@ -1,4 +1,4 @@
-import { DocumentFragment, DOMParser } from "../../deno-dom-wasm.ts";
+import { DOMParser } from "../../deno-dom-wasm.ts";
 import {
   assertStrictEquals as assertEquals,
   assertThrows,

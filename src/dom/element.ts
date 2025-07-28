@@ -1169,6 +1169,35 @@ export class Element extends Node {
     return this.attributes[getNamedNodeMapValueSym](name) !== undefined;
   }
 
+  /**
+   * https://dom.spec.whatwg.org/#concept-element-attributes-get-by-name
+   */
+  getAttributeNode(rawName: string): Attr | null {
+    const name = getLowerCase(String(rawName));
+    return this.attributes.getNamedItem(name);
+  }
+
+  /**
+   * https://dom.spec.whatwg.org/#concept-element-attributes-set
+   */
+  setAttributeNode(attr: Attr): Attr | null {
+    if (attr?.constructor !== Attr) {
+      throw new TypeError(
+        "Element.setAttributeNode: Argument 1 does not implement interface Attr",
+      );
+    }
+
+    const attrName = attr.localName;
+    const oldAttr = this.attributes.getNamedItem(attrName);
+
+    if (oldAttr === attr) {
+      return attr;
+    }
+
+    this.attributes.setNamedItem(attr);
+    return oldAttr;
+  }
+
   replaceWith(...nodes: (Node | string)[]) {
     this._replaceWith(...nodes);
   }
