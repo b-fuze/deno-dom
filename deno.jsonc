@@ -1,6 +1,6 @@
 {
   "name": "@b-fuze/deno-dom",
-  "version": "0.1.55",
+  "version": "0.1.56",
   "exports": {
     ".": "./deno-dom-wasm.ts",
     "./wasm": "./deno-dom-wasm.ts",
