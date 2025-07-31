@@ -20,8 +20,10 @@
  * ```
  */
 
-import { parse, parse_frag } from "./build/deno-wasm/deno-wasm-dynamic.js";
+import { initExports } from "./build/deno-wasm/deno-wasm-legacy.js";
 import { register } from "./src/parser.ts";
+
+const { parse, parse_frag } = await initExports();
 
 register(
   parse,

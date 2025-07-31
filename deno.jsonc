@@ -4,6 +4,7 @@
   "exports": {
     ".": "./deno-dom-wasm.ts",
     "./wasm": "./deno-dom-wasm.ts",
+    "./wasm-legacy": "./deno-dom-wasm-legacy.ts",
     "./wasm-noinit": "./deno-dom-wasm-noinit.ts",
     "./native": "./deno-dom-native.ts"
   },
@@ -14,12 +15,15 @@
       "html-parser",
       "Cargo.*",
       "build/deno-wasm/deno-wasm.js",
+      "build/deno-wasm/deno-wasm-legacy.js",
+      "build/deno-wasm/deno-wasm-dynamic.js",
       "build/deno-wasm/deno-wasm_bg.wasm",
       "build/deno-wasm/deno-wasm_bg-wasm.js",
       "build/deno-wasm/env.js",
       "build/deno-wasm/wbg.js",
       "src",
       "deno-dom-wasm.ts",
+      "deno-dom-wasm-legacy.ts",
       "deno-dom-wasm-noinit.ts",
       "deno-dom-native.ts",
       "test",
