@@ -317,6 +317,32 @@ export class Node extends EventTarget {
     oldChild._replaceWith(newChild);
     return oldChild;
   }
+  normalize() {
+    let i = 0;
+    while (i < this.childNodes.length) {
+      const currentNode = this.childNodes[i];
+      if (currentNode.nodeType === NodeType.TEXT_NODE) {
+        let nextNode = this.childNodes[i + 1];
+
+        // Merge adjacent text nodes
+        while (nextNode && nextNode.nodeType === NodeType.TEXT_NODE) {
+          if (currentNode.nodeValue) {
+            currentNode.nodeValue += nextNode.nodeValue;
+          }
+          this.removeChild(nextNode);
+          nextNode = this.childNodes[i + 1];
+        }
+        if (currentNode.nodeValue === "") {
+          this.removeChild(currentNode);
+        } else {
+          i++;
+        }
+      } else {
+        currentNode.normalize();
+        i++;
+      }
+    }
+  }
 
   insertBefore(newNode: Node, refNode: Node | null): Node {
     this._assertNotAncestor(newNode);
