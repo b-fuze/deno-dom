@@ -3,6 +3,19 @@
 An implementation of the browser DOM—primarily for SSR—in Deno. Implemented with
 Rust, WASM, and obviously, Deno/TypeScript.
 
+# Table of Contents
+- [Deno DOM](#deno-dom)
+- [Example](#example)
+- [WebAssembly Startup Penalty](#webassembly-startup-penalty)
+- [Documentation](#documentation)
+- [Goals](#goals)
+- [Non-Goals](#non-goals)
+- [Running Tests](#running-tests)
+- [Building Deno DOM Native](#building-deno-dom-native)
+- [Credits](#credits)
+- [Additional Guidelines](#additional-guidelines)
+
+
 ## Example
 
 ```typescript
@@ -97,6 +110,18 @@ inconsistencies (that aren't a result of legacy APIs) file an issue.
 - Support older (or even not so old) JS engines. In other words, there will be
   no support of transpilation to ES5, no support of polyfills, etc
 - Support special functionality of obsolete HTML elements (`<marquee>`, etc)
+
+## Contribution Guidelines
+- Ensure your changes pass the tests below.
+- To ensure the code follows Deno's formatting guidelines, use the built-in deno fmt command. This will automatically format your TypeScript files to match Deno's code style.
+```sh
+deno fmt
+```
+-Before submitting any pull requests, make sure to run deno fmt to keep the repository consistent with the project's style
+- When implementing new features for Deno DOM, ensure that the standard algorithm outlined by the [DOM Living Standard](https://dom.spec.whatwg.org/) is followed. Any deviations from the spec should be documented clearly in the code and pull request descriptions.
+
+## Feature Compatiblity
+If a feature relies on new JavaScript capabilities (e.g., ES6+ features like optional chaining or private class members), ensure that the feature remains compatible with the target runtime (Deno). Use browser compatibility data from MDN Web Docs to check for any potential issues.
 
 ## Running tests
 
