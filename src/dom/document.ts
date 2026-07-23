@@ -4,7 +4,7 @@ import { NodeList, nodeListMutatorSym } from "./node-list.ts";
 import { Element } from "./element.ts";
 import { DocumentFragment } from "./document-fragment.ts";
 import { HTMLTemplateElement } from "./elements/html-template-element.ts";
-import { getSelectorEngine, SelectorApi } from "./selectors/selectors.ts";
+import { getSelectorEngine, type SelectorApi } from "./selectors/selectors.ts";
 import { getElementsByClassName } from "./utils.ts";
 import UtilTypes from "./utils-types.ts";
 import { getUpperCase } from "./string-cache.ts";

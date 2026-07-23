@@ -31,6 +31,9 @@
       "wasm.test.ts"
     ]
   },
+  "compilerOptions": {
+    "verbatimModuleSyntax": true
+  },
   "tasks": {
     "type-check": "deno check ./deno-dom-wasm.ts ./deno-dom-wasm-noinit.ts ./deno-dom-native.ts ./native.test.ts ./wasm.test.ts ./test/units/*.ts"
   },
