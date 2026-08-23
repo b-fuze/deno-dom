@@ -1,5 +1,9 @@
 import { CTOR_KEY } from "../constructor-lock.ts";
-import { NodeList, NodeListMutator, nodeListMutatorSym } from "./node-list.ts";
+import {
+  NodeList,
+  type NodeListMutator,
+  nodeListMutatorSym,
+} from "./node-list.ts";
 import {
   insertBeforeAfter,
   isDocumentFragment,
