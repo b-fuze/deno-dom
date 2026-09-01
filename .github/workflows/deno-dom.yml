@@ -6,27 +6,38 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    name: Deno (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+
     strategy:
+      fail-fast: false
       matrix:
-        os:
-          - name: ubuntu-latest
-          - name: macos-latest
-          #- name: windows-latest
-    runs-on: ${{ matrix.os.name }}
+        os: [ubuntu-latest, macos-latest]
 
     steps:
-      - name: Install Deno
-        uses: denoland/setup-deno@v1
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          deno-version: v2.x
+          persist-credentials: false
 
-      - name: Get Deno DOM
-        uses: actions/checkout@v2
+      - name: Install Deno
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.9.6
+          cache: true
 
       - name: Check code formatting
-        run: deno fmt --check --unstable
+        run: deno fmt --check
 
       # We check in a separate step because dynamic imports
       # no longer type check at runtime which we need for
