@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assertEquals } from "assert";
+import { assertEquals } from "@std/assert";
 
 Deno.test("Adjacent siblings", () => {
   const doc = new DOMParser().parseFromString(

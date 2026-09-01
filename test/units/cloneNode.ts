@@ -1,8 +1,5 @@
 import { DOMParser, Element, Node } from "../../deno-dom-wasm.ts";
-import {
-  assert,
-  assertEquals,
-} from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assert, assertEquals } from "@std/assert";
 
 Deno.test("cloneNode", () => {
   const doc = new DOMParser().parseFromString(

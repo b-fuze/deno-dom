@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assertEquals } from "assert";
+import { assertEquals } from "@std/assert";
 
 Deno.test("collections-toString", () => {
   const doc = new DOMParser().parseFromString(`<div></div>`, "text/html");

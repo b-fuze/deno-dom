@@ -4,7 +4,7 @@ import {
   assertEquals,
   assertStrictEquals,
   assertThrows,
-} from "https://deno.land/std@0.85.0/testing/asserts.ts";
+} from "@std/assert";
 
 Deno.test("Element.classList.value", () => {
   const doc = new DOMParser().parseFromString(

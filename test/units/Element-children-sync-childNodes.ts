@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assertEquals } from "assert";
+import { assertEquals } from "@std/assert";
 
 Deno.test("Element.children stays in sync with Node.childNodes", () => {
   const doc = new DOMParser().parseFromString(

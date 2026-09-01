@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assertEquals } from "assert";
+import { assertEquals } from "@std/assert";
 
 // FIXME: should be HTMLElement but it's not implemented yet
 Deno.test("Element#innerText", () => {

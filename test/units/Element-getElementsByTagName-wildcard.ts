@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assertStrictEquals as assertEquals } from "assert";
+import { assertStrictEquals as assertEquals } from "@std/assert";
 
 Deno.test("Element.getElementsByTagName(wildcard)", () => {
   const doc = new DOMParser().parseFromString(

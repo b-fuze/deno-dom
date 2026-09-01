@@ -1,9 +1,5 @@
-import { walkSync } from "fs";
-import {
-  dirname,
-  fromFileUrl,
-  join,
-} from "https://deno.land/std@0.75.0/path/mod.ts";
+import { walkSync } from "@std/fs";
+import { dirname, fromFileUrl, join } from "@std/path";
 import { run } from "./wpt-runner.ts";
 import type { Backend } from "./wpt-runner.ts";
 

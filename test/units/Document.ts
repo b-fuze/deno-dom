@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assertStrictEquals as assertEquals } from "assert";
+import { assertStrictEquals as assertEquals } from "@std/assert";
 
 Deno.test("Document.title sets title element value", () => {
   const doc = new DOMParser().parseFromString(

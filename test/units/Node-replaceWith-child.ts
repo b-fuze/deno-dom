@@ -1,5 +1,5 @@
 import { DOMParser, Element } from "../../deno-dom-wasm.ts";
-import { assertEquals } from "assert";
+import { assertEquals } from "@std/assert";
 
 Deno.test("Node.replaceWith(childNode) correctly sets new childNode's parent", () => {
   const doc = new DOMParser().parseFromString(

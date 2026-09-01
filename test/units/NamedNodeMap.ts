@@ -2,9 +2,15 @@ import { DOMParser } from "../../deno-dom-wasm.ts";
 import {
   assertEquals as assertDeepEquals,
   assertNotStrictEquals as assertNotEquals,
-  assertStrictEquals as assertEquals,
+  assertStrictEquals,
   assertThrows,
-} from "https://deno.land/std@0.85.0/testing/asserts.ts";
+} from "@std/assert";
+
+const assertEquals = <T>(
+  actual: T,
+  expected: T,
+  message?: string,
+): void => assertStrictEquals(actual, expected, message);
 
 Deno.test("NamedNodeMap", () => {
   const doc = new DOMParser().parseFromString(
