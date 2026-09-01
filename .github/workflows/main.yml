@@ -2,8 +2,11 @@ name: Native plugin
 
 on:
   push:
+    branches: [master]
+    tags: ["v*"]
     paths:
       - "Cargo.toml"
+      - "Cargo.lock"
       - "html-parser/core/**"
       - "html-parser/plugin/**"
       - ".github/workflows/**"
@@ -11,6 +14,7 @@ on:
     branches: [master]
     paths:
       - "Cargo.toml"
+      - "Cargo.lock"
       - "html-parser/core/**"
       - "html-parser/plugin/**"
       - ".github/workflows/**"
@@ -54,13 +58,14 @@ jobs:
           rustc --version
           cargo --version
 
-      - name: Cache Cargo dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Restore Cargo cache
+        id: cargo-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-${{ runner.arch }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-cargo-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-cargo-
 
@@ -141,6 +146,15 @@ jobs:
           # Put the x86_64 build artifact back
           install -D libplugin.so target/release/libplugin.so
 
+      - name: Save Cargo cache
+        if: github.event_name == 'push' && steps.cargo-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-${{ runner.arch }}-cargo-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
+
       - name: Upload native plugin
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -155,7 +169,7 @@ jobs:
 
   release:
     name: Update draft release
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
