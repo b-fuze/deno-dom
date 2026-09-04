@@ -61,12 +61,6 @@ fn dom_to_string(input_len: usize, dom: &RcDom) -> String {
     String::from_utf8(buf).expect("serialize_node failed to produce valid UTF-8")
 }
 
-enum NodeType {
-    Element,
-    Text,
-    Irrelevant,
-}
-
 fn serialize_node(buf: &mut Vec<u8>, dom: &Rc<Node>) {
     match dom.data {
         NodeData::Document => {

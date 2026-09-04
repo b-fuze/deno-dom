@@ -32,7 +32,6 @@ pub extern "C" fn deno_dom_parse_sync(src_buf: *mut u8, src_len: usize, dest_buf
     dest_buf_meta[1] = Box::into_raw(parsed) as usize;
 
     std::mem::forget(src_html);
-    std::mem::forget(dest_buf_meta);
 }
 
 #[no_mangle]
@@ -62,7 +61,6 @@ pub extern "C" fn deno_dom_parse_frag_sync(
 
     std::mem::forget(src_html);
     std::mem::forget(context_local_name);
-    std::mem::forget(dest_buf_meta);
 }
 
 #[no_mangle]
