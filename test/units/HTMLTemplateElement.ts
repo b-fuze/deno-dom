@@ -7,7 +7,7 @@ import {
 import {
   assertNotStrictEquals as assertNotEquals,
   assertStrictEquals as assertEquals,
-} from "https://deno.land/std@0.85.0/testing/asserts.ts";
+} from "@std/assert";
 
 Deno.test("HTMLTemplateElement", () => {
   const doc = new DOMParser().parseFromString(

@@ -1,8 +1,5 @@
 import { DOMParser, Node } from "../../deno-dom-wasm.ts";
-import {
-  assertEquals,
-  assertThrows,
-} from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assertEquals, assertThrows } from "@std/assert";
 
 Deno.test("Node.appendChild", () => {
   const doc = new DOMParser().parseFromString(

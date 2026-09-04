@@ -1,4 +1,4 @@
-import { dirname, join } from "path";
+import { dirname, join } from "@std/path";
 
 const unitDir = join(dirname(new URL(import.meta.url).pathname), "units");
 const units = Array.from(Deno.readDirSync(unitDir))

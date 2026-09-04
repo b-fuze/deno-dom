@@ -1,5 +1,5 @@
 import { Comment, Document } from "../../deno-dom-wasm.ts";
-import { assertEquals } from "assert";
+import { assertEquals } from "@std/assert";
 
 Deno.test("Element.childElementCount with three children", () => {
   const document = new Document();

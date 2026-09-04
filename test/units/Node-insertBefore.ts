@@ -1,8 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import {
-  assertStrictEquals as assertEquals,
-  assertThrows,
-} from "https://deno.land/std@0.85.0/testing/asserts.ts";
+import { assertStrictEquals as assertEquals, assertThrows } from "@std/assert";
 
 // TODO: More comprehensive tests
 

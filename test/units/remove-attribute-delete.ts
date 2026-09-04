@@ -1,5 +1,5 @@
 import { DOMParser } from "../../deno-dom-wasm.ts";
-import { assert } from "assert";
+import { assert } from "@std/assert";
 
 Deno.test("removeAttribute attributes don't show in HTML", () => {
   const doc = new DOMParser().parseFromString(
